@@ -1,0 +1,396 @@
+<!doctype html>
+<html lang="zh-Hant-TW">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="description" content="2027（民國116年）行事曆：國定假日、9個連假、補假一覽，加上請假攻略計算器，算出最划算的特休請法。">
+<title>放假日曆 2027</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@600;900&family=Noto+Sans+TC:wght@400;500;700&family=JetBrains+Mono:wght@500&display=swap">
+<style>
+/* Layout: tear-off-calendar hero → leave planner tool → long-weekend list → 12-month wall grid → FAQ. Single column, max 1080px. */
+:root{
+  --paper:#fbfbf8; --sheet:#ffffff; --ink:#1d1f24; --muted:#6b6f78; --rule:#e3e2dc;
+  --red:#c8102e; --red-soft:#fde8ea; --makeup:#e8833a; --leave:#0f7b6c; --leave-soft:#dff3ef;
+  --ad:#f1f0ea;
+  --f-display:"Noto Serif TC","Songti TC",serif;
+  --f-body:"Noto Sans TC","PingFang TC","Microsoft JhengHei",sans-serif;
+  --f-num:"JetBrains Mono",ui-monospace,monospace;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --paper:#16171b; --sheet:#1f2126; --ink:#ecebe6; --muted:#9a9ea8; --rule:#33353c;
+  --red:#ff5468; --red-soft:#3a1d22; --makeup:#f0a060; --leave:#3fc7b2; --leave-soft:#123631; --ad:#25272d; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --paper:#16171b; --sheet:#1f2126; --ink:#ecebe6; --muted:#9a9ea8; --rule:#33353c;
+  --red:#ff5468; --red-soft:#3a1d22; --makeup:#f0a060; --leave:#3fc7b2; --leave-soft:#123631; --ad:#25272d; color-scheme:dark}
+*{box-sizing:border-box}
+body{background:var(--paper);color:var(--ink);font-family:var(--f-body);font-size:15px;line-height:1.7}
+.wrap{max-width:1080px;margin:0 auto;padding-inline:16px;padding-block:24px 64px;display:grid;gap:48px}
+h1,h2,h3{font-family:var(--f-display);text-wrap:balance;margin:0;line-height:1.3}
+h2{font-size:1.6rem}
+.eyebrow{font-size:.75rem;letter-spacing:.12em;color:var(--muted);font-weight:500}
+.num{font-family:var(--f-num);font-variant-numeric:tabular-nums}
+a{color:var(--red)}
+button:focus-visible,select:focus-visible,a:focus-visible{outline:2px solid var(--leave);outline-offset:2px}
+
+/* top bar */
+.top{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;border-bottom:1px solid var(--rule);padding-bottom:12px}
+.logo{font-family:var(--f-display);font-weight:900;font-size:1.25rem}
+.logo span{color:var(--red)}
+.top nav{display:flex;gap:16px;flex-wrap:wrap;font-size:.9rem}
+.top nav a{color:var(--muted);text-decoration:none}
+.top nav a:hover{color:var(--ink)}
+
+/* hero */
+.hero{display:grid;grid-template-columns:minmax(0,1.3fr) minmax(0,1fr);gap:40px;align-items:center}
+.hero h1{font-size:clamp(2rem,5vw,3.2rem);font-weight:900}
+.hero h1 em{font-style:normal;color:var(--red)}
+.hero p{color:var(--muted);max-width:34em;margin:12px 0 0}
+.stats{display:flex;gap:28px;margin-top:20px;flex-wrap:wrap}
+.stats div{display:grid}
+.stats b{font-family:var(--f-display);font-size:2rem;font-weight:900;line-height:1.1}
+.stats small{color:var(--muted);font-size:.8rem}
+.tear{background:var(--sheet);border:1px solid var(--rule);border-radius:4px;box-shadow:0 10px 30px -18px rgba(0,0,0,.35);overflow:hidden;text-align:center;position:relative}
+.tear::before{content:"";display:block;height:14px;background:repeating-linear-gradient(90deg,var(--rule) 0 2px,transparent 2px 10px);border-bottom:1px dashed var(--rule)}
+.tear-head{background:var(--red);color:#fff;padding:8px;font-weight:700;letter-spacing:.1em;font-size:.85rem}
+.tear-body{padding:16px 20px 22px}
+.tear-day{font-family:var(--f-display);font-weight:900;font-size:6.5rem;line-height:1;color:var(--red)}
+.tear-name{font-family:var(--f-display);font-size:1.4rem;font-weight:600;margin-top:4px}
+.tear-meta{color:var(--muted);font-size:.85rem}
+.count{margin-top:12px;font-size:.95rem}
+.count b{font-family:var(--f-num);font-size:1.4rem;color:var(--red)}
+
+/* ad slots (prototype markers) */
+.ad{background:var(--ad);border:1px dashed var(--muted);border-radius:4px;color:var(--muted);display:grid;place-items:center;text-align:center;font-size:.78rem;padding:12px;min-height:90px}
+
+/* planner */
+.planner{background:var(--sheet);border:1px solid var(--rule);border-radius:6px;padding:24px;display:grid;gap:16px}
+.planner-head{display:flex;justify-content:space-between;align-items:flex-end;gap:16px;flex-wrap:wrap}
+.picker{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.chips{display:flex;gap:6px;flex-wrap:wrap}
+.chip{border:1px solid var(--rule);background:var(--paper);color:var(--ink);border-radius:999px;padding:4px 14px;font:inherit;font-size:.9rem;cursor:pointer}
+.chip[aria-pressed="true"]{background:var(--leave);border-color:var(--leave);color:#fff}
+.results{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:12px}
+.res{border:1px solid var(--rule);border-radius:6px;padding:14px;background:var(--paper);text-align:left;font:inherit;color:inherit;cursor:pointer;display:grid;gap:4px}
+.res:hover{border-color:var(--leave)}
+.res[aria-pressed="true"]{border-color:var(--leave);background:var(--leave-soft)}
+.res .big{font-family:var(--f-display);font-weight:900;font-size:1.5rem}
+.res .big span{color:var(--leave)}
+.res small{color:var(--muted)}
+.tag{display:inline-block;font-size:.72rem;padding:1px 8px;border-radius:999px;background:var(--leave);color:#fff;justify-self:start}
+
+/* long weekends */
+.lw{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:12px}
+.lw-item{display:grid;grid-template-columns:64px minmax(0,1fr);gap:14px;padding:14px 0;border-bottom:1px solid var(--rule)}
+.lw-date{background:var(--red-soft);border-radius:4px;text-align:center;padding:6px 0;align-self:start}
+.lw-date b{display:block;font-family:var(--f-display);font-weight:900;font-size:1.6rem;color:var(--red);line-height:1.1}
+.lw-date small{font-size:.72rem;color:var(--muted)}
+.lw-item h3{font-size:1.05rem}
+.lw-item p{margin:2px 0 0;color:var(--muted);font-size:.88rem}
+.tip{color:var(--leave)!important;font-weight:500}
+.singles{color:var(--muted);font-size:.9rem;margin-top:12px}
+
+/* calendar grid */
+.legend{display:flex;gap:16px;flex-wrap:wrap;font-size:.82rem;color:var(--muted);margin-top:8px}
+.legend i{display:inline-block;width:12px;height:12px;border-radius:2px;vertical-align:-1px;margin-right:4px}
+.months{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:20px;margin-top:16px}
+.month{background:var(--sheet);border:1px solid var(--rule);border-radius:6px;padding:12px}
+.month h3{font-size:1rem;display:flex;justify-content:space-between;align-items:baseline}
+.month h3 small{font-family:var(--f-body);font-weight:400;color:var(--muted);font-size:.75rem}
+.grid7{display:grid;grid-template-columns:repeat(7,1fr);gap:2px;margin-top:8px;text-align:center}
+.dow{font-size:.7rem;color:var(--muted)}
+.d{font-family:var(--f-num);font-size:.8rem;padding:4px 0;border-radius:3px;position:relative}
+.d.we{color:var(--red)}
+.d.hol{background:var(--red);color:#fff}
+.d.mk{background:var(--red-soft);color:var(--red);box-shadow:inset 0 0 0 1px var(--makeup)}
+.d.lv{background:var(--leave);color:#fff}
+.d.today{outline:2px solid var(--ink);outline-offset:-2px}
+.month ul{list-style:none;margin:8px 0 0;padding:0;font-size:.75rem;color:var(--muted)}
+
+/* faq */
+details{border-bottom:1px solid var(--rule);padding:12px 0}
+summary{cursor:pointer;font-weight:700}
+details p{margin:8px 0 0;color:var(--muted);max-width:65ch}
+footer{color:var(--muted);font-size:.8rem;border-top:1px solid var(--rule);padding-top:16px}
+.proto{background:var(--leave-soft);color:var(--ink);border-radius:4px;padding:8px 12px;font-size:.82rem}
+
+@media (max-width:720px){
+  .hero{grid-template-columns:1fr}
+  .tear-day{font-size:5rem}
+  .planner{padding:16px}
+}
+@media (prefers-reduced-motion:no-preference){.res,.chip{transition:background .15s,border-color .15s}}
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <header class="top">
+    <div class="logo">放假<span>日曆</span></div>
+    <nav>
+      <a href="#planner">請假攻略</a><a href="#long">連假一覽</a><a href="#calendar">全年行事曆</a><a href="#faq">常見問題</a>
+    </nav>
+  </header>
+
+  <p class="proto">原型說明：虛線框是預留的廣告／聯盟行銷位置，上線前換成 AdSense 和訂房連結。</p>
+
+  <section class="hero">
+    <div>
+      <div class="eyebrow">民國 116 年 · 人事行政總處辦公日曆表</div>
+      <h1>2027 行事曆<br>全年 <em>121</em> 天假，<em>0</em> 天補班</h1>
+      <p>國定假日、連假、補假一次看清楚。選好你有幾天特休，下面直接幫你排出連休最長的請法。</p>
+      <div class="stats">
+        <div><b class="num">9</b><small>個 3 天以上連假</small></div>
+        <div><b class="num">7</b><small>天春節假期</small></div>
+        <div><b class="num">0</b><small>天補班日</small></div>
+      </div>
+    </div>
+    <div class="tear" aria-live="polite">
+      <div class="tear-head">下一個連假</div>
+      <div class="tear-body">
+        <div class="tear-meta" id="nextMonth"></div>
+        <div class="tear-day num" id="nextDay"></div>
+        <div class="tear-name" id="nextName"></div>
+        <div class="tear-meta" id="nextRange"></div>
+        <div class="count" id="nextCount"></div>
+      </div>
+    </div>
+  </section>
+
+  <div class="ad">廣告版位 728×90（橫幅）</div>
+
+  <section id="planner" class="planner">
+    <div class="planner-head">
+      <div>
+        <div class="eyebrow">請假攻略計算器</div>
+        <h2>有幾天特休，最多能連休幾天？</h2>
+      </div>
+      <div class="picker">
+        <span>我想請</span>
+        <div class="chips" id="chips" role="group" aria-label="請假天數"></div>
+        <span>天</span>
+      </div>
+    </div>
+    <div class="results" id="results"></div>
+    <small style="color:var(--muted)">點選任一方案，下方行事曆會用綠色標出要請假的日子。</small>
+  </section>
+
+  <section id="long">
+    <div class="eyebrow">LONG WEEKENDS</div>
+    <h2>2027 連假一覽</h2>
+    <div class="lw" id="lwList" style="margin-top:12px"></div>
+    <p class="singles">放 1 天、沒有連假的：端午節 6/9（三）、中秋節 9/15（三）、教師節 9/28（二）。</p>
+  </section>
+
+  <div class="ad">聯盟行銷版位：「春節連假熱門住宿」（Agoda / Booking 推薦清單）</div>
+
+  <section id="calendar">
+    <div class="eyebrow">FULL YEAR</div>
+    <h2>2027 全年行事曆</h2>
+    <div class="legend">
+      <span><i style="background:var(--red)"></i>國定假日</span>
+      <span><i style="background:var(--red-soft);box-shadow:inset 0 0 0 1px var(--makeup)"></i>補假</span>
+      <span><i style="background:var(--leave)"></i>建議請假</span>
+      <span style="color:var(--red)">紅字＝週末</span>
+    </div>
+    <div class="months" id="months"></div>
+  </section>
+
+  <div class="ad">廣告版位 300×250（矩形）</div>
+
+  <section id="faq">
+    <div class="eyebrow">FAQ</div>
+    <h2>常見問題</h2>
+    <details><summary>2027 年有補班嗎？</summary><p>沒有。2027 年遇到週末的國定假日都用「補假」處理，例如國慶日 10/10 是週日，就改在 10/11（一）補假，所以全年不用補班。</p></details>
+    <details><summary>2027 春節放幾天？</summary><p>放 7 天，從 2/4（四）小年夜放到 2/10（三）。除夕是 2/5（五），大年初一是 2/6（六），初一、初二碰到週末，所以補假到 2/9 和 2/10。</p></details>
+    <details><summary>2027 總共放幾天假？</summary><p>121 天，包含 104 天週末和 17 天平日的國定假日或補假。</p></details>
+    <details><summary>勞工也照這份行事曆放假嗎？</summary><p>這份是人事行政總處公布的公務機關行事曆。私人企業依《勞動基準法》，國定假日要放，但「補假」日要看公司規定，有些公司會另外調整，請以公司公告為準。</p></details>
+  </section>
+
+  <footer>
+    資料來源：行政院人事行政總處「中華民國 116 年政府行政機關辦公日曆表」。本站僅供參考，實際放假以官方公告為準。
+  </footer>
+</div>
+
+<script>
+(function(){
+  // ---- data ----
+  // type: h = 國定假日, m = 補假
+  const HOL = {
+    "2026-12-25":["行憲紀念日","h"],
+    "2027-01-01":["元旦","h"],
+    "2027-02-04":["小年夜","h"],"2027-02-05":["除夕","h"],"2027-02-06":["春節 初一","h"],
+    "2027-02-07":["春節 初二","h"],"2027-02-08":["春節 初三","h"],"2027-02-09":["春節補假","m"],"2027-02-10":["春節補假","m"],
+    "2027-02-28":["和平紀念日","h"],"2027-03-01":["和平紀念日補假","m"],
+    "2027-04-04":["兒童節","h"],"2027-04-05":["清明節","h"],"2027-04-06":["兒童節補假","m"],
+    "2027-05-01":["勞動節","h"],"2027-04-30":["勞動節補假","m"],
+    "2027-06-09":["端午節","h"],
+    "2027-09-15":["中秋節","h"],
+    "2027-09-28":["教師節","h"],
+    "2027-10-10":["國慶日","h"],"2027-10-11":["國慶日補假","m"],
+    "2027-10-25":["臺灣光復節","h"],
+    "2027-12-25":["行憲紀念日","h"],"2027-12-24":["行憲紀念日補假","m"],
+    "2027-12-31":["元旦補假","m"],"2028-01-01":["元旦","h"]
+  };
+  const BLOCKS = [
+    {name:"行憲紀念日",s:"2026-12-25",e:"2026-12-27"},
+    {name:"元旦",s:"2027-01-01",e:"2027-01-03"},
+    {name:"春節",s:"2027-02-04",e:"2027-02-10",note:"除夕 2/5，初一 2/6"},
+    {name:"228 和平紀念日",s:"2027-02-27",e:"2027-03-01"},
+    {name:"兒童節・清明節",s:"2027-04-03",e:"2027-04-06"},
+    {name:"勞動節",s:"2027-04-30",e:"2027-05-02"},
+    {name:"國慶日",s:"2027-10-09",e:"2027-10-11"},
+    {name:"臺灣光復節",s:"2027-10-23",e:"2027-10-25"},
+    {name:"行憲紀念日",s:"2027-12-24",e:"2027-12-26"},
+    {name:"跨年・元旦",s:"2027-12-31",e:"2028-01-02"}
+  ];
+  const DOW = ["日","一","二","三","四","五","六"];
+
+  // ---- date helpers (local time, string keys) ----
+  const pad = n => String(n).padStart(2,"0");
+  const key = d => `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;
+  const parse = k => { const [y,m,d] = k.split("-").map(Number); return new Date(y,m-1,d); };
+  const addDays = (d,n) => new Date(d.getFullYear(),d.getMonth(),d.getDate()+n);
+  const md = d => `${d.getMonth()+1}/${d.getDate()}（${DOW[d.getDay()]}）`;
+  const isOff = d => d.getDay()===0 || d.getDay()===6 || !!HOL[key(d)];
+
+  // day list: 2027 plus a margin so windows can cross year boundaries
+  const DAYS = [];
+  for(let d=new Date(2026,11,20); d<=new Date(2028,0,10); d=addDays(d,1)) DAYS.push({d, k:key(d), off:isOff(d)});
+  const idx = k => DAYS.findIndex(x=>x.k===k);
+  const in2027 = i => DAYS[i].d.getFullYear()===2027;
+
+  // ---- leave optimizer ----
+  // Candidate = maximal stretch [i,j] where i and j are off-days, neighbours outside are workdays,
+  // and the workdays inside (= leave needed) <= n.
+  function candidates(n){
+    const out = [];
+    for(let i=1;i<DAYS.length-1;i++){
+      if(!DAYS[i].off || DAYS[i-1].off) continue;
+      let leave=0;
+      for(let j=i;j<DAYS.length-1;j++){
+        if(!DAYS[j].off) leave++;
+        if(leave>n) break;
+        if(DAYS[j].off && !DAYS[j+1].off && leave>0){
+          if(in2027(i)) out.push({i,j,len:j-i+1,leave});
+        }
+      }
+    }
+    return out;
+  }
+  function plan(n){
+    const c = candidates(n).sort((a,b)=> b.len-a.len || a.leave-b.leave || a.i-b.i);
+    const picked=[];
+    for(const x of c){
+      if(picked.some(p=>!(x.j<p.i||x.i>p.j))) continue;
+      picked.push(x);
+      if(picked.length===6) break;
+    }
+    return picked;
+  }
+  // best small extension (1–3 leave days) for a holiday block
+  function extend(b){
+    const s=idx(b.s), e=idx(b.e), base=e-s+1;
+    let best=null;
+    for(let n=1;n<=4;n++){
+      const c=candidates(n).filter(x=>x.i<=s&&x.j>=e&&x.leave===n);
+      if(!c.length) continue;
+      const top=c.sort((a,b)=>b.len-a.len)[0];
+      const gainPer=(top.len-base)/n;
+      if(!best || gainPer>best.gainPer+0.01) best={...top,gainPer};
+    }
+    return best && best.gainPer>=1.5 ? best : null;
+  }
+  const leaveDays = x => DAYS.slice(x.i,x.j+1).filter(y=>!y.off).map(y=>y.d);
+
+  // ---- render: next holiday ----
+  const today = new Date(); today.setHours(0,0,0,0);
+  const next = BLOCKS.find(b=>parse(b.e)>=today) || BLOCKS[BLOCKS.length-1];
+  const ns=parse(next.s), ne=parse(next.e);
+  document.getElementById("nextMonth").textContent = `${ns.getFullYear()} 年 ${ns.getMonth()+1} 月 · 星期${DOW[ns.getDay()]}`;
+  document.getElementById("nextDay").textContent = ns.getDate();
+  document.getElementById("nextName").textContent = next.name;
+  const nlen = Math.round((ne-ns)/864e5)+1;
+  document.getElementById("nextRange").textContent = `${md(ns)} – ${md(ne)} · 連休 ${nlen} 天`;
+  const diff = Math.round((ns-today)/864e5);
+  document.getElementById("nextCount").innerHTML = diff>0 ? `還有 <b>${diff}</b> 天` : `<b>放假中</b>`;
+
+  // ---- render: long weekends ----
+  const lw = document.getElementById("lwList");
+  BLOCKS.filter(b=>b.s.startsWith("2027")).forEach(b=>{
+    const s=parse(b.s), e=parse(b.e), len=Math.round((e-s)/864e5)+1;
+    const ex=extend(b);
+    const tip = ex ? `請 ${ex.leave} 天（${leaveDays(ex).map(d=>`${d.getMonth()+1}/${d.getDate()}`).join("、")}）→ 連休 ${ex.len} 天` : "";
+    lw.insertAdjacentHTML("beforeend",`
+      <div class="lw-item">
+        <div class="lw-date"><b class="num">${len}</b><small>天</small></div>
+        <div>
+          <h3>${b.name}</h3>
+          <p>${md(s)} – ${md(e)}${b.note?`・${b.note}`:""}</p>
+          ${tip?`<p class="tip">${tip}</p>`:""}
+        </div>
+      </div>`);
+  });
+
+  // ---- render: calendar ----
+  let highlight = new Set();
+  function renderMonths(){
+    const box=document.getElementById("months"); box.innerHTML="";
+    for(let m=0;m<12;m++){
+      const first=new Date(2027,m,1), dim=new Date(2027,m+1,0).getDate();
+      let cells = DOW.map(x=>`<div class="dow">${x}</div>`).join("");
+      for(let i=0;i<first.getDay();i++) cells+=`<div></div>`;
+      const names=[];
+      for(let d=1;d<=dim;d++){
+        const dt=new Date(2027,m,d), k=key(dt), h=HOL[k];
+        let cls="d";
+        if(highlight.has(k)) cls+=" lv";
+        else if(h) cls+= h[1]==="h"?" hol":" mk";
+        else if(dt.getDay()===0||dt.getDay()===6) cls+=" we";
+        if(k===key(today)) cls+=" today";
+        if(h) names.push(`${m+1}/${d} ${h[0]}`);
+        cells+=`<div class="${cls}" title="${h?h[0]:""}">${d}</div>`;
+      }
+      const off=Array.from({length:dim},(_,i)=>isOff(new Date(2027,m,i+1))).filter(Boolean).length;
+      box.insertAdjacentHTML("beforeend",`
+        <div class="month">
+          <h3>${m+1} 月<small>放假 ${off} 天</small></h3>
+          <div class="grid7">${cells}</div>
+          ${names.length?`<ul>${names.map(n=>`<li>${n}</li>`).join("")}</ul>`:""}
+        </div>`);
+    }
+  }
+
+  // ---- render: planner ----
+  const chips=document.getElementById("chips"), results=document.getElementById("results");
+  let N = 3;
+  try{ const s=+localStorage.getItem("leaveN"); if(s>=1&&s<=8) N=s; }catch(e){}
+  function renderPlanner(){
+    chips.innerHTML = [1,2,3,4,5,6,8].map(n=>`<button class="chip" aria-pressed="${n===N}" data-n="${n}">${n}</button>`).join("");
+    const p = plan(N);
+    results.innerHTML = p.map((x,ix)=>{
+      const s=DAYS[x.i].d, e=DAYS[x.j].d, lv=leaveDays(x);
+      return `<button class="res" data-ix="${ix}" aria-pressed="false">
+        ${ix===0?'<span class="tag">最划算</span>':""}
+        <div class="big">請 <span>${x.leave}</span> 休 ${x.len}</div>
+        <div>${md(s)} – ${md(e)}</div>
+        <small>請假日：${lv.map(d=>`${d.getMonth()+1}/${d.getDate()}`).join("、")}</small>
+      </button>`;
+    }).join("");
+    results.querySelectorAll(".res").forEach(btn=>btn.addEventListener("click",()=>{
+      const on = btn.getAttribute("aria-pressed")!=="true";
+      results.querySelectorAll(".res").forEach(b=>b.setAttribute("aria-pressed","false"));
+      btn.setAttribute("aria-pressed",String(on));
+      highlight = on ? new Set(leaveDays(p[+btn.dataset.ix]).map(key)) : new Set();
+      renderMonths();
+    }));
+    chips.querySelectorAll(".chip").forEach(c=>c.addEventListener("click",()=>{
+      N=+c.dataset.n; try{localStorage.setItem("leaveN",N)}catch(e){}
+      highlight=new Set(); renderPlanner(); renderMonths();
+    }));
+  }
+  renderPlanner(); renderMonths();
+})();
+</script>
+</body>
+</html>
