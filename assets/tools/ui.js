@@ -323,6 +323,7 @@
         const x = C.pension({...base, selfPct:p}), m = x.rows.length ? x.rows[0].cSelf : 0;
         return `<tr><td>${p}%${p === self ? "（目前）" : ""}</td><td class="num">${money(m)}</td><td class="num">${money(m*12)}</td><td class="num">${money(m*12*.05)}～${money(m*12*.12)}</td><td class="num">${p ? "+" + money(x.total - x.noSelf) : "—"}</td><td class="num">${mon(x, "一次領")}</td></tr>`;
       }).join("");
+      const opened = [...out.querySelectorAll("details")].map(d => d.open);
       out.innerHTML = `
         <div>${r.claim} 歲時，勞退專戶預估累積</div>
         <div class="big">${money(r.total)} <small>元（約 ${wan(r.total)} 萬）</small></div>
@@ -345,6 +346,7 @@
         <details><summary>自提划不划算？比較 0%、1%、3%、6%</summary>
           <div class="tbl"><table><thead><tr><th>自提</th><th>每月少領</th><th>今年投入</th><th>今年節稅（稅率 5%～12%）</th><th>退休時增加</th><th>月退休金</th></tr></thead><tbody>${selfRows}</tbody></table></div>
           <div class="note">自提金額可以從當年度薪資所得中減除，實際節稅效果取決於你的所得和適用稅率；免稅或稅率 5% 的人省得比較少。自提的錢要到 60 歲才能領。</div></details>` : ""}`;
+      out.querySelectorAll("details").forEach((d, i) => { if(opened[i]) d.open = true; });
     }
     const s = load("penForm"); if(s){ ids.forEach((k,i) => { if(s[i] != null && s[i] !== "") f[k].value = s[i]; }); }
     const reset = $("#penReset");
