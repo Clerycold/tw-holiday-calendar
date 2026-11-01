@@ -78,7 +78,7 @@ const head = (title, desc, path, ld) => `<!doctype html>
 <meta property="og:url" content="${SITE}${path}">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@600;900&family=Noto+Sans+TC:wght@400;500;700&family=JetBrains+Mono:wght@500&display=swap">
-<link rel="stylesheet" href="/assets/site.css">
+<link rel="stylesheet" href="/assets/site.css?v=2">
 <link rel="stylesheet" href="/assets/concert.css">
 <script type="application/ld+json">
 ${JSON.stringify(ld, null, 1)}
