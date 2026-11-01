@@ -191,7 +191,7 @@ const STEPS = `<p>演唱會熱門場次一公布，周邊飯店往往很快就�
       <div class="step"><div class="when">4. 演唱會當天</div><h3>輕裝出門</h3><p>如果飯店提供入住前行李寄放服務，可以先寄放行李，再輕鬆前往演唱會現場。</p></div>
     </div>`;
 
-const foot = `<footer>場館資料查證日期：${TODAY_ZH}。交通與容納人數依場館及主辦單位公告為準；步行時間為一般速度估算，散場人潮時會更久。住宿房價等級為一般情況參考，演唱會期間可能大幅上漲。</footer>
+const foot = `<footer><a href="/about/">關於我們</a> · <a href="/privacy/">隱私權政策</a> · <a href="/disclosure/">聯盟連結揭露</a><br>場館資料查證日期：${TODAY_ZH}。交通與容納人數依場館及主辦單位公告為準；步行時間為一般速度估算，散場人潮時會更久。住宿房價等級為一般情況參考，演唱會期間可能大幅上漲。</footer>
 <script src="/assets/concert.js"></script>
 </body>
 </html>
