@@ -290,34 +290,65 @@
     const f = pen.elements, out = $("#penOut");
     const ids = ["age","claimAge","salary","balance","years","selfPct","erPct","growth","ret"];
     const dec = el => +String(el.value).replace(/,/g,"") || 0;
+    const wan = v => (Math.round(v/1000)/10).toLocaleString("zh-TW");
+    // 累積曲線（SVG）：每條線是一種報酬率
+    function chart(series, age){
+      const W = 320, H = 150, L = 36, B = 20, all = series.flatMap(s => s.pts.map(p => p[1]));
+      const max = Math.max(1, ...all), x0 = age, x1 = series[0].pts[series[0].pts.length-1][0];
+      const X = a => L + (W - L - 8) * (x1 === x0 ? 1 : (a - x0)/(x1 - x0)), Y = v => 8 + (H - B - 8) * (1 - v/max);
+      const lines = series.map(s => `<polyline fill="none" stroke="${s.color}" stroke-width="${s.bold ? 2.5 : 1.5}" ${s.bold ? "" : 'stroke-dasharray="4 3"'} points="${s.pts.map(p => `${X(p[0]).toFixed(1)},${Y(p[1]).toFixed(1)}`).join(" ")}"/>`).join("");
+      const ticks = [0, .5, 1].map(t => `<text x="${L-4}" y="${Y(max*t)+4}" text-anchor="end">${wan(max*t)}萬</text>`).join("");
+      return `<svg viewBox="0 0 ${W} ${H}" width="100%" role="img" aria-label="不同報酬率的專戶累積曲線" style="max-width:520px;font-size:10px;fill:var(--muted)">
+        <line x1="${L}" y1="${H-B}" x2="${W-8}" y2="${H-B}" stroke="var(--rule)"/>${ticks}
+        <text x="${L}" y="${H-4}">${x0} 歲</text><text x="${W-8}" y="${H-4}" text-anchor="end">${x1} 歲</text>${lines}</svg>
+        <div class="note">${series.map(s => `<span style="color:${s.color}">━</span> ${s.label}`).join("　")}</div>`;
+    }
     function run(){
       save("penForm", ids.map(k => f[k].value));
       const age = num(f.age), salary = num(f.salary);
       if(!age || !salary){ out.innerHTML = `<div class="note">輸入目前年齡和月薪，就會算出退休時勞退專戶大約有多少錢。</div>`; return; }
       const claim = +f.claimAge.value;
-      const r = C.pension({age, claimAge:claim, salary, balance:num(f.balance), years:num(f.years), selfPct:num(f.selfPct),
-        erPct:num(f.erPct), growth:dec(f.growth), ret:dec(f.ret)});
-      const self = num(f.selfPct), wan = v => (Math.round(v/1000)/10).toLocaleString("zh-TW");
-      const yearSelf = r.rows.length ? r.rows[0].cSelf*12 : 0;
+      const base = {age, claimAge:claim, salary, balance:num(f.balance), years:num(f.years), selfPct:num(f.selfPct), erPct:num(f.erPct), growth:dec(f.growth), ret:dec(f.ret)};
+      const r = C.pension(base);
+      const self = num(f.selfPct), bal0 = num(f.balance);
+      const mon = (x, txt) => x.canMonthly ? money(x.monthly) : txt;
+      // 不同報酬率
+      const rets = [1, 3, 5]; if(!rets.includes(base.ret)) rets.push(base.ret); rets.sort((a,b) => a-b);
+      const byRet = rets.map(v => ({v, x: C.pension({...base, ret:v})}));
+      const colors = {1:"var(--muted)", 3:"var(--leave)", 5:"var(--makeup)"};
+      const series = byRet.filter(o => [1,3,5].includes(o.v)).map(o => ({label:`報酬率 ${o.v}%`, color:colors[o.v], bold:o.v === base.ret,
+        pts:[[age, bal0], ...o.x.rows.map(row => [row.age+1, row.bal])]}));
+      // 不同自提比例
+      const selfRows = [0, 1, 3, 6].map(p => {
+        const x = C.pension({...base, selfPct:p}), m = x.rows.length ? x.rows[0].cSelf : 0;
+        return `<tr><td>${p}%${p === self ? "（目前）" : ""}</td><td class="num">${money(m)}</td><td class="num">${money(m*12)}</td><td class="num">${money(m*12*.05)}～${money(m*12*.12)}</td><td class="num">${p ? "+" + money(x.total - x.noSelf) : "—"}</td><td class="num">${mon(x, "一次領")}</td></tr>`;
+      }).join("");
       out.innerHTML = `
         <div>${r.claim} 歲時，勞退專戶預估累積</div>
         <div class="big">${money(r.total)} <small>元（約 ${wan(r.total)} 萬）</small></div>
         <dl class="kv">
-          <dt>目前月提繳工資</dt><dd>${money(r.firstGrade)}</dd>
-          ${r.years ? `<dt>再提繳 ${r.years} 年：雇主提繳</dt><dd>${money(r.er)}</dd>` : ""}
-          ${r.self ? `<dt>自提</dt><dd>${money(r.self)}</dd>` : ""}
-          ${num(f.balance) ? `<dt>目前已累積</dt><dd>${money(num(f.balance))}</dd>` : ""}
-          ${r.years ? `<dt>投資收益</dt><dd>${money(r.gain)}</dd>` : ""}
-          <dt class="sum">${r.canMonthly ? `月退休金（領到 ${r.endAge} 歲）` : "請領方式"}</dt><dd class="sum">${r.canMonthly ? `每月約 ${money(r.monthly)}` : "只能一次領"}</dd>
+          ${bal0 ? `<dt>目前已累積</dt><dd>${money(bal0)}</dd>` : ""}
+          ${r.years ? `<dt>雇主提繳本金（${r.years} 年）</dt><dd>${money(r.er)}</dd>` : ""}
+          ${r.self ? `<dt>個人自提本金</dt><dd>${money(r.self)}</dd>` : ""}
+          ${r.years ? `<dt>預估投資收益</dt><dd>${money(r.gain)}</dd>` : ""}
+          <dt class="sum">${r.canMonthly ? "預估月退休金" : "請領方式"}</dt><dd class="sum">${r.canMonthly ? `每月約 ${money(r.monthly)}` : "只能一次領"}</dd>
         </dl>
-        ${r.canMonthly ? `<div class="note">月退休金依勞保局公式：專戶金額 ÷ 期初年金現值因子（${r.claim} 歲平均餘命 ${r.T} 年、利率 1.1473%）÷ 12，每季發一次。<b>只領到平均餘命為止</b>，活得比 ${r.endAge} 歲久，專戶就領完了；也可以選擇一次領 ${money(r.total)} 元。</div>`
+        ${r.canMonthly ? `<div class="note">依 ${r.claim} 歲平均餘命估算，預計給付期間約 <b>${r.T} 年</b>，並非保證領到 ${r.endAge} 歲；給付期間合計約 ${money(r.monthly*12*r.T)} 元（含期間收益）。月退休金每季發給，專戶領完即停止，利率調整時會重新計算；過世時專戶剩餘金額由遺屬或指定請領人領回。也可以選擇一次領 ${money(r.total)} 元。</div>`
           : `<div class="warn">請領時提繳年資約 ${r.contribYears} 年，未滿 15 年，只能一次領取。</div>`}
-        ${self ? `<div class="note">自提 ${self}% 讓退休時多累積 <b>${money(r.selfGain)} 元</b>${r.canMonthly ? `，月退休金從 ${money(r.monthlyNoSelf)} 元變成 ${money(r.monthly)} 元` : ""}。今年自提約 ${money(yearSelf)} 元可以從薪資所得中減除，稅率 5% 約少繳 ${money(yearSelf*.05)} 元、12% 約少繳 ${money(yearSelf*.12)} 元。</div>`
-          : !r.years ? "" : `<div class="note">自提 6% 的話，每個月存進專戶的錢會變成兩倍，而且自提的錢可以從當年度薪資所得中減除。上方選擇自提比例就能比較。</div>`}
         ${age >= claim ? `<div class="note">你已經達到請領年齡，上方金額就是目前的專戶累積。</div>` : ""}
-        <div class="note">試算假設薪資每年成長 ${dec(f.growth)}%、投資報酬率每年 ${dec(f.ret)}%，實際收益每年不同，結果僅供參考。</div>`;
+        <div class="note">月提繳工資 ${money(r.firstGrade)} 元：依月薪對照勞退月提繳分級表，可能和實際月薪不同。報酬率 ${dec(f.ret)}% 是模擬用的年化報酬率，<b>不是勞退基金保證報酬</b>，也不代表未來實際收益。</div>
+        ${r.years ? `<details><summary>比較不同報酬率</summary>
+          ${chart(series, age)}
+          <div class="tbl"><table><thead><tr><th>年化報酬率</th><th>${r.claim} 歲累積</th><th>月退休金</th></tr></thead><tbody>
+          ${byRet.map(o => `<tr><td>${o.v}%${o.v === base.ret ? "（目前）" : ""}</td><td class="num">${wan(o.x.total)} 萬</td><td class="num">${mon(o.x, "只能一次領")}</td></tr>`).join("")}
+          </tbody></table></div></details>
+        <details><summary>自提划不划算？比較 0%、1%、3%、6%</summary>
+          <div class="tbl"><table><thead><tr><th>自提</th><th>每月少領</th><th>今年投入</th><th>今年節稅（稅率 5%～12%）</th><th>退休時增加</th><th>月退休金</th></tr></thead><tbody>${selfRows}</tbody></table></div>
+          <div class="note">自提金額可以從當年度薪資所得中減除，實際節稅效果取決於你的所得和適用稅率；免稅或稅率 5% 的人省得比較少。自提的錢要到 60 歲才能領。</div></details>` : ""}`;
     }
     const s = load("penForm"); if(s){ ids.forEach((k,i) => { if(s[i] != null && s[i] !== "") f[k].value = s[i]; }); }
+    const reset = $("#penReset");
+    if(reset) reset.addEventListener("click", () => { pen.reset(); try{ localStorage.removeItem("penForm"); }catch(e){} run(); });
     pen.addEventListener("input", run); pen.addEventListener("change", run); pen.addEventListener("submit", e => { e.preventDefault(); run(); });
     run();
   }

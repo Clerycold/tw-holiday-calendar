@@ -66,7 +66,7 @@ ${path === "/tools/" ? "" : related(path)}
 
 <footer><a href="/about/">關於我們</a> · <a href="/privacy/">隱私權政策</a> · <a href="/disclosure/">聯盟連結揭露</a><br>本站試算結果僅供參考，實際金額以主管機關規定、公司制度及官方系統計算為準。</footer>
 ${scripts ? `<script src="/assets/tools/calc.js?v=6"></script>
-<script src="/assets/tools/ui.js?v=7"></script>` : ""}
+<script src="/assets/tools/ui.js?v=8"></script>` : ""}
 </body>
 </html>
 `;
@@ -881,12 +881,12 @@ const penRows = [[25, 35000], [30, 40000], [35, 50000], [40, 60000], [45, 50000]
 }).join("\n");
 const lifeRows = [60, 61, 62, 63, 64, 65, 66, 67, 68, 69, 70].map(a => {
   const T = INS.penLife(a), fct = INS.annuityFactor(T, INS.PEN.rate);
-  return `        <tr><td>${a} 歲</td><td class="num">${T} 年</td><td class="num">${a + T} 歲</td><td class="num">${Math.round(1e6 / fct / 12).toLocaleString()}</td></tr>`;
+  return `        <tr><td>${a} 歲</td><td class="num">約 ${T} 年</td><td class="num">${fct.toFixed(9)}</td><td class="num">${Math.round(1e6 / fct / 12).toLocaleString()}</td></tr>`;
 }).join("\n");
 const g40 = INS.laborIns({ salary: 40000 }).pen.grade, self40 = Math.round(g40 * 0.06) * 12;
 const penFaq = [
-  ["勞退幾歲可以領？", "年滿 60 歲就可以請領。提繳年資滿 15 年，可以選月退休金或一次領；未滿 15 年只能一次領。也可以延後請領，專戶會繼續累積收益。"],
-  ["勞退月退休金可以領多久？", "勞退月退休金只領到平均餘命為止，不是終身俸。例如 60 歲請領，平均餘命 23 年，大約領到 83 歲；65 歲請領，平均餘命 19 年，大約領到 84 歲。如果提早過世，專戶剩下的錢由遺屬或指定請領人領回。"],
+  ["勞退幾歲可以領？", "年滿 60 歲才可以請領。年滿 60 歲且提繳年資滿 15 年，可以選月退休金或一次領；未滿 15 年只能一次領。也可以延後請領，專戶會繼續累積收益。"],
+  ["勞退月退休金可以領多久？", "勞退月退休金不是終身俸，是用專戶金額依平均餘命分期發給，專戶領完就停止。例如 60 歲請領，依平均餘命估算給付期間約 23 年；65 歲請領約 19 年。這只是估算，並非保證領到幾歲，利率調整時月退金額也會重新計算。如果提早過世，專戶剩下的錢由遺屬或指定請領人領回。"],
   ["勞退自提划算嗎？", "自提的錢可以從當年度薪資所得中全額減除，稅率越高省越多；專戶收益也有最低保證，不低於當地銀行 2 年期定存利率。缺點是錢要到 60 歲才能領，短期需要用錢的人要考慮。"],
   ["公司可以拒絕我自提嗎？", "2026 年 8 月 1 日起，勞工申請自提或停止自提，雇主不得拒絕；雇主不配合時，勞工可以直接向勞保局申請。"],
   ["勞退和勞保老年年金一樣嗎？", "不一樣。勞退是雇主每月提繳到你個人專戶的錢，領完就沒有；勞保老年年金是勞保給付，可以領到終身。退休後兩筆可以同時領。"],
@@ -899,7 +899,7 @@ const pensionPage = page({
   desc: "2026 勞退新制退休金試算：輸入年齡、月薪與自提比例，估算 60～70 歲請領時個人專戶累積金額與月退休金，依勞保局公告的平均餘命與年金現值公式計算，附 Excel 範本。",
   faq: penFaq, app: "勞退退休金試算",
   body: `
-  <div class="answer">雇主每月提繳月薪的 <b>6%</b> 到你的勞退個人專戶，60 歲起可以請領。30 歲、月薪 4 萬、每年調薪 1.44%、報酬率 3%，65 歲時約累積 <b>${wan(penEx.total)} 萬元</b>，月領約 <b>${penEx.monthly.toLocaleString()} 元</b>；如果自提 6%，約 ${wan(penEx6.total)} 萬元、月領 ${penEx6.monthly.toLocaleString()} 元。</div>
+  <div class="answer">雇主每月提繳月薪的 <b>6%</b> 到你的勞退個人專戶，60 歲起可以請領。30 歲、月薪 4 萬、每年調薪 1.44%、報酬率 3%，65 歲時約累積 <b>${wan(penEx.total)} 萬元</b>，月領約 <b>${penEx.monthly.toLocaleString()} 元</b>；如果自提 6%，約 ${wan(penEx6.total)} 萬元、月領 ${penEx6.monthly.toLocaleString()} 元。3% 是模擬用的年化報酬率，不是勞退基金保證報酬。</div>
 
   <section>
     <h2>勞退退休金試算</h2>
@@ -913,6 +913,10 @@ const pensionPage = page({
           ${field("balance", "專戶目前累積金額（選填）")}
           ${field("years", "已提繳年資（選填，年）")}
         </div>
+        <details><summary>勞退是用「月提繳工資」計算，不是實際月薪</summary>
+          <p class="note">月薪會對照勞工退休金月提繳分級表，取大於或等於月薪的那一級，所以可能和實際月薪不同。例如月薪 40,000 元，月提繳工資是 40,100 元；月薪超過 147,900 元，以最高 150,000 元計。115 年 1 月 1 日起適用的級距：</p>
+          <p class="note">${INS.INS115.pension.map(v => v.toLocaleString()).join("、")}</p>
+        </details>
       </fieldset>
       <fieldset>
         <legend>提繳與假設</legend>
@@ -923,9 +927,10 @@ const pensionPage = page({
           <label class="field">投資報酬率（%／年）<input name="ret" inputmode="decimal" value="3"></label>
         </div>
       </fieldset>
+      <div><button type="button" class="copy" id="penReset" style="padding:6px 14px">重設</button></div>
       <div class="result" id="penOut" aria-live="polite"></div>
     </form>
-    <p class="note" style="margin-top:8px">薪資成長率預設 1.44% 是勞動部試算表提供的經常性薪資年化成長率；報酬率預設 3% 是保守估計，可以自行調整。月提繳工資依 115 年勞工退休金月提繳分級表，最高 150,000 元。計算都在你的瀏覽器裡完成。</p>
+    <p class="note" style="margin-top:8px">薪資成長率預設 1.44% 是勞動部試算表提供的經常性薪資年化成長率；報酬率預設 3% 是模擬用的年化報酬率，不是勞退基金保證報酬，也不代表未來實際收益，可以自行調整。月提繳工資依 115 年勞工退休金月提繳分級表，最高 150,000 元。計算都在你的瀏覽器裡完成。</p>
   </section>
 
   <div class="ad">廣告版位 336×280</div>
@@ -949,12 +954,12 @@ ${penRows}
     <p><b>利率</b>：1.1473%，是勞退新制基金 110～112 年平均保證收益率。</p>
     <p>勞保局範例：60 歲請領、專戶 200 萬元，因子 20.239737682，月退休金 2,000,000 ÷ 20.239737682 ÷ 12 ≈ <b>8,235 元</b>。本工具用同一公式計算。</p>
     <div class="tbl"><table>
-      <thead><tr><th>請領年齡</th><th>平均餘命</th><th>約領到</th><th>專戶每 100 萬月領</th></tr></thead>
+      <thead><tr><th>請領年齡</th><th>平均餘命（預計給付期間）</th><th>期初年金現值因子</th><th>專戶每 100 萬月領</th></tr></thead>
       <tbody>
 ${lifeRows}
       </tbody>
     </table></div>
-    <p class="note" style="margin-top:8px">113 年 4 月 1 日起適用，勞保局至少每 3 年檢討一次。月退休金每季發給一次。</p>
+    <p class="note" style="margin-top:8px">平均餘命和利率自 113 年 4 月 1 日起適用，勞保局至少每 3 年檢討一次。平均餘命只是用來估算給付期間，<b>並非保證可以領到幾歲</b>；月退休金每季發給，專戶領完即停止，利率調整時會依專戶剩餘金額重新計算。</p>
   </section>
 
   <section>
@@ -962,21 +967,47 @@ ${lifeRows}
     <div class="tbl"><table>
       <thead><tr><th></th><th>月退休金</th><th>一次退休金</th></tr></thead>
       <tbody>
-        <tr><td>資格</td><td>提繳年資滿 15 年</td><td>年資不限</td></tr>
-        <tr><td>領多久</td><td>領到平均餘命為止，不是終身</td><td>一次領完</td></tr>
-        <tr><td>剩下的錢</td><td>留在專戶繼續有收益，過世後由遺屬領回</td><td>自己管理</td></tr>
+        <tr><td>資格</td><td>年滿 60 歲，且提繳年資滿 15 年</td><td>年滿 60 歲，年資不限</td></tr>
+        <tr><td>領多久</td><td>依平均餘命估算給付期間，專戶領完即停止，不是終身</td><td>一次領完</td></tr>
+        <tr><td>總共領多少</td><td>專戶金額加上給付期間的收益</td><td>請領當時的專戶金額</td></tr>
+        <tr><td>剩下的錢</td><td>留在專戶繼續有收益，過世後由遺屬或指定請領人領回</td><td>自己管理</td></tr>
+        <tr><td>風險</td><td>活得比估算期間久，專戶會領完</td><td>花太快、投資虧損或被借走，就沒有後續收入</td></tr>
         <tr><td>適合</td><td>怕一次花掉、想要固定現金流的人</td><td>有明確用途或自己會理財的人</td></tr>
       </tbody>
     </table></div>
-    <p style="margin-top:12px">2026 年 8 月 1 日起，選擇月退休金後有 <b>30 天猶豫期</b>，期間內可以改成一次領。</p>
+    <p style="margin-top:12px"><b>選錯可以改一次</b>：2026 年 2 月 27 日起，選擇月退休金的人，在月退休金<b>首次撥付入帳之日起 30 日內</b>，可以申請改為一次退休金，以一次為限（勞工退休金條例施行細則第 33 條之 1）。勞保局會把專戶金額扣掉已撥付的部分，一次補發差額。</p>
+    <p>越晚請領，平均餘命越短，每月領得越多，而且延後期間專戶還會繼續累積收益；但如果需要早點用錢，60 歲就可以開始領。上方工具可以切換請領年齡比較。</p>
   </section>
 
   <section>
     <h2>勞退自提划算嗎？</h2>
-    <p><b>節稅</b>：自提的錢可以從當年度薪資所得中全額減除。月薪 4 萬（月提繳工資 ${g40.toLocaleString()} 元）自提 6%，一年 ${self40.toLocaleString()} 元不用計稅，稅率 12% 的人大約少繳 ${Math.round(self40 * 0.12).toLocaleString()} 元。</p>
+    <p><b>節稅</b>：自提的錢可以從當年度薪資所得中全額減除。月薪 4 萬（月提繳工資 ${g40.toLocaleString()} 元）自提 6%，一年 ${self40.toLocaleString()} 元可以從薪資所得中減除；如果適用稅率 12%，大約少繳 ${Math.round(self40 * 0.12).toLocaleString()} 元。實際節稅效果取決於你的所得和適用稅率，免稅或稅率 5% 的人省得比較少。</p>
     <p><b>保證收益</b>：專戶收益不低於當地銀行 2 年期定存利率，不足的部分由國庫補足。</p>
     <p><b>缺點</b>：自提的錢要到 60 歲才能領，中途不能提出來。</p>
     <p><b>2026 年 8 月 1 日起，勞工申請自提或停止自提，雇主不得拒絕</b>；雇主不配合時可以直接向勞保局申請。每月自提會從薪水扣，可以用<a href="/tools/take-home-pay/">薪資實領計算</a>看實際入帳的變化。</p>
+  </section>
+
+  <section>
+    <h2>計算依據與資料來源</h2>
+    <div class="tbl"><table>
+      <thead><tr><th>項目</th><th>依據</th></tr></thead>
+      <tbody>
+        <tr><td>雇主提繳 6%、自提 0～6%、請領資格</td><td><a href="https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=N0030020" rel="noopener">勞工退休金條例</a></td></tr>
+        <tr><td>月提繳工資級距</td><td>勞保局勞工退休金月提繳分級表（115 年 1 月 1 日起適用）</td></tr>
+        <tr><td>月退休金公式、利率 1.1473%</td><td><a href="https://www.bli.gov.tw/0018437.html" rel="noopener">勞保局「月退休金計算基礎」</a>（113 年 4 月 1 日起適用）</td></tr>
+        <tr><td>平均餘命</td><td>內政部 111 年全國簡易生命表，經勞保局四捨五入到整數年</td></tr>
+        <tr><td>最低保證收益</td><td>勞工退休金條例第 23 條：不低於當地銀行 2 年期定存利率</td></tr>
+        <tr><td>月退改一次領（30 天）</td><td>勞工退休金條例施行細則第 33 條之 1</td></tr>
+      </tbody>
+    </table></div>
+    <h3 style="margin-top:16px">更新紀錄</h3>
+    <div class="tbl"><table>
+      <thead><tr><th>更新日期</th><th>內容</th><th>適用</th></tr></thead>
+      <tbody>
+        <tr><td>2026/11/01</td><td>上線：115 年月提繳級距、勞保局 113 年 4 月起的平均餘命與利率；納入 2026/2/27 月退改一次領、2026/8/1 雇主不得拒絕自提</td><td>2026 年</td></tr>
+      </tbody>
+    </table></div>
+    <p class="note" style="margin-top:8px">勞保局公告新的平均餘命或利率、或月提繳級距調整時，我們會更新公式並在這裡記錄。</p>
   </section>
 
   <section>
