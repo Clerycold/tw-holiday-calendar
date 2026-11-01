@@ -34,3 +34,8 @@
 .dl a{background:var(--leave);color:#fff;text-decoration:none;font-weight:700;border-radius:6px;padding:9px 14px;white-space:nowrap}
 .dl a:hover{filter:brightness(1.1)}
 .dl span{font-size:.88rem;color:var(--ink);flex:1;min-width:180px}
+/* 手機：避免 fieldset 與結果區的表格把版面撐寬 */
+.tool{grid-template-columns:minmax(0,1fr)}
+.tool fieldset{min-width:0}
+.result{grid-template-columns:minmax(0,1fr)}
+.result>*{min-width:0}
