@@ -293,7 +293,7 @@
     const wan = v => (Math.round(v/1000)/10).toLocaleString("zh-TW");
     // 累積曲線（SVG）：每條線是一種報酬率
     function chart(series, age){
-      const W = 320, H = 150, L = 36, B = 20, all = series.flatMap(s => s.pts.map(p => p[1]));
+      const W = 320, H = 150, L = 50, B = 20, all = series.flatMap(s => s.pts.map(p => p[1]));
       const max = Math.max(1, ...all), x0 = age, x1 = series[0].pts[series[0].pts.length-1][0];
       const X = a => L + (W - L - 8) * (x1 === x0 ? 1 : (a - x0)/(x1 - x0)), Y = v => 8 + (H - B - 8) * (1 - v/max);
       const lines = series.map(s => `<polyline fill="none" stroke="${s.color}" stroke-width="${s.bold ? 2.5 : 1.5}" ${s.bold ? "" : 'stroke-dasharray="4 3"'} points="${s.pts.map(p => `${X(p[0]).toFixed(1)},${Y(p[1]).toFixed(1)}`).join(" ")}"/>`).join("");
