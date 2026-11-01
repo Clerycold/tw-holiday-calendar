@@ -88,14 +88,14 @@ def income_tax():
         ("70 歲以上或未成年子女人數", 0, "in", "免稅額 151,500 元的人數（含本人、配偶）"),
         ("其中 6 歲以下子女人數", 0, "in", "幼兒學前特別扣除額"),
         ("列舉扣除額合計", 0, "in", "沒有就填 0，會自動比較標準扣除額"),
-        ("租屋且全家無自有房屋", "否", "in", "選「是」或「否」"),
+        ("全年房租", 0, "in", "全家無自有房屋、租屋自住才填；扣除上限 18 萬"),
         ("已被扣繳的稅款", 0, "in", "看扣繳憑單，算退補稅用"),
         (None,),
         ("所得總額", "=B6+B7+B8", "out", ""),
         ("免稅額", "=B9*101000+B10*151500", "out", ""),
         ("一般扣除額（標準或列舉取大）", '=MAX(IF(B5="已婚",272000,136000),B12)', "out", ""),
         ("薪資所得特別扣除額", "=MIN(B6,227000)+MIN(B7,227000)", "out", ""),
-        ("幼兒學前＋房屋租金特別扣除額", '=IF(B11>0,150000+(B11-1)*225000,0)+IF(B13="是",180000,0)', "out", "適用稅率 20% 以上不適用"),
+        ("幼兒學前＋房屋租金特別扣除額", '=IF(B11>0,150000+(B11-1)*225000,0)+MIN(B13,180000)', "out", "適用稅率 20% 以上不適用"),
         ("基本生活費差額", "=MAX(0,213000*(B9+B10)-(B17+B18+B20))", "out", ""),
         ("淨額（含幼兒、租金扣除）", "=MAX(0,B16-B17-B18-B19-B20-B21)", "out", ""),
         ("適用以上扣除後稅率", "=VLOOKUP(B22,級距!$A$2:$C$6,2,TRUE)", "out", ""),
@@ -111,13 +111,13 @@ def income_tax():
         label, val, kind, note = item
         ws.cell(row=r, column=1, value=label); ws.cell(row=r, column=2, value=val); ws.cell(row=r, column=3, value=note)
         style(ws, f"A{r}", bold=(kind == "out" and label in ("應納稅額", "退稅（正數）／補稅（負數）")))
-        fmt = "0%" if "稅率" in label else (None if label in ("申報身分", "租屋且全家無自有房屋") or "人數" in label else MONEY)
+        fmt = "0%" if "稅率" in label else (None if label == "申報身分" or "人數" in label else MONEY)
         style(ws, f"B{r}", INPUT if kind == "in" else OUTF, fmt)
         ws.cell(row=r, column=3).font = Font(name=FONT, size=10, color="6B6F78")
         r += 1
     ws["B26"].font = Font(name=FONT, bold=True, size=13)
     dv = DataValidation(type="list", formula1='"單身,已婚"', allow_blank=False); ws.add_data_validation(dv); dv.add("B5")
-    dv2 = DataValidation(type="list", formula1='"是,否"', allow_blank=False); ws.add_data_validation(dv2); dv2.add("B13")
+    pass  # 房租改為輸入金額
     ws.freeze_panes = "A5"
 
     lv = wb.create_sheet("級距")

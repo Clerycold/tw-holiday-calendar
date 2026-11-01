@@ -31,6 +31,20 @@
    }
   },
   {
+   "@type": "WebApplication",
+   "name": "115 年度綜所稅試算",
+   "url": "https://fangjiatw.com/tools/income-tax/",
+   "applicationCategory": "FinanceApplication",
+   "operatingSystem": "Any",
+   "inLanguage": "zh-Hant-TW",
+   "isAccessibleForFree": true,
+   "offers": {
+    "@type": "Offer",
+    "price": "0",
+    "priceCurrency": "TWD"
+   }
+  },
+  {
    "@type": "BreadcrumbList",
    "itemListElement": [
     {
@@ -77,7 +91,7 @@
      "name": "單身上班族年薪多少以下不用繳稅？",
      "acceptedAnswer": {
       "@type": "Answer",
-      "text": "單身、只有薪資所得、用標準扣除額時，年薪 46.4 萬元以下不用繳稅；如果是無自有房屋的租屋族，可以再減除房屋租金支出特別扣除額 18 萬元，年薪 64.4 萬元以下不用繳稅。"
+      "text": "單身、只有薪資所得、用標準扣除額時，年薪 46.4 萬元以下不用繳稅；如果是全家無自有房屋的租屋族，還可以減除實際支付的房租（最多 18 萬元），年房租達 18 萬元時，年薪 64.4 萬元以下不用繳稅。"
      }
     },
     {
@@ -150,12 +164,12 @@
           <label class="field">符合長期照顧需要（人）<input name="ltc" inputmode="numeric" ></label>
           <label class="field">列舉扣除額合計（沒有就空白）<input name="itemized" inputmode="numeric" ></label>
           <label class="field">已被扣繳的稅款（選填）<input name="withheld" inputmode="numeric" ></label>
+          <label class="field">全年房租（全家無自有房屋才填）<input name="rent" inputmode="numeric" ></label>
         </div>
-        <label class="check"><input type="checkbox" name="rent">租屋，且全家沒有自有房屋</label>
       </fieldset>
       <div class="result" id="taxOut" aria-live="polite"></div>
     </form>
-    <p class="note" style="margin-top:8px">本試算未包含股利、儲蓄投資、教育學費等項目；基本生活費 115 年度金額公告前，暫以 114 年度每人 21.3 萬元計算。你輸入的數字只存在自己的瀏覽器，不會傳到本站。</p>
+    <p class="note" style="margin-top:8px">本試算未包含股利、儲蓄投資、教育學費、最低稅負制等項目。<b>基本生活費 115 年度金額尚未公告</b>，暫以 114 年度每人 21.3 萬元計算，只會影響扶養人數多、扣除額少的家庭（詳見下方說明）。計算都在你的瀏覽器裡完成，輸入的數字不會傳到本站。</p>
   </section>
 
   <div class="ad">廣告版位 336×280</div>
@@ -166,16 +180,42 @@
       <thead><tr><th>項目</th><th>115 年度</th><th>114 年度</th></tr></thead>
       <tbody>
         <tr><td>免稅額</td><td class="num">101,000</td><td class="num">97,000</td></tr>
-        <tr><td>免稅額（70 歲以上、未成年子女）</td><td class="num">151,500</td><td class="num">145,500（70 歲以上）</td></tr>
+        <tr><td>免稅額：本人、配偶或受扶養直系尊親屬年滿 70 歲</td><td class="num">151,500</td><td class="num">145,500</td></tr>
+        <tr><td>免稅額：受扶養未成年子女（2026/8 修法）</td><td class="num">151,500</td><td class="num">97,000</td></tr>
         <tr><td>標準扣除額（單身／有配偶）</td><td class="num">136,000／272,000</td><td class="num">131,000／262,000</td></tr>
         <tr><td>薪資所得特別扣除額</td><td class="num">227,000</td><td class="num">218,000</td></tr>
         <tr><td>身心障礙特別扣除額</td><td class="num">227,000</td><td class="num">218,000</td></tr>
         <tr><td>幼兒學前特別扣除額</td><td class="num">第 1 名 150,000，第 2 名起 225,000</td><td class="num">同左</td></tr>
         <tr><td>長期照顧特別扣除額</td><td class="num">180,000</td><td class="num">180,000</td></tr>
-        <tr><td>房屋租金支出特別扣除額</td><td class="num">180,000</td><td class="num">180,000</td></tr>
+        <tr><td>房屋租金支出特別扣除額</td><td class="num">實際房租，每戶上限 180,000</td><td class="num">同左</td></tr>
       </tbody>
     </table></div>
-    <p class="note" style="margin-top:8px">幼兒學前、長期照顧及房屋租金支出特別扣除額，適用稅率 20% 以上者不適用。</p>
+    <p class="note" style="margin-top:8px">幼兒學前、長期照顧及房屋租金支出特別扣除額，適用稅率 20% 以上、選擇股利按 28% 分開計稅，或基本所得額超過 750 萬元者不適用。</p>
+  </section>
+
+  <section>
+    <h2>法規更新紀錄</h2>
+    <div class="tbl"><table>
+      <thead><tr><th>日期</th><th>內容</th><th>適用</th></tr></thead>
+      <tbody>
+        <tr><td class="num">2025/11/27</td><td>財政部公告 115 年度免稅額、標準扣除額、薪資及身障特別扣除額、課稅級距調高（物價上漲 4.13%）</td><td>115 年度</td></tr>
+        <tr><td class="num">2026/8/21</td><td>所得稅法修正三讀：受扶養未成年子女免稅額提高 50% 為 151,500 元；勞保、農保等社會保險費不再受每人 2.4 萬元保險費列舉扣除上限限制</td><td>115 年度起</td></tr>
+      </tbody>
+    </table></div>
+    <p class="note" style="margin-top:8px">官方來源：<a href="https://www.mof.gov.tw/singlehtml/384fb3077bb349ea973e7fc6f13b6974?cntId=34b463dc8f1b49f29d440d92a6fd5139" rel="nofollow">財政部 115 年度公告</a>、<a href="https://gazette.nat.gov.tw/EG_FileManager/eguploadpub/eg031224/ch04/type3/gov30/num12/Eg.htm" rel="nofollow">行政院公報</a>。本站在規定更新後同步修正試算與 Excel 範本。</p>
+  </section>
+
+  <section>
+    <h2>房屋租金支出特別扣除額：誰可以扣、能扣多少？</h2>
+    <p><b>能扣多少</b>：實際支付的房租，每一申報戶全年最多 18 萬元。年房租 12 萬元就扣 12 萬元，不是一律扣 18 萬。</p>
+    <p><b>適用條件</b>：本人、配偶或受扶養直系親屬在國內租屋<b>自住</b>，不是做營業或執行業務使用；而且本人、配偶及受扶養直系親屬在國內<b>沒有自有房屋</b>。</p>
+    <p><b>不適用</b>：適用稅率 20% 以上、選擇股利分開計稅，或基本所得額超過 750 萬元。有自有房屋的人原則上不能扣，但因工作、就學、就醫需要異地租屋等少數情況例外，申報前請看財政部說明。</p>
+  </section>
+
+  <section>
+    <h2>基本生活費差額是什麼？會影響我嗎？</h2>
+    <p>政府每年公告「每人基本生活所需費用」。如果全家人數 × 基本生活費，比免稅額、一般扣除額和部分特別扣除額的合計還多，差額可以再從所得中減除。</p>
+    <p><b>115 年度的金額目前尚未公告</b>（通常在年底前後公告），本試算暫用 114 年度的每人 21.3 萬元。多數單身或雙薪小家庭用不到這項；<b>扶養人數多、扣除額少的家庭</b>才會受影響。正式金額若調高，實際稅額可能比本試算低一些，公告後我們會更新。</p>
   </section>
 
   <section>
@@ -206,7 +246,7 @@
     <h2>常見問題</h2>
     <details><summary>115 年度綜所稅什麼時候申報？</summary><p>115 年（2026 年）的所得，在 116 年（2027 年）5 月 1 日到 5 月 31 日申報，實際日期以財政部公告為準。</p></details>
     <details><summary>115 年度免稅額是多少？</summary><p>每人 10.1 萬元；本人、配偶或受扶養直系尊親屬年滿 70 歲為 15.15 萬元。另依 2026 年 8 月三讀的所得稅法修正，扶養未成年子女的免稅額也提高為每人 15.15 萬元。</p></details>
-    <details><summary>單身上班族年薪多少以下不用繳稅？</summary><p>單身、只有薪資所得、用標準扣除額時，年薪 46.4 萬元以下不用繳稅；如果是無自有房屋的租屋族，可以再減除房屋租金支出特別扣除額 18 萬元，年薪 64.4 萬元以下不用繳稅。</p></details>
+    <details><summary>單身上班族年薪多少以下不用繳稅？</summary><p>單身、只有薪資所得、用標準扣除額時，年薪 46.4 萬元以下不用繳稅；如果是全家無自有房屋的租屋族，還可以減除實際支付的房租（最多 18 萬元），年房租達 18 萬元時，年薪 64.4 萬元以下不用繳稅。</p></details>
     <details><summary>夫妻要合併還是分開計稅？</summary><p>夫妻要合併申報，但稅額可以選擇薪資分開計稅或各類所得分開計稅。報稅系統會自動比較，幫你選最省的方式；本試算也會比較這幾種方式，顯示最省的結果。</p></details>
     <details><summary>試算結果和實際報稅不一樣？</summary><p>本試算只計算薪資、其他所得和常見的免稅額、扣除額，沒有包含股利、儲蓄投資特別扣除額、教育學費、最低稅負制等項目；基本生活費也暫用 114 年度金額。實際稅額請以財政部報稅系統為準。</p></details>
   </section>
@@ -223,7 +263,7 @@
 </main>
 
 <footer><a href="/about/">關於我們</a> · <a href="/privacy/">隱私權政策</a> · <a href="/disclosure/">聯盟連結揭露</a><br>本站試算結果僅供參考，實際金額以主管機關規定、公司制度及官方系統計算為準。</footer>
-<script src="/assets/tools/calc.js?v=1"></script>
-<script src="/assets/tools/ui.js?v=1"></script>
+<script src="/assets/tools/calc.js?v=2"></script>
+<script src="/assets/tools/ui.js?v=2"></script>
 </body>
 </html>

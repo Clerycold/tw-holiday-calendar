@@ -36,7 +36,7 @@
         self:{salary:num(f.selfSalary), other:num(f.selfOther), senior:f.selfSenior.checked, disabled:f.selfDisabled.checked},
         spouse:{salary:num(f.spSalary), other:num(f.spOther), senior:f.spSenior.checked, disabled:f.spDisabled.checked},
         minors:num(f.minors), preschool:Math.min(num(f.preschool), num(f.minors)), adults:num(f.adults), seniorDeps:num(f.seniorDeps),
-        disabledDeps:num(f.disabledDeps), ltc:num(f.ltc), rent:f.rent.checked, itemized:num(f.itemized), withheld:num(f.withheld)
+        disabledDeps:num(f.disabledDeps), ltc:num(f.ltc), rent:num(f.rent), itemized:num(f.itemized), withheld:num(f.withheld)
       };
       const r = C.incomeTax(p);
       const how = r.sepWho === null ? "全部合併計稅" : `${r.sepWho === 0 ? "本人" : "配偶"}${r.sepAll ? "各類所得" : "薪資所得"}分開計稅`;
@@ -57,7 +57,9 @@
           <dt class="sum">適用稅率</dt><dd class="sum">${Math.round(r.rate*100)}%</dd>
           <dt class="sum">計稅方式</dt><dd class="sum">${how}</dd>
         </dl>
-        ${married && r.tax < r.combinedTax ? `<div class="note">比全部合併計稅省 ${money(r.combinedTax - r.tax)} 元。報稅系統會自動比較，選最省的方式。</div>` : ""}
+        ${married ? `<div class="tbl"><table><thead><tr><th>計稅方式</th><th>應納稅額</th></tr></thead><tbody>${r.options.map(o => `<tr${o.tax === r.tax ? ' style="background:var(--leave-soft)"' : ""}><td>${o.sepWho === null ? "全部合併計稅" : (o.sepWho === 0 ? "本人" : "配偶") + (o.sepAll ? "各類所得分開計稅" : "薪資所得分開計稅")}</td><td class="num">${money(o.tax)}</td></tr>`).join("")}</tbody></table></div>
+        <div class="note">報稅系統會自動比較這幾種方式，選最省的；綠底就是最省的方式${r.tax < r.combinedTax ? `，比全部合併省 ${money(r.combinedTax - r.tax)} 元` : ""}。</div>` : ""}
+        ${r.bl ? `<div class="note">這次試算用到了「基本生活費差額」。115 年度每人基本生活費尚未公告，暫以 114 年度 213,000 元計算；正式金額若調高，你的稅額會再低一些。</div>` : ""}
         ${r.capped ? `<div class="warn">適用稅率達 20%，依規定不能減除幼兒學前、長期照顧及房屋租金支出特別扣除額。</div>` : ""}`;
       save("taxForm", {married, v:[...tax.querySelectorAll("input")].map(i => i.type === "checkbox" ? i.checked : i.value)});
     }
@@ -79,20 +81,25 @@
       if(!hire){ out.innerHTML = `<div class="note">輸入到職日，就會算出你的特休天數。</div>`; return; }
       if(hire > asOf){ out.innerHTML = `<div class="warn">到職日晚於計算日，請確認日期。</div>`; return; }
       const r = C.annualLeave(hire, asOf), t = r.tenure;
-      const pay = num(f.salary) ? num(f.salary) / 30 : 0;
+      const pay = num(f.salary) ? num(f.salary) / 30 : 0, used = num(f.used);
+      const left = r.cur ? Math.max(0, r.cur.days - used) : 0;
       const rows = r.list.slice(0, 12).map(m => `<tr${m === r.cur ? ' style="background:var(--leave-soft)"' : ""}><td>${m.label}</td><td class="num">${ymd(m.at)}</td><td class="num">${m.days} 天</td></tr>`).join("");
       out.innerHTML = `
         <div>年資 ${t.y} 年 ${t.m} 個月 ${t.d} 天，目前這一年的特休</div>
         <div class="big">${r.cur ? r.cur.days : 0} <small>天</small></div>
         ${r.cur ? `<div class="note">${ymd(r.cur.at)}（${r.cur.label}）起算的特休，要在下一個週年前休完。</div>` : `<div class="note">還沒滿 6 個月，${ymd(r.list[0].at)} 起有 3 天特休。</div>`}
         ${r.next ? `<div>下一次：<b>${ymd(r.next.at)}</b>（${r.next.label}）起有 <b>${r.next.days} 天</b></div>` : ""}
-        ${pay && r.cur ? `<div>如果年度結束還沒休完，未休的特休要折算工資：每天約 <b>${money(pay)} 元</b>，${r.cur.days} 天全部未休約 <b>${money(pay * r.cur.days)} 元</b>。</div>` : ""}
+        ${r.cur ? `<dl class="kv"><dt>已取得</dt><dd>${r.cur.days} 天</dd><dt>已使用</dt><dd>${Math.min(used, r.cur.days)} 天</dd><dt class="sum">剩餘</dt><dd class="sum">${left} 天</dd></dl>` : ""}
+        ${pay && r.cur ? `<div>剩餘的特休如果到年度結束都沒休，要折算工資：一日工資約 <b>${money(pay)} 元</b>（月薪 ÷ 30），${left} 天約 <b>${money(pay * left)} 元</b>。</div>` : ""}
         <div class="tbl"><table><thead><tr><th>年資</th><th>日期</th><th>特休</th></tr></thead><tbody>${rows}</tbody></table></div>
-        <div class="note">滿 10 年後每多 1 年加 1 天，最多 30 天。</div>`;
+        <div class="note">滿 10 年後每多 1 年加 1 天，最多 30 天。</div>
+        <h3 style="margin:8px 0 0;font-size:1rem">週年制和曆年制比較（按比例試算）</h3>
+        <div class="tbl"><table><thead><tr><th>年度</th><th>週年制：當年取得</th><th>曆年制：按比例</th></tr></thead><tbody>${C.calendarYearLeave(hire, [0,1,2,3,4].map(i => asOf.getFullYear() - 1 + i)).map(x => `<tr><td class="num">${x.year}</td><td class="num">${x.anniversary} 天</td><td class="num">${x.calendar} 天</td></tr>`).join("")}</tbody></table></div>
+        <div class="note">曆年制是把每個週年的特休，依落在各年度的天數比例分配。實務上公司可能四捨五入或提前一次給足，但長期合計不能少於週年制。</div>`;
       $("#leaveFormula").textContent = `=DATEDIF(DATE(${hire.getFullYear()},${hire.getMonth()+1},${hire.getDate()}),TODAY(),"Y")`;
-      save("leaveForm", [f.hire.value, f.salary.value]);
+      save("leaveForm", [f.hire.value, f.salary.value, f.used.value]);
     }
-    const s = load("leaveForm"); if(s){ f.hire.value = s[0] || ""; f.salary.value = s[1] || ""; }
+    const s = load("leaveForm"); if(s){ f.hire.value = s[0] || ""; f.salary.value = s[1] || ""; f.used.value = s[2] || ""; }
     leave.addEventListener("input", run); leave.addEventListener("submit", e => { e.preventDefault(); run(); });
     run();
   }
@@ -104,7 +111,7 @@
     const NAME = {weekday:"平日加班", restday:"休息日加班", holiday:"國定假日出勤"};
     const rate = r => typeof r === "string" ? r : r === 4/3 ? "×1⅓" : r === 5/3 ? "×1⅔" : "×2⅔";
     function run(){
-      const r = C.overtime(num(f.salary), {
+      const r = C.overtime(num(f.salary) + num(f.allow), {
         weekday:{hours:num(f.wdH), times:num(f.wdN)}, restday:{hours:num(f.rdH), times:num(f.rdN)}, holiday:{hours:num(f.hdH), times:num(f.hdN)}
       });
       if(!num(f.salary)){ out.innerHTML = `<div class="note">輸入月薪，就會算出加班費。</div>`; return; }
@@ -114,7 +121,7 @@
         <div>預估加班費</div>
         <div class="big">${money(r.total)} <small>元</small></div>
         <dl class="kv">
-          <dt>時薪（月薪 ÷ 240）</dt><dd>${money(r.hourly)}</dd>
+          <dt>時薪（月薪＋固定津貼）÷ 240</dt><dd>${money(r.hourly)}</dd>
           ${lines || "<dt>輸入加班時數和次數</dt><dd>—</dd>"}
         </dl>
         ${num(f.wdH) > 4 ? `<div class="warn">平日加班每天最多 4 小時（一天總工時上限 12 小時），已以 4 小時計算。</div>` : ""}
@@ -130,25 +137,41 @@
   const wd = $('form[data-tool="workdays"]');
   if(wd){
     const f = wd.elements, out = $("#wdOut"), out2 = $("#addOut");
-    $("#holList").value = C.weekdayHolidays().map(k => k.replace(/-/g,"/")).join("\n");
+    const slash = k => k.replace(/-/g,"/");
+    function opts(){
+      const extra = new Set(String(f.extra.value).split(/[\s,，、]+/).filter(Boolean).map(x => {
+        const [y,m,d] = x.replace(/\//g,"-").split("-");
+        return y && m && d ? `${y}-${String(m).padStart(2,"0")}-${String(d).padStart(2,"0")}` : "";
+      }).filter(k => k && !isNaN(new Date(k+"T00:00"))));
+      return {sixDay: f.sixDay.checked, extra};
+    }
+    function holList(o){
+      // 週休二日只需列平日假日；只休週日時，週六的假日也要列進去
+      const base = o.sixDay ? Object.keys(C.TW_HOL).filter(k => new Date(k+"T00:00").getDay() !== 0) : C.weekdayHolidays();
+      $("#holList").value = [...new Set([...base, ...o.extra])].sort().map(slash).join("\n");
+    }
     function run(){
-      const a = parseDate(f.from.value), b = parseDate(f.to.value);
+      const a = parseDate(f.from.value), b = parseDate(f.to.value), o = opts();
+      holList(o);
+      $("#nwFormula").textContent = o.sixDay ? '=NETWORKDAYS.INTL(A2,B2,"0000001",假日!A:A)' : "=NETWORKDAYS(A2,B2,假日!A:A)";
+      $("#wkFormula").textContent = o.sixDay ? '=WORKDAY.INTL(A2,10,"0000001",假日!A:A)' : "=WORKDAY(A2,10,假日!A:A)";
       if(a && b){
-        const r = C.workdays(a, b);
+        const r = C.workdays(a, b, o);
         out.innerHTML = `
           <div>工作天數（含頭尾）</div>
           <div class="big">${r.workdays} <small>天</small></div>
           <dl class="kv">
             <dt>期間總天數</dt><dd>${r.total}</dd>
-            <dt>週六、週日</dt><dd>−${r.weekends}</dd>
-            <dt>平日放假（國定假日、補假）</dt><dd>−${r.holidays.length}</dd>
+            <dt>${o.sixDay ? "週日" : "週六、週日"}</dt><dd>−${r.weekends}</dd>
+            <dt>國定假日、補假</dt><dd>−${r.holidays.length}</dd>
+            ${r.extra.length ? `<dt>公司額外放假</dt><dd>−${r.extra.length}</dd>` : ""}
           </dl>
           ${r.holidays.length ? `<div class="note">扣掉的假日：${r.holidays.map(([k,n]) => `${+k.slice(5,7)}/${+k.slice(8)}（${W[new Date(k+"T00:00").getDay()]}）${n}`).join("、")}</div>` : ""}
           ${r.outOfRange ? `<div class="warn">本工具的國定假日資料涵蓋 2026～2027 年，超出範圍的日期只扣週末。</div>` : ""}`;
       }
       const s = parseDate(f.start.value), n = Math.floor(num(f.n));
       if(s && n){
-        const d = C.addWorkdays(s, n);
+        const d = C.addWorkdays(s, n, o);
         out2.innerHTML = `<div>${ymd(s)} 之後第 ${n} 個工作天是</div><div class="big">${ymd(d)} <small>（${W[d.getDay()]}）</small></div>`;
       }
     }

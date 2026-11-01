@@ -31,6 +31,20 @@
    }
   },
   {
+   "@type": "WebApplication",
+   "name": "特休計算機",
+   "url": "https://fangjiatw.com/tools/annual-leave/",
+   "applicationCategory": "FinanceApplication",
+   "operatingSystem": "Any",
+   "inLanguage": "zh-Hant-TW",
+   "isAccessibleForFree": true,
+   "offers": {
+    "@type": "Offer",
+    "price": "0",
+    "priceCurrency": "TWD"
+   }
+  },
+  {
    "@type": "BreadcrumbList",
    "itemListElement": [
     {
@@ -115,6 +129,7 @@
       <div class="fields">
         <label class="field">到職日<input type="date" name="hire" min="1970-01-01"></label>
         <label class="field">計算日（預設今天）<input type="date" name="asOf"></label>
+        <label class="field">今年已休（天，選填）<input name="used" inputmode="numeric" ></label>
         <label class="field">月薪（選填，算未休工資）<input name="salary" inputmode="numeric" ></label>
       </div>
       <div class="result" id="leaveOut" aria-live="polite"></div>
@@ -145,8 +160,16 @@
   </section>
 
   <section>
+    <h2>週年制和曆年制差在哪？</h2>
+    <p><b>週年制</b>是勞基法的基本算法：以到職日為準，每滿一個週年取得一次特休。例如 2025/7/1 到職，2026/1/1 滿半年取得 3 天、2026/7/1 滿 1 年取得 7 天。</p>
+    <p><b>曆年制</b>是很多公司為了方便管理，改用每年 1/1 一起計算。常見做法是把每個週年的特休，依落在各年度的天數比例分配。同一個例子，2026 年會分到 3 天 ＋ 7 天的一半 ＝ 6.5 天，剩下的 3.5 天算在 2027 年。</p>
+    <p>兩種制度短期內每年的天數不同，但<b>長期合計不能少於週年制</b>。上方工具輸入到職日後，會列出近幾年兩種制度的天數比較。</p>
+  </section>
+
+  <section>
     <h2>特休沒休完，可以換錢嗎？</h2>
-    <p>可以。年度結束或離職時還沒休完的特休，<b>雇主應該發給工資</b>，一天的金額通常以月薪 ÷ 30 計算。</p>
+    <p>可以。年度結束或離職時還沒休完的特休，<b>雇主應該發給工資</b>。依勞基法施行細則，一日工資是以<b>年度終結或離職前最近一個月「正常工作時間」所得的工資 ÷ 30</b> 計算。</p>
+    <p>「正常工作時間工資」包含本薪和每月固定發給的津貼（例如職務加給），但不含加班費，也不含年終獎金、三節獎金這類非經常性給與。本工具用你輸入的月薪 ÷ 30 估算，若有固定津貼，請一起加進月薪。</p>
     <p>另外，勞雇雙方也可以協商把沒休完的特休<b>遞延到下一年度</b>；遞延的天數到下一年度結束還沒休完，一樣要發給工資。</p>
   </section>
 
@@ -181,7 +204,7 @@
 </main>
 
 <footer><a href="/about/">關於我們</a> · <a href="/privacy/">隱私權政策</a> · <a href="/disclosure/">聯盟連結揭露</a><br>本站試算結果僅供參考，實際金額以主管機關規定、公司制度及官方系統計算為準。</footer>
-<script src="/assets/tools/calc.js?v=1"></script>
-<script src="/assets/tools/ui.js?v=1"></script>
+<script src="/assets/tools/calc.js?v=2"></script>
+<script src="/assets/tools/ui.js?v=2"></script>
 </body>
 </html>

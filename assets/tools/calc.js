@@ -13,7 +13,7 @@
   const rateOf = net => net <= 0 ? 0 : bracketOf(net)[1];
 
   // p = {married, self:{salary,other,senior,disabled}, spouse:{...}, minors, adults, seniorDeps,
-  //      disabledDeps, preschool, ltc, rent, itemized, withheld}
+  //      disabledDeps, preschool, ltc, rent（全年房租）, itemized, withheld}
   function incomeTax(p){
     const T = TAX115, n = v => Math.max(0, +v || 0);
     const self = p.self, sp = p.married ? p.spouse : null;
@@ -28,7 +28,7 @@
     const disabledTotal = earners.reduce((s,x)=>s+disOf(x),0) + n(p.disabledDeps)*T.disabled;
     const pre = n(p.preschool);
     const preschoolFull = pre ? T.preschool1 + (pre-1)*T.preschool2 : 0;
-    const rentAmt = p.rent ? T.rent : 0;
+    const rentAmt = Math.min(n(p.rent), T.rent); // 實際支付租金，每戶上限 18 萬
     const ltcFull = n(p.ltc) * T.ltc + rentAmt; // 長照與房屋租金同屬「稅率 20% 以上不適用」
 
     function run(sepWho, sepAll){
@@ -58,7 +58,7 @@
     if(sp){ options.push(run(0,false), run(1,false), run(0,true), run(1,true)); }
     const best = options.reduce((a,b)=> b.tax < a.tax ? b : a);
     const income = earners.reduce((s,x)=>s+n(x.salary)+n(x.other),0);
-    return {...best, combinedTax: options[0].tax, people, exemptTotal, general, usedItemized,
+    return {...best, options, combinedTax: options[0].tax, people, exemptTotal, general, usedItemized,
             salaryDed: earners.reduce((s,x)=>s+salDed(x),0), disabledTotal, income,
             refund: n(p.withheld) - best.tax};
   }
@@ -81,6 +81,21 @@
     if(d < 0){ mo--; d += new Date(asOf.getFullYear(), asOf.getMonth(), 0).getDate(); }
     if(mo < 0){ y--; mo += 12; }
     return {list, cur, next, tenure:{y, m:mo, d}};
+  }
+  // 曆年制（按比例）：把每個週年期間的特休，依落在各曆年的天數比例分配。實務上公司可能四捨五入或一次給足。
+  function calendarYearLeave(hire, years){
+    const periods = [{s:addMonths(hire,6), e:addMonths(hire,12), days:3}];
+    for(let y=1; y<=30; y++) periods.push({s:addMonths(hire,12*y), e:addMonths(hire,12*(y+1)), days:leaveDaysForYears(y)});
+    return years.map(Y => {
+      const ys = new Date(Y,0,1), ye = new Date(Y+1,0,1);
+      let cal = 0, anniv = 0;
+      for(const p of periods){
+        const len = (p.e - p.s)/864e5, ov = Math.max(0, (Math.min(ye, p.e) - Math.max(ys, p.s))/864e5);
+        cal += p.days * ov / len;
+        if(p.s >= ys && p.s < ye) anniv += p.days;
+      }
+      return {year:Y, calendar: Math.round(cal*10)/10, anniversary: anniv};
+    });
   }
 
   // ---- 加班費（勞基法第 24、39 條）----
@@ -120,24 +135,28 @@
   const key = d => `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;
   const isWeekend = d => d.getDay() === 0 || d.getDay() === 6;
   const isWorkday = d => !isWeekend(d) && !TW_HOL[key(d)];
+  // opt = {sixDay: 只休週日, extra: Set("YYYY-MM-DD") 公司額外放假日}
+  const isRest = (d, opt) => opt && opt.sixDay ? d.getDay() === 0 : isWeekend(d);
+  const isOffDay = (d, opt) => isRest(d, opt) || !!TW_HOL[key(d)] || !!(opt && opt.extra && opt.extra.has(key(d)));
   const RANGE = [new Date(2026,0,1), new Date(2027,11,31)];
-  function workdays(a, b){
-    let s = a <= b ? a : b, e = a <= b ? b : a, n = 0, we = 0, hol = [];
+  function workdays(a, b, opt){
+    let s = a <= b ? a : b, e = a <= b ? b : a, n = 0, we = 0, hol = [], extra = [];
     for(let d = new Date(s); d <= e; d.setDate(d.getDate()+1)){
-      if(isWeekend(d)) we++;
+      if(isRest(d, opt)) we++;
       else if(TW_HOL[key(d)]) hol.push([key(d), TW_HOL[key(d)]]);
+      else if(opt && opt.extra && opt.extra.has(key(d))) extra.push(key(d));
       else n++;
     }
     const total = Math.round((e - s)/864e5) + 1;
-    return {total, workdays:n, weekends:we, holidays:hol, outOfRange: s < RANGE[0] || e > RANGE[1]};
+    return {total, workdays:n, weekends:we, holidays:hol, extra, outOfRange: s < RANGE[0] || e > RANGE[1]};
   }
-  function addWorkdays(start, n){
+  function addWorkdays(start, n, opt){
     const d = new Date(start); let left = n;
-    while(left > 0){ d.setDate(d.getDate()+1); if(isWorkday(d)) left--; }
+    while(left > 0){ d.setDate(d.getDate()+1); if(!isOffDay(d, opt)) left--; }
     return d;
   }
   const weekdayHolidays = () => Object.keys(TW_HOL).filter(k => !isWeekend(new Date(k+"T00:00")));
 
-  const api = {TAX115, taxOf, rateOf, incomeTax, annualLeave, leaveDaysForYears, overtime, TW_HOL, workdays, addWorkdays, weekdayHolidays, key};
+  const api = {TAX115, taxOf, rateOf, incomeTax, annualLeave, calendarYearLeave, leaveDaysForYears, overtime, TW_HOL, workdays, addWorkdays, weekdayHolidays, key};
   if(typeof module !== "undefined") module.exports = api; else root.Calc = api;
 })(this);
