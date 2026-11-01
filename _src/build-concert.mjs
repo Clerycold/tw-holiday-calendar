@@ -58,12 +58,104 @@ const VENUES = [
       {name:"巨蛋、北高雄", sub:"博愛路一帶", walk:"", mrt:"紅線 3 站", price:"中等", text:"飯店選擇多，餐廳也多，可避開世運站周邊的房價高峰。", who:"適合：想要飯店選擇多一點的人"},
       {name:"美麗島、新堀江", sub:"市中心", walk:"", mrt:"紅線 7 站", price:"平價～中等", text:"離場館比較遠，但房價相對穩定，順便逛六合夜市、駁二。", who:"適合：想順便玩高雄、預算有限的人"}
     ]},
-  { slug:"taipei-arena", city:"台北", district:"台北松山區", name:"臺北小巨蛋", cap:"約 1.1～1.5 萬人", mrt:"松山新店線 台北小巨蛋站 2 號出口" },
-  { slug:"kaohsiung-arena", city:"高雄", district:"高雄左營區", name:"高雄巨蛋", cap:"約 1.5 萬人", mrt:"紅線 巨蛋站（R14）5 號出口，步行約 3 分" },
-  { slug:"taipei-music-center", city:"台北", district:"台北南港區", name:"台北流行音樂中心", cap:"約 3 千～5 千人", mrt:"板南線 昆陽站 4 號出口步行約 8 分" },
-  { slug:"zepp-new-taipei", city:"新北", district:"新北新莊區", name:"Zepp New Taipei", cap:"約 2 千人", mrt:"機場捷運 A4 新莊副都心站，步行約 5 分" }
+  { slug:"taipei-arena", city:"台北", district:"台北松山區", name:"臺北小巨蛋", short:"小巨蛋", cap:"約 1.1～1.5 萬人（依舞台配置）",
+    addr:"台北市松山區南京東路四段 2 號",
+    mrt:"松山新店線 台北小巨蛋站 2 號出口",
+    page:{
+      title:"小巨蛋住宿推薦｜看演唱會住哪最方便？3 區比較＋散場交通攻略",
+      desc:"看小巨蛋演唱會住哪裡？整理南京復興、南京三民、中山 3 個住宿區域的步行時間、捷運站數和房價，加上散場避開人潮的走法。",
+      answer:`看小巨蛋演唱會，最推薦住<b>南京復興站周邊</b>：走路約 10 分鐘到場館，散場還能順路去遼寧街夜市吃宵夜。預算有限、隔天要搭台鐵的人，可以住<b>南京三民、松山</b>一帶。`,
+      hook:"小巨蛋就在捷運站出口旁邊，交通很方便，但一場演唱會上萬人同時散場，台北小巨蛋站常常擠到要排隊進站。住在走路可到的範圍，看完不用跟人潮擠，散步回飯店就好。",
+      exit:[
+        "散場人潮會集中在<b>台北小巨蛋站</b>。往西步行約 10 分鐘到<b>南京復興站</b>（可轉文湖線），或往東走到<b>南京三民站</b>，通常比在原站排隊快。",
+        "住中山一帶的話，從南京復興站搭松山新店線往西 2 站就到，避開最擠的小巨蛋站。"
+      ],
+      faq:[
+        ["小巨蛋最近的捷運站是哪一站？","松山新店線台北小巨蛋站，從 2 號出口出站就到小巨蛋。"],
+        ["看小巨蛋演唱會住哪裡最方便？","想走路回飯店，選南京復興站周邊；預算有限可住南京三民、松山一帶；想順便在台北玩，可以住中山站周邊，搭綠線 3 站就到。"],
+        ["小巨蛋演唱會散場怎麼走比較快？","小巨蛋站散場常排隊，可以往西步行約 10 分鐘到南京復興站，或往東走到南京三民站再搭車。"],
+        ["小巨蛋可以容納多少人？","約 1.1～1.5 萬人，實際人數依演唱會舞台配置而定。"]
+      ]
+    },
+    zones:[
+      {name:"南京復興、遼寧夜市", sub:"往西一站", walk:"步行約 10 分", mrt:"綠線 1 站", price:"中等", text:"商務旅館集中，散場後走去遼寧街夜市吃宵夜剛好。", who:"適合：想吃宵夜、預算中等的人"},
+      {name:"南京三民、松山", sub:"往東 1～2 站", walk:"步行 10～20 分", mrt:"綠線 1～2 站", price:"平價～中等", text:"價格比小巨蛋周邊低一些，靠近松山車站，隔天轉台鐵方便。", who:"適合：預算有限、隔天搭台鐵的人"},
+      {name:"中山、南京西路", sub:"往西三站", walk:"", mrt:"綠線 3 站", price:"中等", text:"老牌住宿區，選擇多，周邊咖啡店和小吃很多，方便安排隔天行程。", who:"適合：想順便在台北玩一天的人"}
+    ]},
+  { slug:"kaohsiung-arena", city:"高雄", district:"高雄左營區", name:"高雄巨蛋", short:"高雄巨蛋", cap:"約 1.5 萬人",
+    addr:"高雄市左營區博愛二路 757 號",
+    mrt:"紅線 巨蛋站（R14）5 號出口，步行約 3 分",
+    page:{
+      title:"高雄巨蛋住宿推薦｜演唱會住哪最方便？3 區比較＋散場交通攻略",
+      desc:"看高雄巨蛋演唱會住哪裡？整理巨蛋商圈、凹子底、高鐵左營站 3 個住宿區域的步行時間、捷運站數和房價，加上散場交通攻略。",
+      answer:`看高雄巨蛋演唱會，想走路回飯店就住<b>巨蛋商圈</b>，5～10 分鐘就到；從外縣市來、隔天要搭高鐵，住<b>高鐵左營站周邊</b>最方便，捷運紅線只要 2 站。`,
+      hook:"高雄巨蛋出了捷運站走 3 分鐘就到，周邊生活機能也好。不過上萬人一起散場時，巨蛋站一樣會排隊。如果你是從北部、中部南下，看完要趕高鐵會很趕，住一晚會輕鬆很多。",
+      exit:[
+        "散場人潮集中在<b>巨蛋站</b>。往南步行約 15 分鐘到<b>凹子底站</b>，或在附近吃完宵夜、等人潮散去再搭車。",
+        "要回高鐵左營站，搭紅線往北 2 站就到。注意高雄巨蛋和世運主場館是兩個不同場館，別搭錯站。"
+      ],
+      faq:[
+        ["高雄巨蛋最近的捷運站是哪一站？","高雄捷運紅線巨蛋站（R14），從 5 號出口出站，步行約 3 分鐘。"],
+        ["高雄巨蛋和世運主場館是同一個地方嗎？","不是。高雄巨蛋在巨蛋站（R14），世運主場館在世運站（R17），兩站之間隔 3 站，買票和訂房前要先確認是哪個場館。"],
+        ["看高雄巨蛋演唱會住哪裡最方便？","想走路回飯店，住巨蛋商圈；重視安靜可住凹子底一帶；外縣市來、隔天搭高鐵，住高鐵左營站周邊，捷運 2 站就到。"],
+        ["高雄巨蛋可以容納多少人？","約 1.5 萬人。"]
+      ]
+    },
+    zones:[
+      {name:"巨蛋商圈", sub:"場館周邊", walk:"步行 5～10 分", mrt:"不用搭車", price:"中等", text:"走路就到，附近有瑞豐夜市，散場直接去吃宵夜（夜市有公休日，出發前先確認）。", who:"適合：想走路回房、順便逛夜市的人"},
+      {name:"凹子底、美術館", sub:"往南一站", walk:"步行約 15 分", mrt:"紅線 1 站", price:"中等", text:"環境比較安靜，散場往這邊走剛好避開巨蛋站人潮。", who:"適合：重視休息品質的人"},
+      {name:"高鐵左營站周邊", sub:"往北兩站", walk:"", mrt:"紅線 2 站", price:"中等", text:"外縣市來的人首選，隔天搭高鐵不用轉車。", who:"適合：從北部或中部來的人"}
+    ]},
+  { slug:"taipei-music-center", city:"台北", district:"台北南港區", name:"台北流行音樂中心", short:"北流", cap:"約 3 千～5 千人（依座位或站位配置）",
+    addr:"台北市南港區市民大道八段 99 號",
+    mrt:"板南線 昆陽站 4 號出口步行約 8 分；南港站 1A 連通道步行約 11 分",
+    page:{
+      title:"北流住宿推薦｜台北流行音樂中心演唱會住哪？3 區比較＋散場交通",
+      desc:"看台北流行音樂中心（北流）演唱會住哪裡？整理南港車站、南港展覽館、信義區 3 個住宿區域，加上昆陽站、南港站怎麼走，散場直接搭高鐵也方便。",
+      answer:`看北流演唱會，外縣市來最推薦住<b>南港車站周邊</b>：走路約 11 分鐘到場館，南港站同時有<b>高鐵、台鐵、捷運</b>，隔天直接搭車回家。`,
+      hook:"台北流行音樂中心夾在昆陽站和南港站中間，兩邊都能走過去。最大的優點是南港站就有高鐵，南部、中部的歌迷看完演唱會，隔天走幾分鐘就能上車，連轉乘都省了。",
+      exit:[
+        "散場時可以往兩個方向分流：往西走到<b>昆陽站</b>約 8 分鐘，往東走到<b>南港站</b>約 11 分鐘。",
+        "要搭高鐵或台鐵的人直接往南港站走；住信義區或台北車站一帶的人，往昆陽站搭板南線比較順。"
+      ],
+      faq:[
+        ["台北流行音樂中心最近的捷運站是哪一站？","板南線昆陽站，從 4 號出口步行約 8 分鐘；也可以從南港站 1A 連通道出站，步行約 11 分鐘。"],
+        ["看北流演唱會住哪裡最方便？","外縣市來的人最推薦南港車站周邊，走路就到，隔天還能直接搭高鐵；想逛街吃飯可以住信義區，搭板南線 3 站就到。"],
+        ["北流散場可以直接搭高鐵嗎？","可以。南港站有高鐵、台鐵和捷運，從北流步行約 11 分鐘。末班車時間請先查好，散場人潮多時要預留時間。"],
+        ["台北流行音樂中心可以容納多少人？","表演廳約 3 千～5 千人，實際人數依座位或站位配置而定。"]
+      ]
+    },
+    zones:[
+      {name:"南港車站周邊", sub:"高鐵、台鐵、捷運三鐵共構", walk:"步行約 11 分", mrt:"不用搭車", price:"中等", text:"近幾年新開不少飯店，離場館近，隔天搭高鐵直接在樓下。", who:"適合：外縣市來、要搭高鐵的人"},
+      {name:"南港展覽館、軟體園區", sub:"南港站往東一站", walk:"步行 20 分以上", mrt:"板南線 1 站", price:"中等～偏高", text:"商務飯店為主，平日房價較高，週末反而有機會撿到便宜。", who:"適合：週末場次、想住新一點的飯店"},
+      {name:"信義區、市政府", sub:"昆陽站往西三站", walk:"", mrt:"板南線 3 站", price:"偏高", text:"百貨、餐廳多，看完還能去吃宵夜，隔天順便逛街。", who:"適合：想順便在台北玩、預算較寬的人"}
+    ]},
+  { slug:"zepp-new-taipei", city:"新北", district:"新北新莊區", name:"Zepp New Taipei", short:"Zepp New Taipei", cap:"約 2 千人（1 樓站位）",
+    addr:"新北市新莊區新北大道四段 3 號（宏匯廣場內）",
+    mrt:"機場捷運 A4 新莊副都心站，步行約 5 分（快車不停，要搭普通車）",
+    page:{
+      title:"Zepp New Taipei 住宿推薦｜怎麼去、住哪方便？機捷交通攻略",
+      desc:"Zepp New Taipei 怎麼去、看完住哪裡？整理新莊副都心、台北車站 2 個住宿區域，加上機場捷運快車不停的提醒，從機場來追星也方便。",
+      answer:`去 Zepp New Taipei，搭<b>機場捷運普通車到 A4 新莊副都心站</b>，走路約 5 分鐘。想住近一點就住<b>新莊副都心</b>；要逛台北或隔天搭高鐵，住<b>台北車站周邊</b>，機捷普通車 3 站就到。`,
+      hook:"Zepp New Taipei 在宏匯廣場裡，吃飯、逛街都在同一棟。它最大的特色是緊鄰機場捷運，從桃園機場搭機捷就能到，很適合從國外或外島來看演出的歌迷。",
+      exit:[
+        "機場捷運<b>快車不停新莊副都心站</b>，來回都要搭<b>普通車</b>。如果誤搭快車，到新北產業園區站下車，再換普通車坐回來。",
+        "散場人數比大型場館少，但機捷普通車班距較長，建議先查好末班車時間。"
+      ],
+      faq:[
+        ["Zepp New Taipei 要怎麼去？","搭機場捷運到 A4 新莊副都心站，步行約 5 分鐘就到宏匯廣場。"],
+        ["搭機場捷運去 Zepp New Taipei 要注意什麼？","機場捷運快車不停新莊副都心站，要搭普通車。誤搭快車的話，到新北產業園區站再換普通車折返。"],
+        ["看 Zepp New Taipei 演出住哪裡方便？","想住近一點選新莊副都心；想逛台北或隔天要搭高鐵，住台北車站周邊，機捷普通車 3 站就到。"],
+        ["Zepp New Taipei 可以容納多少人？","約 2 千人，以 1 樓站位為主。"]
+      ]
+    },
+    zones:[
+      {name:"新莊副都心", sub:"場館所在商圈", walk:"步行 5～10 分", mrt:"不用搭車", price:"中等", text:"周邊新飯店陸續開幕，商場就在樓下，吃飯不用煩惱。", who:"適合：想住近一點、一路待在商場的人"},
+      {name:"台北車站周邊", sub:"機場捷運終點站", walk:"", mrt:"機捷普通車 3 站", price:"平價～中等", text:"住宿選擇最多，隔天轉高鐵、台鐵都方便，也很適合順便逛台北。", who:"適合：外縣市來、想順便玩台北的人"}
+    ]}
 ];
 
+const S = t => /[A-Za-z]$/.test(t) ? t+" " : t;
 const head = (title, desc, path, ld) => `<!doctype html>
 <html lang="zh-Hant-TW">
 <head>
@@ -112,14 +204,14 @@ function venuePage(v){
     {"@type":"BreadcrumbList","itemListElement":[
       {"@type":"ListItem","position":1,"name":"放假日曆","item":SITE+"/"},
       {"@type":"ListItem","position":2,"name":"演唱會住宿","item":SITE+"/concert/"},
-      {"@type":"ListItem","position":3,"name":`${v.short}住宿`,"item":SITE+path}]},
+      {"@type":"ListItem","position":3,"name":`${S(v.short)}住宿`,"item":SITE+path}]},
     {"@type":"FAQPage","mainEntity":p.faq.map(([q,a])=>({"@type":"Question","name":q,"acceptedAnswer":{"@type":"Answer","text":a}}))}
   ]};
   const others = VENUES.filter(o=>o.page && o.slug!==v.slug);
   return head(p.title, p.desc, path, ld) + `
 <main class="article">
   <div>
-    <div class="crumb"><a href="/">放假日曆</a> › <a href="/concert/">演唱會住宿</a> › ${v.short}</div>
+    <div class="crumb"><a href="/">放假日曆</a> › <a href="/concert/">演唱會住宿</a> › ${S(v.short)}</div>
     <h1>${p.title.replace("｜","<br>")}</h1>
     <div class="meta">更新日期：${TODAY_ZH}</div>
   </div>
@@ -128,7 +220,7 @@ function venuePage(v){
   <p>${p.hook}</p>
 
   <section>
-    <h2>${v.short}住宿區懶人比較</h2>
+    <h2>${S(v.short)}住宿區懶人比較</h2>
     <div class="tbl"><table>
       <thead><tr><th>區域</th><th>到場館</th><th>捷運</th><th>房價</th><th>適合</th></tr></thead>
       <tbody>
@@ -139,7 +231,7 @@ ${v.zones.map(z=>`        <tr><td>${z.name}</td><td>${z.walk||"搭捷運"}</td><
   </section>
 
   <section>
-    <h2>${v.short}交通與場館資訊</h2>
+    <h2>${S(v.short)}交通與場館資訊</h2>
     <dl class="facts">
       <dt>場館</dt><dd>${v.name}</dd>
       <dt>容納</dt><dd>${v.cap}</dd>
@@ -149,14 +241,14 @@ ${v.zones.map(z=>`        <tr><td>${z.name}</td><td>${z.walk||"搭捷運"}</td><
   </section>
 
   <section>
-    <h2>${v.short}演唱會散場怎麼走？</h2>
+    <h2>${S(v.short)}演唱會散場怎麼走？</h2>
     <div class="tip">${p.exit.map(t=>`<p>${t}</p>`).join("")}</div>
   </section>
 
   <div class="ad">廣告版位 336×280</div>
 
   <section id="zones">
-    <h2>${v.short}周邊住宿區域推薦</h2>
+    <h2>${S(v.short)}周邊住宿區域推薦</h2>
 ${v.zones.map(z=>`    <article class="zone">
       <div><h3>${z.name}</h3><div class="sub">${z.sub}</div></div>
       <div class="chips">${z.walk?`<span class="chip walk">${z.walk}</span>`:""}<span class="chip mrt">${z.mrt}</span><span class="chip">房價${z.price}</span></div>
@@ -168,7 +260,7 @@ ${v.zones.map(z=>`    <article class="zone">
   <section>
     <h2>看完要不要住一晚？</h2>
     <p>回答兩個問題，馬上告訴你當天回家來不來得及。</p>
-    <div class="helper" data-helper data-venue="${v.short}" data-anchor="#zones"></div>
+    <div class="helper" data-helper data-venue="${S(v.short)}" data-anchor="#zones"></div>
   </section>
 
   <section>
@@ -190,7 +282,7 @@ ${p.faq.map(([q,a])=>`    <details><summary>${q}</summary><p>${a}</p></details>`
     <h2>延伸閱讀</h2>
     <div class="related">
       <a href="/concert/">全台演唱會場館住宿<small>${VENUES.length} 個場館一次看</small></a>
-${others.map(o=>`      <a href="/concert/${o.slug}/">${o.short}住宿推薦<small>${o.name}</small></a>`).join("\n")}
+${others.map(o=>`      <a href="/concert/${o.slug}/">${S(o.short)}住宿推薦<small>${o.name}</small></a>`).join("\n")}
       <a href="/#planner">請假攻略計算器<small>演唱會接連假，特休怎麼排</small></a>
     </div>
   </section>
@@ -224,14 +316,13 @@ function hubPage(){
   <section>
     <h2>你要去哪個場館看演唱會？</h2>
     <p>每個演唱會場館周邊的住宿與交通方式都不一樣。選擇你的演唱會場地，快速找到附近住宿區域、交通資訊，以及散場後最方便的回程方式。</p>
-    <h3 class="group-h">目前已整理的場館</h3>
     <div class="venues">
 ${ready.map(v=>`      <a class="venue" href="/concert/${v.slug}/"><span class="city">${v.district}</span><span class="nm">${v.name}</span><small>${v.cap}</small><span class="cta">查看住宿攻略 →</span></a>`).join("\n")}
     </div>
-    <h3 class="group-h">即將推出</h3>
+${soon.length ? `    <h3 class="group-h">即將推出</h3>
     <div class="venues">
 ${soon.map(v=>`      <div class="venue soon"><span class="badge">即將推出</span><span class="city">${v.district}</span><span class="nm">${v.name}</span><small>${v.cap}</small><small>交通：${v.mrt}</small></div>`).join("\n")}
-    </div>
+    </div>` : ""}
   </section>
 
   <div class="ad">廣告版位 336×280</div>
@@ -275,7 +366,7 @@ ${soon.map(v=>`      <div class="venue soon"><span class="badge">即將推出</s
   <section>
     <h2>延伸閱讀</h2>
     <div class="related">
-${ready.map(v=>`      <a href="/concert/${v.slug}/">${v.short}住宿攻略<small>${v.name}</small></a>`).join("\n")}
+${ready.map(v=>`      <a href="/concert/${v.slug}/">${S(v.short)}住宿攻略<small>${v.name}</small></a>`).join("\n")}
       <a href="/#calendar">2027 全年行事曆<small>演唱會接連假，一次排好</small></a>
     </div>
   </section>
