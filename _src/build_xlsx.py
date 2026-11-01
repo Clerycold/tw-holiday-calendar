@@ -265,6 +265,11 @@ def insurance():
     ws["A37"] = "勞保 11.5%＋就保 1%（勞工 20%、公司 70%）；健保 5.17%（勞工 30% × 本人＋眷屬，最多 3 口；公司 60% × 1.56）；勞退公司 6%、自提 0～6%。適用就保填「否」：65 歲以上、已領勞保老年給付或外籍人士等。"
     ws["A37"].font = Font(name=FONT, size=10, color="6B6F78")
 
+    grade_sheet(wb)
+    wb.save(f"{OUT}/fangjiatw-insurance-115.xlsx")
+
+
+def grade_sheet(wb):
     lv = wb.create_sheet("級距")
     header(lv, 1, ["勞保月薪下限", "勞保投保薪資", "健保投保金額", "勞退月提繳工資"], [14, 14, 14, 16])
     lo = 0
@@ -275,11 +280,51 @@ def insurance():
     for i, g in enumerate(INS["nhi"], start=2): lv.cell(row=i, column=3, value=g).number_format = MONEY
     for i, g in enumerate(INS["pension"], start=2): lv.cell(row=i, column=4, value=g).number_format = MONEY
     lv["F1"] = "來源：勞保局勞工保險投保薪資分級表、勞工退休金月提繳分級表、健保署投保金額分級表，皆自 115 年 1 月 1 日起適用。"
-    wb.save(f"{OUT}/fangjiatw-insurance-115.xlsx")
+
+
+# ---------------- 6. 薪資條 ----------------
+def payroll():
+    wb = book(); ws = wb.active; ws.title = "薪資條"
+    base(ws, "115 年薪資條試算表（2026 年）",
+         "所得稅預扣方式填「稅額表」或「5%」。月薪 90,501 元以上且用稅額表時，請在「稅額表金額」填入扣繳稅額表的金額。")
+    heads = ["員工", "月薪", "加班費", "本月獎金", "今年已領獎金", "健保眷屬", "勞退自提%", "適用就保", "預扣方式", "稅額表金額", "其他扣款",
+             "勞保級距", "健保級距", "勞退級距", "勞保＋就保", "健保", "勞退自提", "薪資預扣稅", "獎金預扣稅", "補充保費", "扣款合計", "實領"]
+    header(ws, 5, heads, [10, 10, 9, 10, 11, 8, 9, 8, 9, 10, 9, 10, 10, 10, 10, 9, 9, 10, 10, 9, 10, 11])
+    samples = [("王小明", 40000, 3000, 0, 0, 0, 0, "是", "稅額表", "", 0),
+               ("陳小華", 45000, 0, 200000, 0, 1, 6, "是", "5%", "", 500),
+               ("林大同", 100000, 0, 0, 0, 2, 0, "是", "稅額表", 1500, 0)]
+    for i in range(30):
+        r = 6 + i
+        if i < len(samples):
+            for c, v in zip("ABCDEFGHIJK", samples[i]):
+                if v != "": ws[f"{c}{r}"] = v
+        e = f'B{r}=""'
+        ws[f"L{r}"] = f'=IF({e},"",VLOOKUP(B{r},級距!$A$2:$B$12,2,TRUE))'
+        ws[f"M{r}"] = f'=IF({e},"",IF(B{r}>級距!$C$59,級距!$C$59,INDEX(級距!$C$2:$C$59,MATCH(TRUE,INDEX(級距!$C$2:$C$59>=B{r},0),0))))'
+        ws[f"N{r}"] = f'=IF({e},"",IF(B{r}>級距!$D$63,級距!$D$63,INDEX(級距!$D$2:$D$63,MATCH(TRUE,INDEX(級距!$D$2:$D$63>=B{r},0),0))))'
+        ws[f"O{r}"] = f'=IF({e},"",ROUND(L{r}*11.5%*20%,0)+IF(H{r}="否",0,ROUND(L{r}*1%*20%,0)))'
+        ws[f"P{r}"] = f'=IF({e},"",ROUND(M{r}*5.17%*30%,0)*(1+MIN(3,N(F{r}))))'
+        ws[f"Q{r}"] = f'=IF({e},"",ROUND(N{r}*MIN(6,N(G{r}))/100,0))'
+        ws[f"R{r}"] = f'=IF({e},"",IF(I{r}="5%",IF(ROUND(B{r}*5%,0)>2000,ROUND(B{r}*5%,0),0),IF(B{r}>=90501,N(J{r}),0)))'
+        ws[f"S{r}"] = f'=IF({e},"",IF(N(D{r})>=90501,ROUND(D{r}*5%,0),0))'
+        ws[f"T{r}"] = f'=IF({e},"",ROUND((MAX(0,N(E{r})+N(D{r})-4*M{r})-MAX(0,N(E{r})-4*M{r}))*2.11%,0))'
+        ws[f"U{r}"] = f'=IF({e},"",O{r}+P{r}+Q{r}+R{r}+S{r}+T{r}+N(K{r}))'
+        ws[f"V{r}"] = f'=IF({e},"",B{r}+N(C{r})+N(D{r})-U{r})'
+        for c in "ABCDEFGHIJK": style(ws, f"{c}{r}", INPUT, MONEY if c in "BCDEJK" else None)
+        for c in "LMNOPQRSTUV": style(ws, f"{c}{r}", OUTF, MONEY)
+        ws[f"V{r}"].font = Font(name=FONT, bold=True)
+    for rng, opts in [("H6:H35", '"是,否"'), ("I6:I35", '"稅額表,5%"'), ("F6:F35", '"0,1,2,3"')]:
+        dv = DataValidation(type="list", formula1=opts, allow_blank=True); ws.add_data_validation(dv); dv.add(rng)
+    ws.freeze_panes = "C6"
+    ws["A37"] = ("加班費每月 46 小時內免稅、不計入投保薪資；獎金單次達 90,501 元預扣 5%；今年獎金累計超過健保投保金額 4 倍的部分扣 2.11% 補充保費。"
+                 "預扣稅只是先繳，報稅時多退少補。")
+    ws["A37"].font = Font(name=FONT, size=10, color="6B6F78")
+    grade_sheet(wb)
+    wb.save(f"{OUT}/fangjiatw-payroll-115.xlsx")
 
 
 if __name__ == "__main__":
     import os
     os.makedirs(OUT, exist_ok=True)
-    income_tax(); annual_leave(); overtime(); workdays(); insurance()
+    income_tax(); annual_leave(); overtime(); workdays(); insurance(); payroll()
     print("ok", sorted(os.listdir(OUT)))

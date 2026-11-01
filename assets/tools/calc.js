@@ -150,6 +150,27 @@
     return {salary:s, li, ei, nhi, pen, empTotal, erTotal, takeHome: s - empTotal, belowMin: s > 0 && s < I.minWage};
   }
 
+  // ---- 薪資實領（115 年）----
+  // 扣繳：財政部稅務入口網「薪資扣繳規定」。稅額表起扣標準（無扶養）90,501；5% 扣繳每月應扣稅額不超過 2,000 免扣；
+  //       非固定薪資（獎金）每次達 90,501 扣 5%；加班費每月 46 小時內免稅。二代健保補充保費 2.11%，獎金累計超過投保金額 4 倍的部分。
+  const PAY115 = {threshold:90501, fiveFree:2000, suppRate:.0211};
+  // p = {salary, overtime, bonus, bonusYTD, deps, noEI, selfPct, taxMethod:"table"|"five", taxManual, other}
+  function netPay(p){
+    const n = v => Math.max(0, +v || 0), r = Math.round, P = PAY115;
+    const salary = n(p.salary), ot = n(p.overtime), bonus = n(p.bonus), ytd = n(p.bonusYTD);
+    const ins = laborIns({salary, deps:p.deps, noEI:p.noEI, selfPct:p.selfPct});
+    let salaryTax = 0, needTable = false;
+    if(p.taxMethod === "five"){ const v = r(salary*.05); salaryTax = v > P.fiveFree ? v : 0; }
+    else if(salary >= P.threshold){ if(p.taxManual === "" || p.taxManual == null) needTable = true; else salaryTax = n(p.taxManual); }
+    const bonusTax = bonus >= P.threshold ? r(bonus*.05) : 0;
+    const cap = 4*ins.nhi.grade, over = x => Math.max(0, x - cap);
+    const supp = r((over(ytd + bonus) - over(ytd)) * P.suppRate);
+    const other = n(p.other);
+    const gross = salary + ot + bonus;
+    const deduct = ins.empTotal + salaryTax + bonusTax + supp + other;
+    return {ins, gross, salaryTax, needTable, bonusTax, supp, suppBase: over(ytd + bonus) - over(ytd), cap, other, deduct, net: gross - deduct};
+  }
+
   // ---- 台灣國定假日（政府行政機關辦公日曆表 115、116 年）----
   const TW_HOL = {
     "2026-01-01":"元旦","2026-02-15":"小年夜","2026-02-16":"除夕","2026-02-17":"春節 初一","2026-02-18":"春節 初二",
@@ -189,6 +210,6 @@
   }
   const weekdayHolidays = () => Object.keys(TW_HOL).filter(k => !isWeekend(new Date(k+"T00:00")));
 
-  const api = {TAX115, INS115, laborIns, taxOf, rateOf, incomeTax, annualLeave, calendarYearLeave, leaveDaysForYears, overtime, TW_HOL, workdays, addWorkdays, weekdayHolidays, key};
+  const api = {TAX115, INS115, PAY115, laborIns, netPay, taxOf, rateOf, incomeTax, annualLeave, calendarYearLeave, leaveDaysForYears, overtime, TW_HOL, workdays, addWorkdays, weekdayHolidays, key};
   if(typeof module !== "undefined") module.exports = api; else root.Calc = api;
 })(this);

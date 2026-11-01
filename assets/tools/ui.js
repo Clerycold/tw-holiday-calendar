@@ -208,4 +208,43 @@
     ins.addEventListener("input", run); ins.addEventListener("change", run); ins.addEventListener("submit", e => { e.preventDefault(); run(); });
     run();
   }
+
+  // ---- 薪資實領 ----
+  const pay = $('form[data-tool="pay"]');
+  if(pay){
+    const f = pay.elements, out = $("#payOut");
+    const ids = ["salary","overtime","bonus","bonusYTD","deps","selfPct","taxMethod","taxManual","other"];
+    function run(){
+      const five = f.taxMethod.value === "five";
+      $("#taxManualWrap").hidden = five || num(f.salary) < C.PAY115.threshold;
+      const r = C.netPay({salary:num(f.salary), overtime:num(f.overtime), bonus:num(f.bonus), bonusYTD:num(f.bonusYTD), deps:num(f.deps),
+        noEI:f.noEI.checked, selfPct:num(f.selfPct), taxMethod:f.taxMethod.value, taxManual:f.taxManual.value, other:num(f.other)});
+      if(!num(f.salary)){ out.innerHTML = `<div class="note">輸入月薪，就會算出這個月實際入帳多少。</div>`; return; }
+      const row = (label, v, sign="−") => v ? `<dt>${label}</dt><dd>${sign}${money(v)}</dd>` : "";
+      out.innerHTML = `
+        <div>本月預估實領</div>
+        <div class="big">${money(r.net)} <small>元</small></div>
+        <dl class="kv">
+          <dt>應發合計</dt><dd>${money(r.gross)}</dd>
+          ${row("勞保＋就保", r.ins.li.emp + r.ins.ei.emp)}
+          ${row(`健保（本人${r.ins.nhi.deps ? `＋眷屬 ${r.ins.nhi.deps} 人` : ""}）`, r.ins.nhi.emp)}
+          ${row(`勞退自提 ${r.ins.pen.pct}%`, r.ins.pen.emp)}
+          ${row(five ? "所得稅預扣（月薪 5%）" : "所得稅預扣（扣繳稅額表）", r.salaryTax)}
+          ${row("獎金預扣所得稅 5%", r.bonusTax)}
+          ${row("二代健保補充保費 2.11%", r.supp)}
+          ${row("其他扣款", r.other)}
+          <dt class="sum">扣款合計</dt><dd class="sum">−${money(r.deduct)}</dd>
+        </dl>
+        ${r.needTable ? `<div class="warn">月薪達 90,501 元以上，依扣繳稅額表會預扣所得稅，金額要看你的扶養人數。請在上方填入薪資單上的「所得稅」金額，或改選「按 5% 扣繳」估算。</div>` : ""}
+        ${!five && !r.needTable && !r.salaryTax ? `<div class="note">月薪未達扣繳稅額表的起扣標準（無扶養 90,501 元），每月不會預扣所得稅。</div>` : ""}
+        ${five && !r.salaryTax ? `<div class="note">按 5% 計算的稅額不超過 2,000 元，依規定免予扣繳。</div>` : ""}
+        ${r.supp ? `<div class="note">今年獎金累計超過健保投保金額 4 倍（${money(r.cap)} 元）的部分 ${money(r.suppBase)} 元，要扣 2.11% 補充保費。</div>` : ""}
+        ${num(f.overtime) ? `<div class="note">加班費每月 46 小時以內免稅，不會預扣所得稅，也不計入勞健保投保薪資。</div>` : ""}
+        <div class="note">預扣的所得稅不是最後的稅額，明年 5 月報稅時會多退少補。想算全年要繳多少稅，可以用<a href="/tools/income-tax/">所得稅試算</a>。</div>`;
+      save("payForm", ids.map(k => f[k].value).concat(f.noEI.checked));
+    }
+    const s = load("payForm"); if(s){ ids.forEach((k,i) => { if(s[i] != null) f[k].value = s[i]; }); f.noEI.checked = !!s[ids.length]; }
+    pay.addEventListener("input", run); pay.addEventListener("change", run); pay.addEventListener("submit", e => { e.preventDefault(); run(); });
+    run();
+  }
 })();

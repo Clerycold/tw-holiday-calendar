@@ -65,8 +65,8 @@ ${path === "/tools/" ? "" : related(path)}
 </main>
 
 <footer><a href="/about/">關於我們</a> · <a href="/privacy/">隱私權政策</a> · <a href="/disclosure/">聯盟連結揭露</a><br>本站試算結果僅供參考，實際金額以主管機關規定、公司制度及官方系統計算為準。</footer>
-${scripts ? `<script src="/assets/tools/calc.js?v=3"></script>
-<script src="/assets/tools/ui.js?v=3"></script>` : ""}
+${scripts ? `<script src="/assets/tools/calc.js?v=4"></script>
+<script src="/assets/tools/ui.js?v=4"></script>` : ""}
 </body>
 </html>
 `;
@@ -88,6 +88,9 @@ const TOOLS = [
   { path: "/tools/insurance/", name: "勞健保費計算機", sub: "勞保、健保、勞退每月扣多少", pill: "薪資",
     ask: "薪水每個月被扣多少勞健保？", cta: "計算勞健保費",
     xls: "fangjiatw-insurance-115.xlsx", xlsName: "115年勞健保勞退計算表", xlsFor: "人資一次算全公司的勞健保、勞退與人事成本" },
+  { path: "/tools/take-home-pay/", name: "薪資實領計算", sub: "月薪扣完勞健保、所得稅實際入帳多少", pill: "薪資",
+    ask: "月薪 4 萬，實際入帳多少？", cta: "計算實領薪資",
+    xls: "fangjiatw-payroll-115.xlsx", xlsName: "115年薪資條試算表", xlsFor: "每月薪資條：應發、各項扣款與實領一次算好" },
 ];
 function related(path) {
   const others = TOOLS.filter(t => t.path !== path).map(t => `      <a href="${t.path}">${t.name}<small>${t.sub}</small></a>`);
@@ -135,7 +138,7 @@ ${TOOLS.map(t => `        <tr><td>${t.xlsName}</td><td>${t.xlsFor}</td><td><a hr
     <h2>開發中的工具</h2>
     <p>以下工具還在製作，<b>目前還不能使用</b>，完成後會出現在上方的工具列表：</p>
     <div class="toolgrid">
-      <div class="soon" style="border:1px dashed var(--rule);border-radius:8px;padding:16px"><span class="pill">開發中</span><b style="display:block;margin:6px 0">薪資實領計算</b><small class="note">月薪扣掉勞健保、所得稅預扣後，實際入帳多少。</small></div>
+      <div class="soon" style="border:1px dashed var(--rule);border-radius:8px;padding:16px"><span class="pill">開發中</span><b style="display:block;margin:6px 0">勞退退休金試算</b><small class="note">公司提繳加上自提，退休時個人專戶大約累積多少。</small></div>
       <div class="soon" style="border:1px dashed var(--rule);border-radius:8px;padding:16px"><span class="pill">開發中</span><b style="display:block;margin:6px 0">資遣費計算</b><small class="note">輸入到職日、離職日與平均工資，計算新舊制資遣費。</small></div>
     </div>
   </section>
@@ -650,7 +653,110 @@ ${INS.INS115.li.map(([cap, g], i, a) => `        <tr><td>第 ${i + 1} 級</td><t
   </section>`,
 });
 
-const out = { "tools/index.html": hub, "tools/insurance/index.html": insurance, "tools/income-tax/index.html": tax, "tools/annual-leave/index.html": leave, "tools/overtime/index.html": overtime, "tools/workdays/index.html": workdays };
+// ---------------- 薪資實領 ----------------
+const payRows = [29500, 33000, 36000, 40000, 45000, 50000, 60000, 80000].map(s => {
+  const r = INS.netPay({ salary: s });
+  return `        <tr><td class="num">${s.toLocaleString()}</td><td class="num">${(r.ins.li.emp + r.ins.ei.emp).toLocaleString()}</td><td class="num">${r.ins.nhi.emp.toLocaleString()}</td><td class="num">${r.net.toLocaleString()}</td></tr>`;
+}).join("\n");
+const ex40 = INS.netPay({ salary: 40000 });
+const payFaq = [
+  ["月薪 40,000 元，實領多少？", `沒有眷屬、沒有勞退自提時，每月扣勞保＋就保 ${(ex40.ins.li.emp + ex40.ins.ei.emp).toLocaleString()} 元、健保 ${ex40.ins.nhi.emp.toLocaleString()} 元，實領約 ${ex40.net.toLocaleString()} 元；月薪未達起扣標準，不會預扣所得稅。`],
+  ["薪水多少才會被預扣所得稅？", "有填免稅額申報表、按扣繳稅額表扣繳時，2026 年月薪 90,501 元以上（無配偶及受扶養親屬）才開始預扣，扶養人數越多起扣點越高。選擇按 5% 扣繳時，5% 稅額超過 2,000 元，也就是月薪超過約 4 萬元就會扣。"],
+  ["年終獎金會被扣稅嗎？", "單次發放達 90,501 元以上，公司要先預扣 5% 所得稅；未達就不扣。另外，今年獎金累計超過健保投保金額 4 倍的部分，還要扣 2.11% 二代健保補充保費。"],
+  ["加班費要扣稅嗎？", "依法給付的加班費，每月 46 小時以內免稅，不會預扣所得稅，也不用計入勞健保投保薪資。"],
+  ["預扣的所得稅可以退嗎？", "可以。預扣只是先繳，明年 5 月申報綜所稅時會和實際應納稅額比較，扣多了就退稅、扣少了就補稅。"],
+];
+const takeHome = page({
+  path: "/tools/take-home-pay/", crumb: "薪資實領計算",
+  title: "薪資實領計算機｜月薪扣完勞健保、所得稅實際入帳多少（2026）",
+  h1: "薪資實領計算<br>月薪扣完之後，實際入帳多少？",
+  desc: "2026 薪資實領計算機：輸入月薪、加班費、獎金，依 115 年勞健保級距、薪資扣繳規定與二代健保補充保費，算出每月實際入帳金額，附薪資條 Excel 範本。",
+  faq: payFaq, app: "薪資實領計算機",
+  body: `
+  <div class="answer">實領 ＝ 月薪＋加班費＋獎金 −（勞保＋就保＋健保＋勞退自提）− 所得稅預扣 − 補充保費。月薪 4 萬、沒有眷屬，<b>每月約實領 ${ex40.net.toLocaleString()} 元</b>；月薪未達 <b>90,501 元</b>，通常不會預扣所得稅。</div>
+
+  <section>
+    <h2>薪資實領試算</h2>
+    <form class="tool" data-tool="pay" autocomplete="off">
+      <fieldset>
+        <legend>本月應發</legend>
+        <div class="fields">
+          ${field("salary", "月薪（本薪＋固定津貼）", 'placeholder="例如 40000"')}
+          ${field("overtime", "加班費（選填）")}
+          ${field("bonus", "本月獎金（選填，如年終）")}
+          ${field("bonusYTD", "今年之前已領獎金（選填）")}
+        </div>
+      </fieldset>
+      <fieldset>
+        <legend>扣款設定</legend>
+        <div class="fields">
+          <label class="field">健保眷屬人數<select name="deps"><option value="0">0（只有本人）</option><option value="1">1 人</option><option value="2">2 人</option><option value="3">3 人以上</option></select></label>
+          <label class="field">勞退自提<select name="selfPct">${[0,1,2,3,4,5,6].map(v => `<option value="${v}">${v}%</option>`).join("")}</select></label>
+          <label class="field">所得稅預扣方式<select name="taxMethod"><option value="table">依扣繳稅額表（有填免稅額申報表）</option><option value="five">按月薪 5% 扣繳</option></select></label>
+          <span id="taxManualWrap" hidden>${field("taxManual", "薪資單上的所得稅（元）")}</span>
+          ${field("other", "其他扣款（福利金、伙食費等）")}
+        </div>
+        <label class="check"><input type="checkbox" name="noEI">不適用就業保險（例如年滿 65 歲、外籍人士）</label>
+      </fieldset>
+      <div class="result" id="payOut" aria-live="polite"></div>
+    </form>
+    <p class="note" style="margin-top:8px">依 115 年勞健保級距、財政部薪資扣繳規定計算，適用一般全職受僱勞工。計算都在你的瀏覽器裡完成。</p>
+  </section>
+
+  <div class="ad">廣告版位 336×280</div>
+
+  <section>
+    <h2>常見月薪實領對照表</h2>
+    <div class="tbl"><table>
+      <thead><tr><th>月薪</th><th>勞保＋就保</th><th>健保（本人）</th><th>實領</th></tr></thead>
+      <tbody>
+${payRows}
+      </tbody>
+    </table></div>
+    <p class="note" style="margin-top:8px">沒有眷屬、沒有勞退自提、依扣繳稅額表（月薪未達起扣標準不預扣）的情況。勞退 6% 由公司另外提繳，不從薪水扣。</p>
+  </section>
+
+  <section>
+    <h2>薪水會被扣哪些錢？</h2>
+    <div class="tbl"><table>
+      <thead><tr><th>項目</th><th>怎麼算</th><th>可以少扣嗎？</th></tr></thead>
+      <tbody>
+        <tr><td>勞保＋就保</td><td>投保薪資 × 12.5% × 20%</td><td>不行，依薪資對應級距</td></tr>
+        <tr><td>健保</td><td>投保金額 × 5.17% × 30% ×（1＋眷屬數）</td><td>眷屬可以改依附有工作的家人投保</td></tr>
+        <tr><td>勞退自提</td><td>自己選 0～6%</td><td>可以，自提是自願的</td></tr>
+        <tr><td>所得稅預扣</td><td>依扣繳稅額表或 5%</td><td>報稅時多退少補</td></tr>
+        <tr><td>補充保費</td><td>獎金超過投保金額 4 倍的部分 × 2.11%</td><td>依規定扣取</td></tr>
+      </tbody>
+    </table></div>
+    <p style="margin-top:12px">勞健保的細節，可以用<a href="/tools/insurance/">勞健保費計算機</a>看公司負擔和級距；想知道全年稅額，用<a href="/tools/income-tax/">所得稅試算</a>。</p>
+  </section>
+
+  <section>
+    <h2>所得稅預扣：稅額表和 5% 差在哪？</h2>
+    <p><b>依扣繳稅額表</b>：到職時有填「免稅額申報表」的人適用，大多數上班族屬於這種。2026 年無配偶及受扶養親屬者，<b>月薪 90,501 元以上</b>才開始預扣；扶養人數越多，起扣點越高。實際金額請看薪資單或財政部公告的扣繳稅額表。</p>
+    <p><b>按 5% 扣繳</b>：沒填免稅額申報表，或自己選擇時適用，按月薪的 5% 預扣；算出來不超過 2,000 元就免扣，所以<b>月薪約 4 萬元以下不會扣</b>。</p>
+    <p>兩種都只是「預扣」。如果每月被扣太多，明年報稅可以退回來；如果太少，報稅時要補繳。</p>
+  </section>
+
+  <section>
+    <h2>年終獎金會扣多少？</h2>
+    <p>以月薪 45,000 元（健保投保金額 45,800 元）、年終 20 萬元為例：</p>
+    <p><b>所得稅預扣</b>：20 萬 ≥ 90,501 元，扣 5% ＝ <b>10,000 元</b>。</p>
+    <p><b>二代健保補充保費</b>：投保金額 4 倍 ＝ 183,200 元，超過的 16,800 元 × 2.11% ＝ <b>354 元</b>。</p>
+    <p>所以年終入帳約 189,646 元。上方工具填入「本月獎金」就能自動算。</p>
+  </section>
+
+  <section>
+    <h2>用 Excel 做薪資條</h2>
+    ${dl("fangjiatw-payroll-115.xlsx", "115年薪資條試算表_放假日曆.xlsx", "每位員工一列：填入月薪、加班費、獎金和扣款設定，自動算出勞健保、預扣稅、補充保費與實領，內建 115 年級距表。")}
+    <p>月薪在 B2，按 5% 扣繳的所得稅（不超過 2,000 免扣）：</p>
+    ${formula("fiveFormula", "=IF(ROUND(B2*5%,0)>2000,ROUND(B2*5%,0),0)")}
+    <p style="margin-top:12px">獎金在 C2、健保投保金額在 D2，補充保費（假設今年第一次領獎金）：</p>
+    ${formula("suppFormula", "=ROUND(MAX(0,C2-4*D2)*2.11%,0)")}
+  </section>`,
+});
+
+const out = { "tools/index.html": hub, "tools/insurance/index.html": insurance, "tools/take-home-pay/index.html": takeHome, "tools/income-tax/index.html": tax, "tools/annual-leave/index.html": leave, "tools/overtime/index.html": overtime, "tools/workdays/index.html": workdays };
 for (const [f, html] of Object.entries(out)) {
   mkdirSync(f.replace(/\/[^/]+$/, ""), { recursive: true });
   writeFileSync(f, html);
