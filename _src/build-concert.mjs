@@ -7,7 +7,7 @@ const TODAY = "2026-11-01";
 const TODAY_ZH = "2026 年 11 月 1 日";
 
 const VENUES = [
-  { slug:"taipei-dome", city:"台北", name:"臺北大巨蛋", short:"大巨蛋", cap:"固定席約 4 萬，演唱會最多約 6 萬人",
+  { slug:"taipei-dome", city:"台北", district:"台北信義區", name:"臺北大巨蛋", short:"大巨蛋", cap:"固定席約 4 萬，演唱會最多約 6 萬人",
     addr:"台北市信義區忠孝東路四段 515 號",
     mrt:"板南線 國父紀念館站 5 號出口直達園區；4 號出口可走忠孝東路地下通廊",
     page:{
@@ -32,7 +32,7 @@ const VENUES = [
       {name:"忠孝復興、東區", sub:"板南線往西 2 站", walk:"步行 20 分以上", mrt:"板南線 2 站", price:"中等", text:"選擇多、價位跨度大，避開國父紀念館站的散場人潮，搭兩站就到。", who:"適合：想兼顧預算和方便的人"},
       {name:"台北車站周邊", sub:"高鐵、台鐵轉乘點", walk:"", mrt:"板南線 5 站", price:"平價～中等", text:"隔天要搭高鐵回家最順，平價旅館多，同樣價錢房間通常比信義區大。", who:"適合：外縣市來、隔天一早要搭車的人"}
     ]},
-  { slug:"kaohsiung-stadium", city:"高雄", name:"高雄國家體育場（世運主場館）", short:"世運", cap:"約 5.5 萬席，全台最大戶外體育場",
+  { slug:"kaohsiung-stadium", city:"高雄", district:"高雄左營區", name:"高雄國家體育場（世運主場館）", short:"世運", cap:"約 5.5 萬席，全台最大戶外體育場",
     addr:"高雄市左營區世運大道 100 號",
     mrt:"紅線 世運站（R17）1 號出口，步行約 10～15 分",
     page:{
@@ -58,10 +58,10 @@ const VENUES = [
       {name:"巨蛋、北高雄", sub:"博愛路一帶", walk:"", mrt:"紅線 3 站", price:"中等", text:"飯店選擇多，餐廳也多，可避開世運站周邊的房價高峰。", who:"適合：想要飯店選擇多一點的人"},
       {name:"美麗島、新堀江", sub:"市中心", walk:"", mrt:"紅線 7 站", price:"平價～中等", text:"離場館比較遠，但房價相對穩定，順便逛六合夜市、駁二。", who:"適合：想順便玩高雄、預算有限的人"}
     ]},
-  { slug:"taipei-arena", city:"台北", name:"臺北小巨蛋", cap:"約 1.1～1.5 萬人" },
-  { slug:"kaohsiung-arena", city:"高雄", name:"高雄巨蛋", cap:"約 1.5 萬人" },
-  { slug:"taipei-music-center", city:"台北", name:"台北流行音樂中心", cap:"約 3 千～5 千人" },
-  { slug:"zepp-new-taipei", city:"新北", name:"Zepp New Taipei", cap:"約 2 千人" }
+  { slug:"taipei-arena", city:"台北", district:"台北松山區", name:"臺北小巨蛋", cap:"約 1.1～1.5 萬人", mrt:"松山新店線 台北小巨蛋站 2 號出口" },
+  { slug:"kaohsiung-arena", city:"高雄", district:"高雄左營區", name:"高雄巨蛋", cap:"約 1.5 萬人", mrt:"紅線 巨蛋站（R14）5 號出口，步行約 3 分" },
+  { slug:"taipei-music-center", city:"台北", district:"台北南港區", name:"台北流行音樂中心", cap:"約 3 千～5 千人", mrt:"板南線 昆陽站 4 號出口步行約 8 分" },
+  { slug:"zepp-new-taipei", city:"新北", district:"新北新莊區", name:"Zepp New Taipei", cap:"約 2 千人", mrt:"機場捷運 A4 新莊副都心站，步行約 5 分" }
 ];
 
 const head = (title, desc, path, ld) => `<!doctype html>
@@ -79,7 +79,7 @@ const head = (title, desc, path, ld) => `<!doctype html>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@600;900&family=Noto+Sans+TC:wght@400;500;700&family=JetBrains+Mono:wght@500&display=swap">
 <link rel="stylesheet" href="/assets/site.css?v=2">
-<link rel="stylesheet" href="/assets/concert.css">
+<link rel="stylesheet" href="/assets/concert.css?v=2">
 <script type="application/ld+json">
 ${JSON.stringify(ld, null, 1)}
 </script>
@@ -91,11 +91,12 @@ ${JSON.stringify(ld, null, 1)}
 </header>
 `;
 
-const STEPS = `<div class="steps">
-      <div class="step"><div class="when">公布場次當天</div><h3>先訂可免費取消的房</h3><p>還沒搶到票也可以先卡位，選「免費取消」的方案，沒搶到再退。</p></div>
-      <div class="step"><div class="when">搶票結束後</div><h3>確認日期，取消多訂的</h3><p>加場常在這時公布，日期確定後把用不到的訂單取消。</p></div>
-      <div class="step"><div class="when">演出前 1 週</div><h3>查好散場路線</h3><p>記下最近的捷運出口和替代路線，走一站去搭車常常比較快。</p></div>
-      <div class="step"><div class="when">演出當天</div><h3>先去飯店寄放行李</h3><p>多數飯店入住前可寄放行李，輕裝進場。</p></div>
+const STEPS = `<p>演唱會熱門場次一公布，周邊飯店往往很快就被訂滿，房價也可能跟著上漲。想住得近、價格又合理，建議按照以下時間安排：</p>
+    <div class="steps">
+      <div class="step"><div class="when">1. 演唱會公布場次</div><h3>先找飯店</h3><p>趁熱門房型還有空房，先比較場館周邊的住宿。如果選擇先訂房，優先考慮免費取消、取消期限及付款條件清楚的方案。</p></div>
+      <div class="step"><div class="when">2. 搶票結束後</div><h3>確認住宿日期</h3><p>成功買到票後，確認演出日期與入住時間。如果有多訂房間或日期不符，記得在取消期限前處理。</p></div>
+      <div class="step"><div class="when">3. 演出前 1 週</div><h3>規劃散場路線</h3><p>提前確認捷運末班車、公車班次與飯店位置。也可以準備替代路線，避免散場人潮影響回程。</p></div>
+      <div class="step"><div class="when">4. 演唱會當天</div><h3>輕裝出門</h3><p>如果飯店提供入住前行李寄放服務，可以先寄放行李，再輕鬆前往演唱會現場。</p></div>
     </div>`;
 
 const foot = `<footer>場館資料查證日期：${TODAY_ZH}。交通與容納人數依場館及主辦單位公告為準；步行時間為一般速度估算，散場人潮時會更久。住宿房價等級為一般情況參考，演唱會期間可能大幅上漲。</footer>
@@ -171,7 +172,7 @@ ${v.zones.map(z=>`    <article class="zone">
   </section>
 
   <section>
-    <h2>演唱會訂房時間表</h2>
+    <h2>演唱會訂房攻略：什麼時候訂房最適合？</h2>
     ${STEPS}
   </section>
 
@@ -199,52 +200,83 @@ ${others.map(o=>`      <a href="/concert/${o.slug}/">${o.short}住宿推薦<smal
 
 function hubPage(){
   const path = "/concert/";
-  const title = "演唱會住哪？全台演唱會場館住宿＋散場交通攻略";
-  const desc = "大巨蛋、小巨蛋、世運、高雄巨蛋、北流、Zepp New Taipei 演唱會住哪裡最方便？各場館周邊住宿區域、捷運出口和散場交通一次整理。";
+  const title = "演唱會住宿攻略｜全台演唱會場館附近飯店、交通與散場指南";
+  const desc = "準備去看演唱會嗎？整理台灣各大演唱會場館周邊住宿、飯店推薦、交通方式與散場攻略，幫你找到適合的住宿地點，不再擔心末班車與散場人潮。";
   const ld = {"@context":"https://schema.org","@graph":[
     {"@type":"CollectionPage","name":title,"url":SITE+path,"inLanguage":"zh-Hant-TW"},
     {"@type":"BreadcrumbList","itemListElement":[
       {"@type":"ListItem","position":1,"name":"放假日曆","item":SITE+"/"},
       {"@type":"ListItem","position":2,"name":"演唱會住宿","item":SITE+path}]}
   ]};
+  const ready = VENUES.filter(v=>v.page), soon = VENUES.filter(v=>!v.page);
   return head(title, desc, path, ld) + `
 <main class="article">
   <div>
     <div class="crumb"><a href="/">放假日曆</a> › 演唱會住宿</div>
-    <h1>演唱會住哪？<br>全台場館住宿＋散場交通攻略</h1>
+    <h1>演唱會住宿攻略<br>全台場館周邊飯店、交通與散場指南</h1>
     <div class="meta">更新日期：${TODAY_ZH}</div>
   </div>
 
-  <div class="answer">搶到票之後，下一件事就是住哪。這裡整理台灣主要演唱會場館周邊的<b>住宿區域</b>：走路能到哪裡、搭幾站捷運、房價大概多少，還有<b>散場怎麼避開人潮</b>。</div>
+  <div class="answer">搶到演唱會門票，接下來就是安排一趟輕鬆的追星之旅！</div>
+  <p>不論你要去台北大巨蛋、高雄世運主場館，還是其他演唱會場地，都能快速查詢周邊住宿、交通方式、步行距離與散場建議。</p>
+  <p>訂好住宿，規劃好交通，看完演唱會就能安心回飯店，不必再為末班車煩惱。</p>
 
   <section>
-    <h2>選擇場館</h2>
+    <h2>你要去哪個場館看演唱會？</h2>
+    <p>每個演唱會場館周邊的住宿與交通方式都不一樣。選擇你的演唱會場地，快速找到附近住宿區域、交通資訊，以及散場後最方便的回程方式。</p>
+    <h3 class="group-h">目前已整理的場館</h3>
     <div class="venues">
-${VENUES.map(v=> v.page
-  ? `      <a class="venue" href="/concert/${v.slug}/"><span class="city">${v.city}</span><span class="nm">${v.name}</span><small>${v.cap}</small></a>`
-  : `      <div class="venue soon"><span class="city">${v.city}</span><span class="nm">${v.name}</span><small>${v.cap} · 整理中</small></div>`).join("\n")}
+${ready.map(v=>`      <a class="venue" href="/concert/${v.slug}/"><span class="city">${v.district}</span><span class="nm">${v.name}</span><small>${v.cap}</small><span class="cta">查看住宿攻略 →</span></a>`).join("\n")}
+    </div>
+    <h3 class="group-h">即將推出</h3>
+    <div class="venues">
+${soon.map(v=>`      <div class="venue soon"><span class="badge">即將推出</span><span class="city">${v.district}</span><span class="nm">${v.name}</span><small>${v.cap}</small><small>交通：${v.mrt}</small></div>`).join("\n")}
     </div>
   </section>
 
   <div class="ad">廣告版位 336×280</div>
 
   <section>
-    <h2>看完要不要住一晚？</h2>
-    <p>從外縣市來看演唱會，最怕散場後趕不上末班車。回答兩個問題，馬上給你建議。</p>
+    <h2>住宿區域怎麼選？</h2>
+    <p>同一個場館，住在不同區域的體驗差很多。先想清楚自己最在意的是「散場走路就到」、「房價」，還是「隔天好搭車」，再挑區域。</p>
+    <div class="tbl"><table>
+      <thead><tr><th>住宿區域</th><th>優點</th><th>缺點</th><th>適合</th></tr></thead>
+      <tbody>
+        <tr><td>場館附近</td><td>散場走路回飯店，不用擠捷運</td><td>房源少，演唱會期間房價漲最多</td><td>只想看完馬上休息的人</td></tr>
+        <tr><td>捷運沿線 1～3 站</td><td>選擇多、價格較穩，還能避開最擠的車站</td><td>散場後仍要搭一小段捷運</td><td>想兼顧預算和方便的人</td></tr>
+        <tr><td>高鐵、火車站周邊</td><td>隔天回家最順，平價住宿多</td><td>離場館較遠，散場回程時間較長</td><td>外縣市來、隔天一早要搭車的人</td></tr>
+      </tbody>
+    </table></div>
+  </section>
+
+  <section>
+    <h2>演唱會散場交通實戰攻略</h2>
+    <p>大型演唱會散場時，最近的捷運站常常要排隊管制進站。這幾個做法可以少等很多時間：</p>
+    <ul class="tips">
+      <li><b>走一站再搭車</b>：往下一站走 10～15 分鐘，通常比在最近的車站排隊快。</li>
+      <li><b>先查好末班車</b>：高鐵、台鐵、客運的末班時間演出前就要確認，散場加排隊可能要 40 分鐘以上。</li>
+      <li><b>留意接駁車公告</b>：大型場次常有往高鐵站或火車站的接駁車，班次和上車地點依各場次公告為準。</li>
+      <li><b>不要開車</b>：演唱會期間場館周邊常有交通管制，停車位也很難找。</li>
+    </ul>
+  </section>
+
+  <section>
+    <h2>演唱會結束太晚？幫你找出最適合的住宿方式</h2>
+    <p>外縣市看演唱會，最怕的就是散場人潮、末班車，以及拖著疲憊的身體趕車。不確定該不該住一晚？回答兩個簡單問題，幫你評估是否需要住宿；需要的話，再到上面的場館頁看推薦的住宿區域。</p>
+    <h3 class="group-h">看完演唱會，你打算怎麼回家？</h3>
     <div class="helper" data-helper></div>
   </section>
 
   <section>
-    <h2>演唱會訂房時間表</h2>
-    <p>熱門場次一公布，周邊房價常常跟著跳漲。照這個順序來，比較不會訂不到或買貴。</p>
+    <h2>演唱會訂房攻略：什麼時候訂房最適合？</h2>
     ${STEPS}
   </section>
 
   <section>
     <h2>延伸閱讀</h2>
     <div class="related">
+${ready.map(v=>`      <a href="/concert/${v.slug}/">${v.short}住宿攻略<small>${v.name}</small></a>`).join("\n")}
       <a href="/#calendar">2027 全年行事曆<small>演唱會接連假，一次排好</small></a>
-      <a href="/#planner">請假攻略計算器<small>輸入特休天數，排出最長連休</small></a>
     </div>
   </section>
 </main>

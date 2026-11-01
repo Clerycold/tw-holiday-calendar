@@ -5,7 +5,7 @@ a.venue:hover{border-color:var(--red)}
 .venue .city{font-size:.72rem;color:var(--muted);letter-spacing:.06em}
 .venue .nm{font-family:var(--f-display);font-weight:900;font-size:1.1rem}
 .venue small{color:var(--muted);font-size:.8rem}
-.venue.soon{opacity:.6}
+
 
 .facts{display:grid;grid-template-columns:auto 1fr;gap:6px 16px;margin:0;background:var(--sheet);border:1px solid var(--rule);border-radius:6px;padding:14px 16px;font-size:.95rem}
 .facts dt{color:var(--muted)}
@@ -42,3 +42,8 @@ a.venue:hover{border-color:var(--red)}
 .step .when{font-size:.75rem;color:var(--red);font-weight:700}
 .step h3{font-size:1rem;margin:2px 0 4px}
 .step p{margin:0;font-size:.9rem;color:var(--muted)}
+.venue .cta{margin-top:6px;font-size:.85rem;font-weight:700;color:var(--red)}
+.venue.soon{border-style:dashed;background:transparent}
+.venue .badge{justify-self:start;font-size:.7rem;padding:0 8px;border-radius:999px;background:var(--rule);color:var(--muted);margin-bottom:4px}
+.group-h{font-size:1rem;margin:16px 0 8px}
+.tips{margin:0;padding-left:1.2em;display:grid;gap:6px;max-width:65ch}
