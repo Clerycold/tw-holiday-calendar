@@ -1,7 +1,8 @@
 // 產生 /tools/ 試算工具頁。執行：node _src/build-tools.mjs（在 repo 根目錄）
 import { writeFileSync, mkdirSync } from "node:fs";
 import { createRequire } from "node:module";
-const { TW_HOL } = createRequire(import.meta.url)("../assets/tools/calc.js");
+const require_ = createRequire(import.meta.url);
+const { TW_HOL } = require_("../assets/tools/calc.js");
 
 const SITE = "https://fangjiatw.com";
 const UPDATED = "2026-11-01";
@@ -64,8 +65,8 @@ ${path === "/tools/" ? "" : related(path)}
 </main>
 
 <footer><a href="/about/">關於我們</a> · <a href="/privacy/">隱私權政策</a> · <a href="/disclosure/">聯盟連結揭露</a><br>本站試算結果僅供參考，實際金額以主管機關規定、公司制度及官方系統計算為準。</footer>
-${scripts ? `<script src="/assets/tools/calc.js?v=2"></script>
-<script src="/assets/tools/ui.js?v=2"></script>` : ""}
+${scripts ? `<script src="/assets/tools/calc.js?v=3"></script>
+<script src="/assets/tools/ui.js?v=3"></script>` : ""}
 </body>
 </html>
 `;
@@ -84,6 +85,9 @@ const TOOLS = [
   { path: "/tools/workdays/", name: "工作天數計算", sub: "扣掉國定假日＋Excel NETWORKDAYS 公式", pill: "Excel",
     ask: "扣掉國定假日，還有幾個工作天？", cta: "計算工作天數",
     xls: "fangjiatw-workdays.xlsx", xlsName: "工作天數計算表", xlsFor: "算交期、請款天數，內建台灣國定假日" },
+  { path: "/tools/insurance/", name: "勞健保費計算機", sub: "勞保、健保、勞退每月扣多少", pill: "薪資",
+    ask: "薪水每個月被扣多少勞健保？", cta: "計算勞健保費",
+    xls: "fangjiatw-insurance-115.xlsx", xlsName: "115年勞健保勞退計算表", xlsFor: "人資一次算全公司的勞健保、勞退與人事成本" },
 ];
 function related(path) {
   const others = TOOLS.filter(t => t.path !== path).map(t => `      <a href="${t.path}">${t.name}<small>${t.sub}</small></a>`);
@@ -131,7 +135,7 @@ ${TOOLS.map(t => `        <tr><td>${t.xlsName}</td><td>${t.xlsFor}</td><td><a hr
     <h2>開發中的工具</h2>
     <p>以下工具還在製作，<b>目前還不能使用</b>，完成後會出現在上方的工具列表：</p>
     <div class="toolgrid">
-      <div class="soon" style="border:1px dashed var(--rule);border-radius:8px;padding:16px"><span class="pill">開發中</span><b style="display:block;margin:6px 0">勞健保費計算</b><small class="note">輸入月薪，算出勞保、健保、勞退的個人負擔。</small></div>
+      <div class="soon" style="border:1px dashed var(--rule);border-radius:8px;padding:16px"><span class="pill">開發中</span><b style="display:block;margin:6px 0">薪資實領計算</b><small class="note">月薪扣掉勞健保、所得稅預扣後，實際入帳多少。</small></div>
       <div class="soon" style="border:1px dashed var(--rule);border-radius:8px;padding:16px"><span class="pill">開發中</span><b style="display:block;margin:6px 0">資遣費計算</b><small class="note">輸入到職日、離職日與平均工資，計算新舊制資遣費。</small></div>
     </div>
   </section>
@@ -553,7 +557,100 @@ ${Object.entries(TW_HOL).sort().map(([k, n]) => { const d = new Date(k + "T00:00
   </section>`,
 });
 
-const out = { "tools/index.html": hub, "tools/income-tax/index.html": tax, "tools/annual-leave/index.html": leave, "tools/overtime/index.html": overtime, "tools/workdays/index.html": workdays };
+// ---------------- 勞健保 ----------------
+const INS = require_("../assets/tools/calc.js");
+const sampleRows = [29500, 32000, 36000, 40000, 45000, 50000, 60000, 80000, 100000].map(s => {
+  const r = INS.laborIns({ salary: s });
+  return `        <tr><td class="num">${s.toLocaleString()}</td><td class="num">${(r.li.emp + r.ei.emp).toLocaleString()}</td><td class="num">${r.nhi.emp.toLocaleString()}</td><td class="num">${r.pen.er.toLocaleString()}</td><td class="num">${(r.li.emp + r.ei.emp + r.nhi.emp).toLocaleString()}</td></tr>`;
+}).join("\n");
+const insFaq = [
+  ["2026 年勞保費率是多少？", "勞保普通事故保險費率 11.5%，加上就業保險費率 1%，合計 12.5%。勞工負擔 20%、雇主 70%、政府 10%。"],
+  ["月薪 36,000 元，勞健保要扣多少？", "勞保投保級距 36,300 元，勞保加就保自付 908 元；健保投保級距 36,300 元，本人自付 563 元。合計每月約扣 1,471 元，不含勞退自提。"],
+  ["月薪超過 45,800 元，勞保費會一直增加嗎？", "不會。勞保投保薪資最高 45,800 元，月薪超過 43,900 元就按最高級距計算；但健保最高到 313,000 元、勞退提繳工資最高到 150,000 元，會隨薪水增加。"],
+  ["健保眷屬要另外付錢嗎？", "要。每多 1 位眷屬，就多 1 份本人的健保費，最多算 3 口；超過 3 口的眷屬不用再加錢。"],
+  ["勞退自提划算嗎？", "勞退自提最多 6%，會存進你的勞退個人專戶，而且自提金額可以從當年度薪資所得中全數減除，等於少繳一些所得稅；缺點是要到 60 歲才能領出來。"],
+];
+const insurance = page({
+  path: "/tools/insurance/", crumb: "勞健保費計算機",
+  title: "勞健保費計算機｜2026 勞保、健保、勞退自付額試算（115 年級距）",
+  h1: "勞健保費計算機<br>薪水每個月被扣多少？",
+  desc: "2026（115 年）勞健保費計算機：輸入月薪，依官方投保級距算出勞保、就保、健保個人自付額、雇主負擔與勞退 6% 提繳，含眷屬與勞退自提，附 Excel 範本。",
+  faq: insFaq, app: "勞健保費計算機",
+  body: `
+  <div class="answer">2026 年基本工資 <b>29,500 元</b>。勞保＋就保費率 <b>12.5%</b>（你付 20%），健保費率 <b>5.17%</b>（你付 30%），公司另外幫你提繳 <b>6% 勞退</b>。月薪 3 萬左右，每月勞健保自付大約 <b>1,200～1,300 元</b>。</div>
+
+  <section>
+    <h2>勞健保費試算</h2>
+    <form class="tool" data-tool="insurance" autocomplete="off">
+      <div class="fields">
+        ${field("salary", "月薪（含固定津貼，元）", 'placeholder="例如 36000"')}
+        <label class="field">健保眷屬人數<select name="deps"><option value="0">0（只有本人）</option><option value="1">1 人</option><option value="2">2 人</option><option value="3">3 人以上</option></select></label>
+        <label class="field">勞退自提<select name="selfPct">${[0,1,2,3,4,5,6].map(v => `<option value="${v}">${v}%</option>`).join("")}</select></label>
+      </div>
+      <label class="check"><input type="checkbox" name="noEI">不適用就業保險（例如年滿 65 歲、已領勞保老年給付、外籍人士）</label>
+      <div class="result" id="insOut" aria-live="polite"></div>
+    </form>
+    <p class="note" style="margin-top:8px">依勞保局、健保署公告的 115 年 1 月 1 日起投保級距計算，適用一般全職受僱勞工。職災保險費由公司全額負擔，未列入。計算都在你的瀏覽器裡完成。</p>
+  </section>
+
+  <div class="ad">廣告版位 336×280</div>
+
+  <section>
+    <h2>常見月薪的勞健保自付額</h2>
+    <div class="tbl"><table>
+      <thead><tr><th>月薪</th><th>勞保＋就保自付</th><th>健保自付（本人）</th><th>公司提繳勞退</th><th>每月自付合計</th></tr></thead>
+      <tbody>
+${sampleRows}
+      </tbody>
+    </table></div>
+    <p class="note" style="margin-top:8px">每多 1 位健保眷屬，健保自付再加 1 份本人金額（最多加 3 份）。</p>
+  </section>
+
+  <section>
+    <h2>勞健保費怎麼算？</h2>
+    <p><b>第 1 步：找投保級距</b>。把月薪（含固定津貼、全勤獎金等經常性給與）對到分級表，<b>往上取最接近的級距</b>。例如月薪 36,000 元，勞保、健保都落在 36,300 元這一級。</p>
+    <p><b>第 2 步：乘上費率和負擔比例</b>：</p>
+    <div class="tbl"><table>
+      <thead><tr><th>項目</th><th>費率</th><th>你付</th><th>公司付</th><th>級距上限</th></tr></thead>
+      <tbody>
+        <tr><td>勞保（普通事故）</td><td class="num">11.5%</td><td class="num">20%</td><td class="num">70%</td><td class="num">45,800</td></tr>
+        <tr><td>就業保險</td><td class="num">1%</td><td class="num">20%</td><td class="num">70%</td><td class="num">45,800</td></tr>
+        <tr><td>健保</td><td class="num">5.17%</td><td class="num">30% ×（1＋眷屬數）</td><td class="num">60% × 1.56</td><td class="num">313,000</td></tr>
+        <tr><td>勞退</td><td class="num">6%</td><td class="num">自提 0～6%</td><td class="num">6%</td><td class="num">150,000</td></tr>
+      </tbody>
+    </table></div>
+    <p style="margin-top:12px">以月薪 36,000 元為例：勞保 36,300 × 11.5% × 20% ＝ 835 元，就保 36,300 × 1% × 20% ＝ 73 元，健保 36,300 × 5.17% × 30% ＝ 563 元，<b>合計 1,471 元</b>。</p>
+    <p class="note">公司的健保負擔乘以 1.56，是因為要幫員工的「平均眷口數 0.56 人」一起付。</p>
+  </section>
+
+  <section>
+    <h2>2026 年勞保投保薪資分級表</h2>
+    <div class="tbl"><table>
+      <thead><tr><th>等級</th><th>月薪資總額</th><th>月投保薪資</th></tr></thead>
+      <tbody>
+${INS.INS115.li.map(([cap, g], i, a) => `        <tr><td>第 ${i + 1} 級</td><td class="num">${i === 0 ? "29,500 以下" : `${(a[i - 1][0] + 1).toLocaleString()}${cap === Infinity ? " 以上" : "～" + cap.toLocaleString()}`}</td><td class="num">${g.toLocaleString()}</td></tr>`).join("\n")}
+      </tbody>
+    </table></div>
+    <p class="note" style="margin-top:8px">注意第 11 級：月薪 43,901 元以上就直接按 45,800 元投保。來源：<a href="https://www.bli.gov.tw/0005475.html" rel="nofollow">勞保局勞工保險投保薪資分級表</a>（115 年 1 月 1 日施行）。</p>
+  </section>
+
+  <section>
+    <h2>報稅時，勞健保費可以扣除</h2>
+    <p>你自己繳的勞保、就保、健保費，報稅時可以列入「保險費列舉扣除額」。健保費沒有上限；2026 年修法後，勞保等社會保險費也不再受每人 2.4 萬元的限制。勞退自提則是直接從薪資所得中減除。想知道明年要繳多少稅，可以用<a href="/tools/income-tax/">所得稅試算</a>。</p>
+  </section>
+
+  <section>
+    <h2>用 Excel 算勞健保</h2>
+    ${dl("fangjiatw-insurance-115.xlsx", "115年勞健保勞退計算表_放假日曆.xlsx", "內建 115 年勞保、健保、勞退三張官方級距表，輸入員工月薪和眷屬人數，自動算出每人自付額與公司成本。")}
+    <p>級距表放在「級距」工作表，月薪在 B2 時，健保投保金額可以用「往上找最接近級距」的公式：</p>
+    ${formula("nhiGradeFormula", "=INDEX(級距!C:C,MATCH(TRUE,INDEX(級距!C2:C59>=B2,0),0)+1)")}
+    <p style="margin-top:12px">勞保自付（含就保）：</p>
+    ${formula("liFormula", "=ROUND(C2*11.5%*20%,0)+ROUND(C2*1%*20%,0)")}
+    <p style="margin-top:12px">C2 是勞保投保薪資。勞保和就保要<b>分開四捨五入</b>再相加，才會和勞保局的分擔金額表一致。</p>
+  </section>`,
+});
+
+const out = { "tools/index.html": hub, "tools/insurance/index.html": insurance, "tools/income-tax/index.html": tax, "tools/annual-leave/index.html": leave, "tools/overtime/index.html": overtime, "tools/workdays/index.html": workdays };
 for (const [f, html] of Object.entries(out)) {
   mkdirSync(f.replace(/\/[^/]+$/, ""), { recursive: true });
   writeFileSync(f, html);

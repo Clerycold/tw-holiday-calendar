@@ -223,8 +223,63 @@ def workdays():
     wb.save(f"{OUT}/fangjiatw-workdays.xlsx")
 
 
+# ---------------- 5. 勞健保勞退 ----------------
+INS = json.loads(subprocess.check_output(
+    ["node", "-e", "const I=require('./assets/tools/calc.js').INS115;process.stdout.write(JSON.stringify({li:I.li.map(([c,g])=>[c===Infinity?null:c,g]),nhi:I.nhi,pension:I.pension}))"]))
+
+
+def insurance():
+    wb = book(); ws = wb.active; ws.title = "勞健保"
+    base(ws, "115 年勞保、健保、勞退計算表（2026 年 1 月 1 日起）",
+         "一般全職受僱勞工適用。月薪請填含固定津貼的經常性薪資；職災保險由公司全額負擔，未列入。")
+    heads = ["員工", "月薪", "健保眷屬", "勞退自提%", "適用就保", "勞保級距", "健保級距", "勞退級距",
+             "勞保自付", "就保自付", "健保自付", "勞退自提", "個人合計", "約實領",
+             "勞保公司", "就保公司", "健保公司", "勞退公司6%", "公司合計", "人事成本"]
+    header(ws, 5, heads, [10, 10, 8, 9, 8, 10, 10, 10, 9, 9, 9, 9, 10, 10, 9, 9, 9, 10, 10, 11])
+    samples = [("王小明", 36000, 0, 0, "是"), ("陳小華", 52000, 2, 6, "是"), ("林大同", 120000, 1, 0, "是")]
+    for i in range(30):
+        r = 6 + i
+        if i < len(samples):
+            for c, v in zip("ABCDE", samples[i]): ws[f"{c}{r}"] = v
+        e = f'B{r}=""'
+        ws[f"F{r}"] = f'=IF({e},"",VLOOKUP(B{r},級距!$A$2:$B$12,2,TRUE))'
+        ws[f"G{r}"] = f'=IF({e},"",IF(B{r}>級距!$C$59,級距!$C$59,INDEX(級距!$C$2:$C$59,MATCH(TRUE,INDEX(級距!$C$2:$C$59>=B{r},0),0))))'
+        ws[f"H{r}"] = f'=IF({e},"",IF(B{r}>級距!$D$63,級距!$D$63,INDEX(級距!$D$2:$D$63,MATCH(TRUE,INDEX(級距!$D$2:$D$63>=B{r},0),0))))'
+        ws[f"I{r}"] = f'=IF({e},"",ROUND(F{r}*11.5%*20%,0))'
+        ws[f"J{r}"] = f'=IF({e},"",IF(E{r}="否",0,ROUND(F{r}*1%*20%,0)))'
+        ws[f"K{r}"] = f'=IF({e},"",ROUND(G{r}*5.17%*30%,0)*(1+MIN(3,N(C{r}))))'
+        ws[f"L{r}"] = f'=IF({e},"",ROUND(H{r}*MIN(6,N(D{r}))/100,0))'
+        ws[f"M{r}"] = f'=IF({e},"",I{r}+J{r}+K{r}+L{r})'
+        ws[f"N{r}"] = f'=IF({e},"",B{r}-M{r})'
+        ws[f"O{r}"] = f'=IF({e},"",ROUND(F{r}*11.5%*70%,0))'
+        ws[f"P{r}"] = f'=IF({e},"",IF(E{r}="否",0,ROUND(F{r}*1%*70%,0)))'
+        ws[f"Q{r}"] = f'=IF({e},"",ROUND(G{r}*5.17%*60%*1.56,0))'
+        ws[f"R{r}"] = f'=IF({e},"",ROUND(H{r}*6%,0))'
+        ws[f"S{r}"] = f'=IF({e},"",O{r}+P{r}+Q{r}+R{r})'
+        ws[f"T{r}"] = f'=IF({e},"",B{r}+S{r})'
+        for c in "ABCDE": style(ws, f"{c}{r}", INPUT, MONEY if c == "B" else None)
+        for c in "FGHIJKLMNOPQRST": style(ws, f"{c}{r}", OUTF, MONEY)
+    dv = DataValidation(type="list", formula1='"是,否"', allow_blank=True); ws.add_data_validation(dv); dv.add("E6:E35")
+    dv2 = DataValidation(type="list", formula1='"0,1,2,3"', allow_blank=True); ws.add_data_validation(dv2); dv2.add("C6:C35")
+    ws.freeze_panes = "C6"
+    ws["A37"] = "勞保 11.5%＋就保 1%（勞工 20%、公司 70%）；健保 5.17%（勞工 30% × 本人＋眷屬，最多 3 口；公司 60% × 1.56）；勞退公司 6%、自提 0～6%。適用就保填「否」：65 歲以上、已領勞保老年給付或外籍人士等。"
+    ws["A37"].font = Font(name=FONT, size=10, color="6B6F78")
+
+    lv = wb.create_sheet("級距")
+    header(lv, 1, ["勞保月薪下限", "勞保投保薪資", "健保投保金額", "勞退月提繳工資"], [14, 14, 14, 16])
+    lo = 0
+    for i, (cap, g) in enumerate(INS["li"], start=2):
+        lv.cell(row=i, column=1, value=lo).number_format = MONEY
+        lv.cell(row=i, column=2, value=g).number_format = MONEY
+        lo = (cap or 0) + 1
+    for i, g in enumerate(INS["nhi"], start=2): lv.cell(row=i, column=3, value=g).number_format = MONEY
+    for i, g in enumerate(INS["pension"], start=2): lv.cell(row=i, column=4, value=g).number_format = MONEY
+    lv["F1"] = "來源：勞保局勞工保險投保薪資分級表、勞工退休金月提繳分級表、健保署投保金額分級表，皆自 115 年 1 月 1 日起適用。"
+    wb.save(f"{OUT}/fangjiatw-insurance-115.xlsx")
+
+
 if __name__ == "__main__":
     import os
     os.makedirs(OUT, exist_ok=True)
-    income_tax(); annual_leave(); overtime(); workdays()
+    income_tax(); annual_leave(); overtime(); workdays(); insurance()
     print("ok", sorted(os.listdir(OUT)))

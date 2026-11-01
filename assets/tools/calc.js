@@ -118,6 +118,38 @@
     return {hourly:h, rows:out, total};
   }
 
+  // ---- 勞保、就保、健保、勞退（115 年 1 月 1 日起）----
+  // 來源：勞保局勞工保險投保薪資分級表（勞動保 2 字第 1140091863 號）、勞工退休金月提繳分級表（勞動福 3 字第 1140153598 號）、
+  //       健保署保險費負擔金額表(三)（115.1.1 生效）。
+  const INS115 = {
+    // 勞保：[月薪資上限, 月投保薪資]，第 11 級為 43,901 元以上 → 45,800
+    li: [[29500,29500],[30300,30300],[31800,31800],[33300,33300],[34800,34800],[36300,36300],[38200,38200],[40100,40100],[42000,42000],[43900,43900],[Infinity,45800]],
+    nhi: [29500,30300,31800,33300,34800,36300,38200,40100,42000,43900,45800,48200,50600,53000,55400,57800,60800,63800,66800,69800,72800,
+          76500,80200,83900,87600,92100,96600,101100,105600,110100,115500,120900,126300,131700,137100,142500,147900,150000,156400,162800,
+          169200,175600,182000,189500,197000,204500,212000,219500,228200,236900,245600,254300,263000,273000,283000,293000,303000,313000],
+    pension: [1500,3000,4500,6000,7500,8700,9900,11100,12540,13500,15840,16500,17280,17880,19047,20008,21009,22000,23100,24000,25250,26400,
+          27600,28590,29500,30300,31800,33300,34800,36300,38200,40100,42000,43900,45800,48200,50600,53000,55400,57800,60800,63800,66800,
+          69800,72800,76500,80200,83900,87600,92100,96600,101100,105600,110100,115500,120900,126300,131700,137100,142500,147900,150000],
+    liRate:.115, eiRate:.01, nhiRate:.0517, avgDeps:.56, minWage:29500
+  };
+  const gradeUp = (list, v) => list.find(g => v <= g) ?? list[list.length-1];
+  // p = {salary, deps（健保眷屬人數）, noEI（不適用就業保險）, selfPct（勞退自提 %）}
+  function laborIns(p){
+    const I = INS115, n = v => Math.max(0, +v || 0), r = Math.round;
+    const s = n(p.salary), deps = Math.min(3, Math.floor(n(p.deps)));
+    const liGrade = I.li.find(([cap]) => s <= cap)[1];
+    const nhiGrade = gradeUp(I.nhi, s), penGrade = gradeUp(I.pension, s);
+    const li = {grade: liGrade, emp: r(liGrade*I.liRate*.2), er: r(liGrade*I.liRate*.7)};
+    const ei = p.noEI ? {emp:0, er:0} : {emp: r(liGrade*I.eiRate*.2), er: r(liGrade*I.eiRate*.7)};
+    const nhiOne = r(nhiGrade*I.nhiRate*.3);
+    const nhi = {grade: nhiGrade, emp: nhiOne*(1+deps), er: r(nhiGrade*I.nhiRate*.6*(1+I.avgDeps)), deps};
+    const pct = Math.min(6, n(p.selfPct));
+    const pen = {grade: penGrade, er: r(penGrade*.06), emp: r(penGrade*pct/100), pct};
+    const empTotal = li.emp + ei.emp + nhi.emp + pen.emp;
+    const erTotal = li.er + ei.er + nhi.er + pen.er;
+    return {salary:s, li, ei, nhi, pen, empTotal, erTotal, takeHome: s - empTotal, belowMin: s > 0 && s < I.minWage};
+  }
+
   // ---- 台灣國定假日（政府行政機關辦公日曆表 115、116 年）----
   const TW_HOL = {
     "2026-01-01":"元旦","2026-02-15":"小年夜","2026-02-16":"除夕","2026-02-17":"春節 初一","2026-02-18":"春節 初二",
@@ -157,6 +189,6 @@
   }
   const weekdayHolidays = () => Object.keys(TW_HOL).filter(k => !isWeekend(new Date(k+"T00:00")));
 
-  const api = {TAX115, taxOf, rateOf, incomeTax, annualLeave, calendarYearLeave, leaveDaysForYears, overtime, TW_HOL, workdays, addWorkdays, weekdayHolidays, key};
+  const api = {TAX115, INS115, laborIns, taxOf, rateOf, incomeTax, annualLeave, calendarYearLeave, leaveDaysForYears, overtime, TW_HOL, workdays, addWorkdays, weekdayHolidays, key};
   if(typeof module !== "undefined") module.exports = api; else root.Calc = api;
 })(this);

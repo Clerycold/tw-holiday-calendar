@@ -1,0 +1,246 @@
+<!doctype html>
+<html lang="zh-Hant-TW">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>勞健保費計算機｜2026 勞保、健保、勞退自付額試算（115 年級距）｜放假日曆</title>
+<meta name="description" content="2026（115 年）勞健保費計算機：輸入月薪，依官方投保級距算出勞保、就保、健保個人自付額、雇主負擔與勞退 6% 提繳，含眷屬與勞退自提，附 Excel 範本。">
+<link rel="canonical" href="https://fangjiatw.com/tools/insurance/">
+<meta property="og:type" content="website">
+<meta property="og:title" content="勞健保費計算機｜2026 勞保、健保、勞退自付額試算（115 年級距）">
+<meta property="og:description" content="2026（115 年）勞健保費計算機：輸入月薪，依官方投保級距算出勞保、就保、健保個人自付額、雇主負擔與勞退 6% 提繳，含眷屬與勞退自提，附 Excel 範本。">
+<meta property="og:url" content="https://fangjiatw.com/tools/insurance/">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@600;900&family=Noto+Sans+TC:wght@400;500;700&family=JetBrains+Mono:wght@500&display=swap">
+<link rel="stylesheet" href="/assets/site.css?v=3">
+<link rel="stylesheet" href="/assets/tools/tools.css?v=2">
+<script type="application/ld+json">
+{
+ "@context": "https://schema.org",
+ "@graph": [
+  {
+   "@type": "WebPage",
+   "name": "勞健保費計算機｜2026 勞保、健保、勞退自付額試算（115 年級距）",
+   "url": "https://fangjiatw.com/tools/insurance/",
+   "inLanguage": "zh-Hant-TW",
+   "dateModified": "2026-11-01",
+   "publisher": {
+    "@type": "Organization",
+    "name": "放假日曆",
+    "url": "https://fangjiatw.com/"
+   }
+  },
+  {
+   "@type": "WebApplication",
+   "name": "勞健保費計算機",
+   "url": "https://fangjiatw.com/tools/insurance/",
+   "applicationCategory": "FinanceApplication",
+   "operatingSystem": "Any",
+   "inLanguage": "zh-Hant-TW",
+   "isAccessibleForFree": true,
+   "offers": {
+    "@type": "Offer",
+    "price": "0",
+    "priceCurrency": "TWD"
+   }
+  },
+  {
+   "@type": "BreadcrumbList",
+   "itemListElement": [
+    {
+     "@type": "ListItem",
+     "position": 1,
+     "name": "放假日曆",
+     "item": "https://fangjiatw.com/"
+    },
+    {
+     "@type": "ListItem",
+     "position": 2,
+     "name": "試算工具",
+     "item": "https://fangjiatw.com/tools/"
+    },
+    {
+     "@type": "ListItem",
+     "position": 3,
+     "name": "勞健保費計算機",
+     "item": "https://fangjiatw.com/tools/insurance/"
+    }
+   ]
+  },
+  {
+   "@type": "FAQPage",
+   "mainEntity": [
+    {
+     "@type": "Question",
+     "name": "2026 年勞保費率是多少？",
+     "acceptedAnswer": {
+      "@type": "Answer",
+      "text": "勞保普通事故保險費率 11.5%，加上就業保險費率 1%，合計 12.5%。勞工負擔 20%、雇主 70%、政府 10%。"
+     }
+    },
+    {
+     "@type": "Question",
+     "name": "月薪 36,000 元，勞健保要扣多少？",
+     "acceptedAnswer": {
+      "@type": "Answer",
+      "text": "勞保投保級距 36,300 元，勞保加就保自付 908 元；健保投保級距 36,300 元，本人自付 563 元。合計每月約扣 1,471 元，不含勞退自提。"
+     }
+    },
+    {
+     "@type": "Question",
+     "name": "月薪超過 45,800 元，勞保費會一直增加嗎？",
+     "acceptedAnswer": {
+      "@type": "Answer",
+      "text": "不會。勞保投保薪資最高 45,800 元，月薪超過 43,900 元就按最高級距計算；但健保最高到 313,000 元、勞退提繳工資最高到 150,000 元，會隨薪水增加。"
+     }
+    },
+    {
+     "@type": "Question",
+     "name": "健保眷屬要另外付錢嗎？",
+     "acceptedAnswer": {
+      "@type": "Answer",
+      "text": "要。每多 1 位眷屬，就多 1 份本人的健保費，最多算 3 口；超過 3 口的眷屬不用再加錢。"
+     }
+    },
+    {
+     "@type": "Question",
+     "name": "勞退自提划算嗎？",
+     "acceptedAnswer": {
+      "@type": "Answer",
+      "text": "勞退自提最多 6%，會存進你的勞退個人專戶，而且自提金額可以從當年度薪資所得中全數減除，等於少繳一些所得稅；缺點是要到 60 歲才能領出來。"
+     }
+    }
+   ]
+  }
+ ]
+}
+</script>
+</head>
+<body>
+<header class="top">
+  <a class="logo" href="/">放假<span>日曆</span></a>
+  <nav><a href="/#planner">請假計算器</a><a href="/tools/">試算工具</a><a href="/concert/">演唱會住宿</a><a href="/#calendar">全年行事曆</a></nav>
+</header>
+
+<main class="article">
+  <div>
+    <div class="crumb"><a href="/">放假日曆</a> › <a href="/tools/">試算工具</a> › 勞健保費計算機</div>
+    <h1>勞健保費計算機<br>薪水每個月被扣多少？</h1>
+    <div class="meta">更新日期：2026 年 11 月 1 日</div>
+  </div>
+
+  <div class="answer">2026 年基本工資 <b>29,500 元</b>。勞保＋就保費率 <b>12.5%</b>（你付 20%），健保費率 <b>5.17%</b>（你付 30%），公司另外幫你提繳 <b>6% 勞退</b>。月薪 3 萬左右，每月勞健保自付大約 <b>1,200～1,300 元</b>。</div>
+
+  <section>
+    <h2>勞健保費試算</h2>
+    <form class="tool" data-tool="insurance" autocomplete="off">
+      <div class="fields">
+        <label class="field">月薪（含固定津貼，元）<input name="salary" inputmode="numeric" placeholder="例如 36000"></label>
+        <label class="field">健保眷屬人數<select name="deps"><option value="0">0（只有本人）</option><option value="1">1 人</option><option value="2">2 人</option><option value="3">3 人以上</option></select></label>
+        <label class="field">勞退自提<select name="selfPct"><option value="0">0%</option><option value="1">1%</option><option value="2">2%</option><option value="3">3%</option><option value="4">4%</option><option value="5">5%</option><option value="6">6%</option></select></label>
+      </div>
+      <label class="check"><input type="checkbox" name="noEI">不適用就業保險（例如年滿 65 歲、已領勞保老年給付、外籍人士）</label>
+      <div class="result" id="insOut" aria-live="polite"></div>
+    </form>
+    <p class="note" style="margin-top:8px">依勞保局、健保署公告的 115 年 1 月 1 日起投保級距計算，適用一般全職受僱勞工。職災保險費由公司全額負擔，未列入。計算都在你的瀏覽器裡完成。</p>
+  </section>
+
+  <div class="ad">廣告版位 336×280</div>
+
+  <section>
+    <h2>常見月薪的勞健保自付額</h2>
+    <div class="tbl"><table>
+      <thead><tr><th>月薪</th><th>勞保＋就保自付</th><th>健保自付（本人）</th><th>公司提繳勞退</th><th>每月自付合計</th></tr></thead>
+      <tbody>
+        <tr><td class="num">29,500</td><td class="num">738</td><td class="num">458</td><td class="num">1,770</td><td class="num">1,196</td></tr>
+        <tr><td class="num">32,000</td><td class="num">833</td><td class="num">516</td><td class="num">1,998</td><td class="num">1,349</td></tr>
+        <tr><td class="num">36,000</td><td class="num">908</td><td class="num">563</td><td class="num">2,178</td><td class="num">1,471</td></tr>
+        <tr><td class="num">40,000</td><td class="num">1,002</td><td class="num">622</td><td class="num">2,406</td><td class="num">1,624</td></tr>
+        <tr><td class="num">45,000</td><td class="num">1,145</td><td class="num">710</td><td class="num">2,748</td><td class="num">1,855</td></tr>
+        <tr><td class="num">50,000</td><td class="num">1,145</td><td class="num">785</td><td class="num">3,036</td><td class="num">1,930</td></tr>
+        <tr><td class="num">60,000</td><td class="num">1,145</td><td class="num">943</td><td class="num">3,648</td><td class="num">2,088</td></tr>
+        <tr><td class="num">80,000</td><td class="num">1,145</td><td class="num">1,244</td><td class="num">4,812</td><td class="num">2,389</td></tr>
+        <tr><td class="num">100,000</td><td class="num">1,145</td><td class="num">1,568</td><td class="num">6,066</td><td class="num">2,713</td></tr>
+      </tbody>
+    </table></div>
+    <p class="note" style="margin-top:8px">每多 1 位健保眷屬，健保自付再加 1 份本人金額（最多加 3 份）。</p>
+  </section>
+
+  <section>
+    <h2>勞健保費怎麼算？</h2>
+    <p><b>第 1 步：找投保級距</b>。把月薪（含固定津貼、全勤獎金等經常性給與）對到分級表，<b>往上取最接近的級距</b>。例如月薪 36,000 元，勞保、健保都落在 36,300 元這一級。</p>
+    <p><b>第 2 步：乘上費率和負擔比例</b>：</p>
+    <div class="tbl"><table>
+      <thead><tr><th>項目</th><th>費率</th><th>你付</th><th>公司付</th><th>級距上限</th></tr></thead>
+      <tbody>
+        <tr><td>勞保（普通事故）</td><td class="num">11.5%</td><td class="num">20%</td><td class="num">70%</td><td class="num">45,800</td></tr>
+        <tr><td>就業保險</td><td class="num">1%</td><td class="num">20%</td><td class="num">70%</td><td class="num">45,800</td></tr>
+        <tr><td>健保</td><td class="num">5.17%</td><td class="num">30% ×（1＋眷屬數）</td><td class="num">60% × 1.56</td><td class="num">313,000</td></tr>
+        <tr><td>勞退</td><td class="num">6%</td><td class="num">自提 0～6%</td><td class="num">6%</td><td class="num">150,000</td></tr>
+      </tbody>
+    </table></div>
+    <p style="margin-top:12px">以月薪 36,000 元為例：勞保 36,300 × 11.5% × 20% ＝ 835 元，就保 36,300 × 1% × 20% ＝ 73 元，健保 36,300 × 5.17% × 30% ＝ 563 元，<b>合計 1,471 元</b>。</p>
+    <p class="note">公司的健保負擔乘以 1.56，是因為要幫員工的「平均眷口數 0.56 人」一起付。</p>
+  </section>
+
+  <section>
+    <h2>2026 年勞保投保薪資分級表</h2>
+    <div class="tbl"><table>
+      <thead><tr><th>等級</th><th>月薪資總額</th><th>月投保薪資</th></tr></thead>
+      <tbody>
+        <tr><td>第 1 級</td><td class="num">29,500 以下</td><td class="num">29,500</td></tr>
+        <tr><td>第 2 級</td><td class="num">29,501～30,300</td><td class="num">30,300</td></tr>
+        <tr><td>第 3 級</td><td class="num">30,301～31,800</td><td class="num">31,800</td></tr>
+        <tr><td>第 4 級</td><td class="num">31,801～33,300</td><td class="num">33,300</td></tr>
+        <tr><td>第 5 級</td><td class="num">33,301～34,800</td><td class="num">34,800</td></tr>
+        <tr><td>第 6 級</td><td class="num">34,801～36,300</td><td class="num">36,300</td></tr>
+        <tr><td>第 7 級</td><td class="num">36,301～38,200</td><td class="num">38,200</td></tr>
+        <tr><td>第 8 級</td><td class="num">38,201～40,100</td><td class="num">40,100</td></tr>
+        <tr><td>第 9 級</td><td class="num">40,101～42,000</td><td class="num">42,000</td></tr>
+        <tr><td>第 10 級</td><td class="num">42,001～43,900</td><td class="num">43,900</td></tr>
+        <tr><td>第 11 級</td><td class="num">43,901 以上</td><td class="num">45,800</td></tr>
+      </tbody>
+    </table></div>
+    <p class="note" style="margin-top:8px">注意第 11 級：月薪 43,901 元以上就直接按 45,800 元投保。來源：<a href="https://www.bli.gov.tw/0005475.html" rel="nofollow">勞保局勞工保險投保薪資分級表</a>（115 年 1 月 1 日施行）。</p>
+  </section>
+
+  <section>
+    <h2>報稅時，勞健保費可以扣除</h2>
+    <p>你自己繳的勞保、就保、健保費，報稅時可以列入「保險費列舉扣除額」。健保費沒有上限；2026 年修法後，勞保等社會保險費也不再受每人 2.4 萬元的限制。勞退自提則是直接從薪資所得中減除。想知道明年要繳多少稅，可以用<a href="/tools/income-tax/">所得稅試算</a>。</p>
+  </section>
+
+  <section>
+    <h2>用 Excel 算勞健保</h2>
+    <div class="dl"><a href="/downloads/fangjiatw-insurance-115.xlsx" download="115年勞健保勞退計算表_放假日曆.xlsx">⬇ 下載 Excel 範本</a><span>內建 115 年勞保、健保、勞退三張官方級距表，輸入員工月薪和眷屬人數，自動算出每人自付額與公司成本。</span></div>
+    <p>級距表放在「級距」工作表，月薪在 B2 時，健保投保金額可以用「往上找最接近級距」的公式：</p>
+    <div class="formula"><code id="nhiGradeFormula">=INDEX(級距!C:C,MATCH(TRUE,INDEX(級距!C2:C59>=B2,0),0)+1)</code><button type="button" class="copy" data-copy="nhiGradeFormula">複製</button></div>
+    <p style="margin-top:12px">勞保自付（含就保）：</p>
+    <div class="formula"><code id="liFormula">=ROUND(C2*11.5%*20%,0)+ROUND(C2*1%*20%,0)</code><button type="button" class="copy" data-copy="liFormula">複製</button></div>
+    <p style="margin-top:12px">C2 是勞保投保薪資。勞保和就保要<b>分開四捨五入</b>再相加，才會和勞保局的分擔金額表一致。</p>
+  </section>
+  <section>
+    <h2>常見問題</h2>
+    <details><summary>2026 年勞保費率是多少？</summary><p>勞保普通事故保險費率 11.5%，加上就業保險費率 1%，合計 12.5%。勞工負擔 20%、雇主 70%、政府 10%。</p></details>
+    <details><summary>月薪 36,000 元，勞健保要扣多少？</summary><p>勞保投保級距 36,300 元，勞保加就保自付 908 元；健保投保級距 36,300 元，本人自付 563 元。合計每月約扣 1,471 元，不含勞退自提。</p></details>
+    <details><summary>月薪超過 45,800 元，勞保費會一直增加嗎？</summary><p>不會。勞保投保薪資最高 45,800 元，月薪超過 43,900 元就按最高級距計算；但健保最高到 313,000 元、勞退提繳工資最高到 150,000 元，會隨薪水增加。</p></details>
+    <details><summary>健保眷屬要另外付錢嗎？</summary><p>要。每多 1 位眷屬，就多 1 份本人的健保費，最多算 3 口；超過 3 口的眷屬不用再加錢。</p></details>
+    <details><summary>勞退自提划算嗎？</summary><p>勞退自提最多 6%，會存進你的勞退個人專戶，而且自提金額可以從當年度薪資所得中全數減除，等於少繳一些所得稅；缺點是要到 60 歲才能領出來。</p></details>
+  </section>
+
+  <section>
+    <h2>其他試算工具</h2>
+    <div class="related">
+      <a href="/tools/income-tax/">所得稅試算<small>115 年度綜所稅，明年 5 月報稅用</small></a>
+      <a href="/tools/annual-leave/">特休計算機<small>輸入到職日，算出今年有幾天特休</small></a>
+      <a href="/tools/overtime/">加班費計算機<small>平日、休息日、國定假日加班費</small></a>
+      <a href="/tools/workdays/">工作天數計算<small>扣掉國定假日＋Excel NETWORKDAYS 公式</small></a>
+      <a href="/#planner">請假計算器<small>輸入特休天數，排出最長連休</small></a>
+    </div>
+  </section>
+</main>
+
+<footer><a href="/about/">關於我們</a> · <a href="/privacy/">隱私權政策</a> · <a href="/disclosure/">聯盟連結揭露</a><br>本站試算結果僅供參考，實際金額以主管機關規定、公司制度及官方系統計算為準。</footer>
+<script src="/assets/tools/calc.js?v=3"></script>
+<script src="/assets/tools/ui.js?v=3"></script>
+</body>
+</html>

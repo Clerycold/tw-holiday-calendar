@@ -178,4 +178,34 @@
     wd.addEventListener("input", run); wd.addEventListener("submit", e => { e.preventDefault(); run(); });
     run();
   }
+
+  // ---- 勞健保 ----
+  const ins = $('form[data-tool="insurance"]');
+  if(ins){
+    const f = ins.elements, out = $("#insOut");
+    function run(){
+      const r = C.laborIns({salary:num(f.salary), deps:num(f.deps), noEI:f.noEI.checked, selfPct:num(f.selfPct)});
+      if(!r.salary){ out.innerHTML = `<div class="note">輸入月薪，就會算出每月勞保、健保、勞退的金額。</div>`; return; }
+      out.innerHTML = `
+        <div>每月個人負擔合計</div>
+        <div class="big">${money(r.empTotal)} <small>元</small></div>
+        <div>扣完勞健保${r.pen.emp ? "和勞退自提" : ""}後，每月約實領 <b>${money(r.takeHome)} 元</b>（未扣所得稅、未含加班費）</div>
+        <div class="tbl"><table>
+          <thead><tr><th>項目</th><th>投保級距</th><th>你負擔</th><th>公司負擔</th></tr></thead>
+          <tbody>
+            <tr><td>勞保（普通事故 11.5%）</td><td class="num">${money(r.li.grade)}</td><td class="num">${money(r.li.emp)}</td><td class="num">${money(r.li.er)}</td></tr>
+            <tr><td>就業保險（1%）</td><td class="num">${f.noEI.checked ? "不適用" : money(r.li.grade)}</td><td class="num">${money(r.ei.emp)}</td><td class="num">${money(r.ei.er)}</td></tr>
+            <tr><td>健保（5.17%，本人${r.nhi.deps ? `＋眷屬 ${r.nhi.deps} 人` : ""}）</td><td class="num">${money(r.nhi.grade)}</td><td class="num">${money(r.nhi.emp)}</td><td class="num">${money(r.nhi.er)}</td></tr>
+            <tr><td>勞退（雇主 6%${r.pen.pct ? `、自提 ${r.pen.pct}%` : ""}）</td><td class="num">${money(r.pen.grade)}</td><td class="num">${money(r.pen.emp)}</td><td class="num">${money(r.pen.er)}</td></tr>
+            <tr><td><b>合計</b></td><td></td><td class="num"><b>${money(r.empTotal)}</b></td><td class="num"><b>${money(r.erTotal)}</b></td></tr>
+          </tbody>
+        </table></div>
+        <div class="note">公司每月實際人事成本約 ${money(r.salary + r.erTotal)} 元（月薪＋公司負擔，未含職災保險）。${r.pen.emp ? `勞退自提的 ${money(r.pen.emp)} 元會存進你的勞退個人專戶，而且可以從當年度薪資所得中減除。` : ""}</div>
+        ${r.belowMin ? `<div class="warn">月薪低於基本工資 29,500 元。全職勞工的月薪不得低於基本工資；部分工時的投保級距不同，本工具未納入。</div>` : ""}`;
+      save("insForm", [f.salary.value, f.deps.value, f.selfPct.value, f.noEI.checked]);
+    }
+    const s = load("insForm"); if(s){ f.salary.value = s[0] || ""; f.deps.value = s[1] || "0"; f.selfPct.value = s[2] || "0"; f.noEI.checked = !!s[3]; }
+    ins.addEventListener("input", run); ins.addEventListener("change", run); ins.addEventListener("submit", e => { e.preventDefault(); run(); });
+    run();
+  }
 })();
