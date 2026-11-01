@@ -129,7 +129,7 @@ footer{color:var(--muted);font-size:.8rem;border-top:1px solid var(--rule);paddi
   <header class="top">
     <div class="logo">放假<span>日曆</span></div>
     <nav>
-      <a href="#planner">請假攻略</a><a href="#long">連假一覽</a><a href="#calendar">全年行事曆</a><a href="#faq">常見問題</a>
+      <a href="/2027/chunjie/">春節攻略</a><a href="#planner">請假攻略</a><a href="#long">連假一覽</a><a href="#calendar">全年行事曆</a><a href="#faq">常見問題</a>
     </nav>
   </header>
 
@@ -236,7 +236,7 @@ footer{color:var(--muted);font-size:.8rem;border-top:1px solid var(--rule);paddi
   const BLOCKS = [
     {name:"行憲紀念日",s:"2026-12-25",e:"2026-12-27"},
     {name:"元旦",s:"2027-01-01",e:"2027-01-03"},
-    {name:"春節",s:"2027-02-04",e:"2027-02-10",note:"除夕 2/5，初一 2/6"},
+    {name:"春節",s:"2027-02-04",e:"2027-02-10",note:"除夕 2/5，初一 2/6",url:"/2027/chunjie/"},
     {name:"228 和平紀念日",s:"2027-02-27",e:"2027-03-01"},
     {name:"兒童節・清明節",s:"2027-04-03",e:"2027-04-06"},
     {name:"勞動節",s:"2027-04-30",e:"2027-05-02"},
@@ -326,7 +326,7 @@ footer{color:var(--muted);font-size:.8rem;border-top:1px solid var(--rule);paddi
       <div class="lw-item">
         <div class="lw-date"><b class="num">${len}</b><small>天</small></div>
         <div>
-          <h3>${b.name}</h3>
+          <h3>${b.url?`<a href="${b.url}">${b.name}</a>`:b.name}</h3>
           <p>${md(s)} – ${md(e)}${b.note?`・${b.note}`:""}</p>
           ${tip?`<p class="tip">${tip}</p>`:""}
         </div>
