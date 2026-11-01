@@ -84,3 +84,11 @@ details p{margin:8px 0 0;color:var(--muted)}
 .note{font-size:.85rem;color:var(--muted)}
 footer{max-width:760px;margin:0 auto;padding:16px;color:var(--muted);font-size:.8rem;border-top:1px solid var(--rule)}
 @media (prefers-reduced-motion:no-preference){.plan{transition:background .15s,border-color .15s}}
+td.lv{color:var(--leave);font-weight:700}
+.stat{border:1px solid var(--leave);background:var(--leave-soft);border-radius:8px;padding:16px 18px;display:grid;gap:6px}
+.stat .num-big{font-family:var(--f-num);font-size:2.4rem;line-height:1;color:var(--leave);font-weight:700}
+.stat ul{margin:4px 0 0;padding-left:1.2em}
+.picks{display:grid;gap:12px;grid-template-columns:repeat(auto-fit,minmax(200px,1fr))}
+.picks > div{border:1px solid var(--rule);background:var(--sheet);border-radius:8px;padding:14px 16px}
+.picks h3{margin:0 0 6px;font-size:1rem}
+.picks p{margin:0;font-size:.92rem}
