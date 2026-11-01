@@ -1,0 +1,177 @@
+<!doctype html>
+<html lang="zh-Hant-TW">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>工作天數計算機｜扣除台灣國定假日＋Excel NETWORKDAYS 公式（2026–2027）｜放假日曆</title>
+<meta name="description" content="工作天數計算機：輸入兩個日期，自動扣除週末與台灣國定假日、補假，算出工作天數；也能算 N 個工作天後是哪天。提供 2026–2027 台灣假日清單，搭配 Excel NETWORKDAYS、WORKDAY 公式。">
+<link rel="canonical" href="https://fangjiatw.com/tools/workdays/">
+<meta property="og:type" content="website">
+<meta property="og:title" content="工作天數計算機｜扣除台灣國定假日＋Excel NETWORKDAYS 公式（2026–2027）">
+<meta property="og:description" content="工作天數計算機：輸入兩個日期，自動扣除週末與台灣國定假日、補假，算出工作天數；也能算 N 個工作天後是哪天。提供 2026–2027 台灣假日清單，搭配 Excel NETWORKDAYS、WORKDAY 公式。">
+<meta property="og:url" content="https://fangjiatw.com/tools/workdays/">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@600;900&family=Noto+Sans+TC:wght@400;500;700&family=JetBrains+Mono:wght@500&display=swap">
+<link rel="stylesheet" href="/assets/site.css?v=3">
+<link rel="stylesheet" href="/assets/tools/tools.css?v=1">
+<script type="application/ld+json">
+{
+ "@context": "https://schema.org",
+ "@graph": [
+  {
+   "@type": "WebPage",
+   "name": "工作天數計算機｜扣除台灣國定假日＋Excel NETWORKDAYS 公式（2026–2027）",
+   "url": "https://fangjiatw.com/tools/workdays/",
+   "inLanguage": "zh-Hant-TW",
+   "dateModified": "2026-11-01",
+   "publisher": {
+    "@type": "Organization",
+    "name": "放假日曆",
+    "url": "https://fangjiatw.com/"
+   }
+  },
+  {
+   "@type": "BreadcrumbList",
+   "itemListElement": [
+    {
+     "@type": "ListItem",
+     "position": 1,
+     "name": "放假日曆",
+     "item": "https://fangjiatw.com/"
+    },
+    {
+     "@type": "ListItem",
+     "position": 2,
+     "name": "試算工具",
+     "item": "https://fangjiatw.com/tools/"
+    },
+    {
+     "@type": "ListItem",
+     "position": 3,
+     "name": "工作天數計算",
+     "item": "https://fangjiatw.com/tools/workdays/"
+    }
+   ]
+  },
+  {
+   "@type": "FAQPage",
+   "mainEntity": [
+    {
+     "@type": "Question",
+     "name": "NETWORKDAYS 會把開始和結束那天算進去嗎？",
+     "acceptedAnswer": {
+      "@type": "Answer",
+      "text": "會。NETWORKDAYS 計算的天數包含開始日和結束日；WORKDAY 則是從開始日的下一個工作天開始數。"
+     }
+    },
+    {
+     "@type": "Question",
+     "name": "2026、2027 年有補班日嗎？",
+     "acceptedAnswer": {
+      "@type": "Answer",
+      "text": "沒有。2026、2027 年政府行政機關辦公日曆表都沒有補班日，所以只要扣掉週末和平日放假的國定假日、補假就好。"
+     }
+    },
+    {
+     "@type": "Question",
+     "name": "一週只休週日，怎麼算工作天？",
+     "acceptedAnswer": {
+      "@type": "Answer",
+      "text": "用 NETWORKDAYS.INTL，週末參數填 \"0000001\"（從週一到週日，1 代表休息），公式為 =NETWORKDAYS.INTL(A2,B2,\"0000001\",假日!A:A)。"
+     }
+    },
+    {
+     "@type": "Question",
+     "name": "民間企業的國定假日跟政府一樣嗎？",
+     "acceptedAnswer": {
+      "@type": "Answer",
+      "text": "國定假日本身相同，但遇到週末時，民間企業的補假日期由勞雇雙方協商，不一定和政府機關相同。請依公司公告調整假日清單。"
+     }
+    }
+   ]
+  }
+ ]
+}
+</script>
+</head>
+<body>
+<header class="top">
+  <a class="logo" href="/">放假<span>日曆</span></a>
+  <nav><a href="/#planner">請假計算器</a><a href="/tools/">試算工具</a><a href="/concert/">演唱會住宿</a><a href="/#calendar">全年行事曆</a></nav>
+</header>
+
+<main class="article">
+  <div>
+    <div class="crumb"><a href="/">放假日曆</a> › <a href="/tools/">試算工具</a> › 工作天數計算</div>
+    <h1>工作天數計算<br>扣掉國定假日＋Excel 公式</h1>
+    <div class="meta">更新日期：2026 年 11 月 1 日</div>
+  </div>
+
+  <div class="answer">2026 年共有 <b>245 個</b>工作天，2027 年共有 <b>244 個</b>（以政府辦公日曆計算）。下面的工具能算任兩個日期之間的工作天數，也附上可直接貼進 Excel 的<b>台灣假日清單</b>。</div>
+
+  <section>
+    <h2>工作天數計算</h2>
+    <form class="tool" data-tool="workdays" autocomplete="off">
+      <fieldset>
+        <legend>兩個日期之間有幾個工作天？</legend>
+        <div class="fields">
+          <label class="field">開始日<input type="date" name="from" value="2027-01-01"></label>
+          <label class="field">結束日<input type="date" name="to" value="2027-01-31"></label>
+        </div>
+      </fieldset>
+      <div class="result" id="wdOut" aria-live="polite"></div>
+      <fieldset>
+        <legend>N 個工作天後是哪一天？</legend>
+        <div class="fields">
+          <label class="field">起始日<input type="date" name="start" value="2027-02-01"></label>
+          <label class="field">幾個工作天<input name="n" inputmode="numeric" value="10"></label>
+        </div>
+      </fieldset>
+      <div class="result" id="addOut" aria-live="polite"></div>
+    </form>
+    <p class="note" style="margin-top:8px">以人事行政總處辦公日曆表計算，涵蓋 2026～2027 年。民間企業的補假日期可能不同。</p>
+  </section>
+
+  <div class="ad">廣告版位 336×280</div>
+
+  <section>
+    <h2>用 Excel 算工作天數（扣台灣國定假日）</h2>
+    <p><b>第 1 步</b>：在 Excel 新增一個工作表，命名為「假日」，把下面的清單複製貼到 A 欄。清單只列出<b>平日</b>放假的國定假日和補假（週末本來就會被扣掉）。</p>
+    <div class="formula"><textarea id="holList" class="field" rows="6" readonly style="flex:1;min-width:0;font-family:var(--f-num);font-size:.9rem;background:var(--paper);color:var(--ink);border:1px solid var(--rule);border-radius:6px;padding:9px 10px"></textarea><button type="button" class="copy" data-copy="holList">複製清單</button></div>
+    <p style="margin-top:12px"><b>第 2 步</b>：開始日在 A2、結束日在 B2，計算工作天數：</p>
+    <div class="formula"><code id="nwFormula">=NETWORKDAYS(A2,B2,假日!A:A)</code><button type="button" class="copy" data-copy="nwFormula">複製</button></div>
+    <p style="margin-top:12px"><b>第 3 步</b>：想知道 A2 之後第 10 個工作天是哪天，用 WORKDAY：</p>
+    <div class="formula"><code id="wkFormula">=WORKDAY(A2,10,假日!A:A)</code><button type="button" class="copy" data-copy="wkFormula">複製</button></div>
+    <p style="margin-top:12px">如果公司是<b>單休</b>（只休週日），改用 NETWORKDAYS.INTL，第三個參數的 7 個數字依序代表週一到週日，1 是休息：</p>
+    <div class="formula"><code id="intlFormula">=NETWORKDAYS.INTL(A2,B2,"0000001",假日!A:A)</code><button type="button" class="copy" data-copy="intlFormula">複製</button></div>
+  </section>
+
+  <section>
+    <h2>為什麼不能只用 NETWORKDAYS？</h2>
+    <p>NETWORKDAYS 預設只會扣掉週六、週日，<b>不知道台灣的國定假日</b>。像 2027 年 2 月有春節，如果不加假日清單，會多算 5 個工作天，算交期、請款天數就會出錯。</p>
+    <p>另外，以前有補班日的年份，NETWORKDAYS 無法把「週六要上班」加回來，要另外處理。好消息是 <b>2026、2027 年都沒有補班日</b>，照上面的做法就能算準。</p>
+  </section>
+  <section>
+    <h2>常見問題</h2>
+    <details><summary>NETWORKDAYS 會把開始和結束那天算進去嗎？</summary><p>會。NETWORKDAYS 計算的天數包含開始日和結束日；WORKDAY 則是從開始日的下一個工作天開始數。</p></details>
+    <details><summary>2026、2027 年有補班日嗎？</summary><p>沒有。2026、2027 年政府行政機關辦公日曆表都沒有補班日，所以只要扣掉週末和平日放假的國定假日、補假就好。</p></details>
+    <details><summary>一週只休週日，怎麼算工作天？</summary><p>用 NETWORKDAYS.INTL，週末參數填 "0000001"（從週一到週日，1 代表休息），公式為 =NETWORKDAYS.INTL(A2,B2,"0000001",假日!A:A)。</p></details>
+    <details><summary>民間企業的國定假日跟政府一樣嗎？</summary><p>國定假日本身相同，但遇到週末時，民間企業的補假日期由勞雇雙方協商，不一定和政府機關相同。請依公司公告調整假日清單。</p></details>
+  </section>
+
+  <section>
+    <h2>其他試算工具</h2>
+    <div class="related">
+      <a href="/tools/income-tax/">所得稅試算<small>115 年度綜所稅，明年 5 月報稅用</small></a>
+      <a href="/tools/annual-leave/">特休計算機<small>輸入到職日，算出今年有幾天特休</small></a>
+      <a href="/tools/overtime/">加班費計算機<small>平日、休息日、國定假日加班費</small></a>
+      <a href="/#planner">請假計算器<small>輸入特休天數，排出最長連休</small></a>
+    </div>
+  </section>
+</main>
+
+<footer><a href="/about/">關於我們</a> · <a href="/privacy/">隱私權政策</a> · <a href="/disclosure/">聯盟連結揭露</a><br>本站試算結果僅供參考，實際金額以主管機關規定、公司制度及官方系統計算為準。</footer>
+<script src="/assets/tools/calc.js?v=1"></script>
+<script src="/assets/tools/ui.js?v=1"></script>
+</body>
+</html>

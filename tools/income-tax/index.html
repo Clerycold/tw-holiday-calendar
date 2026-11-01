@@ -1,0 +1,228 @@
+<!doctype html>
+<html lang="zh-Hant-TW">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>2027 報稅試算｜115 年度綜所稅計算機（免稅額、扣除額、級距）｜放假日曆</title>
+<meta name="description" content="115 年度綜合所得稅試算：免稅額 10.1 萬、未成年子女 15.15 萬、標準扣除額 13.6 萬、薪資特別扣除額 22.7 萬，淨所得 61 萬以下稅率 5%。輸入薪資立即算出應納稅額，附 Excel 公式。">
+<link rel="canonical" href="https://fangjiatw.com/tools/income-tax/">
+<meta property="og:type" content="website">
+<meta property="og:title" content="2027 報稅試算｜115 年度綜所稅計算機（免稅額、扣除額、級距）">
+<meta property="og:description" content="115 年度綜合所得稅試算：免稅額 10.1 萬、未成年子女 15.15 萬、標準扣除額 13.6 萬、薪資特別扣除額 22.7 萬，淨所得 61 萬以下稅率 5%。輸入薪資立即算出應納稅額，附 Excel 公式。">
+<meta property="og:url" content="https://fangjiatw.com/tools/income-tax/">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@600;900&family=Noto+Sans+TC:wght@400;500;700&family=JetBrains+Mono:wght@500&display=swap">
+<link rel="stylesheet" href="/assets/site.css?v=3">
+<link rel="stylesheet" href="/assets/tools/tools.css?v=1">
+<script type="application/ld+json">
+{
+ "@context": "https://schema.org",
+ "@graph": [
+  {
+   "@type": "WebPage",
+   "name": "2027 報稅試算｜115 年度綜所稅計算機（免稅額、扣除額、級距）",
+   "url": "https://fangjiatw.com/tools/income-tax/",
+   "inLanguage": "zh-Hant-TW",
+   "dateModified": "2026-11-01",
+   "publisher": {
+    "@type": "Organization",
+    "name": "放假日曆",
+    "url": "https://fangjiatw.com/"
+   }
+  },
+  {
+   "@type": "BreadcrumbList",
+   "itemListElement": [
+    {
+     "@type": "ListItem",
+     "position": 1,
+     "name": "放假日曆",
+     "item": "https://fangjiatw.com/"
+    },
+    {
+     "@type": "ListItem",
+     "position": 2,
+     "name": "試算工具",
+     "item": "https://fangjiatw.com/tools/"
+    },
+    {
+     "@type": "ListItem",
+     "position": 3,
+     "name": "所得稅試算",
+     "item": "https://fangjiatw.com/tools/income-tax/"
+    }
+   ]
+  },
+  {
+   "@type": "FAQPage",
+   "mainEntity": [
+    {
+     "@type": "Question",
+     "name": "115 年度綜所稅什麼時候申報？",
+     "acceptedAnswer": {
+      "@type": "Answer",
+      "text": "115 年（2026 年）的所得，在 116 年（2027 年）5 月 1 日到 5 月 31 日申報，實際日期以財政部公告為準。"
+     }
+    },
+    {
+     "@type": "Question",
+     "name": "115 年度免稅額是多少？",
+     "acceptedAnswer": {
+      "@type": "Answer",
+      "text": "每人 10.1 萬元；本人、配偶或受扶養直系尊親屬年滿 70 歲為 15.15 萬元。另依 2026 年 8 月三讀的所得稅法修正，扶養未成年子女的免稅額也提高為每人 15.15 萬元。"
+     }
+    },
+    {
+     "@type": "Question",
+     "name": "單身上班族年薪多少以下不用繳稅？",
+     "acceptedAnswer": {
+      "@type": "Answer",
+      "text": "單身、只有薪資所得、用標準扣除額時，年薪 46.4 萬元以下不用繳稅；如果是無自有房屋的租屋族，可以再減除房屋租金支出特別扣除額 18 萬元，年薪 64.4 萬元以下不用繳稅。"
+     }
+    },
+    {
+     "@type": "Question",
+     "name": "夫妻要合併還是分開計稅？",
+     "acceptedAnswer": {
+      "@type": "Answer",
+      "text": "夫妻要合併申報，但稅額可以選擇薪資分開計稅或各類所得分開計稅。報稅系統會自動比較，幫你選最省的方式；本試算也會比較這幾種方式，顯示最省的結果。"
+     }
+    },
+    {
+     "@type": "Question",
+     "name": "試算結果和實際報稅不一樣？",
+     "acceptedAnswer": {
+      "@type": "Answer",
+      "text": "本試算只計算薪資、其他所得和常見的免稅額、扣除額，沒有包含股利、儲蓄投資特別扣除額、教育學費、最低稅負制等項目；基本生活費也暫用 114 年度金額。實際稅額請以財政部報稅系統為準。"
+     }
+    }
+   ]
+  }
+ ]
+}
+</script>
+</head>
+<body>
+<header class="top">
+  <a class="logo" href="/">放假<span>日曆</span></a>
+  <nav><a href="/#planner">請假計算器</a><a href="/tools/">試算工具</a><a href="/concert/">演唱會住宿</a><a href="/#calendar">全年行事曆</a></nav>
+</header>
+
+<main class="article">
+  <div>
+    <div class="crumb"><a href="/">放假日曆</a> › <a href="/tools/">試算工具</a> › 所得稅試算</div>
+    <h1>115 年度綜所稅試算<br>明年 5 月報稅前先算一次</h1>
+    <div class="meta">更新日期：2026 年 11 月 1 日</div>
+  </div>
+
+  <div class="answer">2027 年 5 月申報的是 <b>115 年度</b>所得。115 年度起免稅額、扣除額和級距全面調高，<b>未成年子女免稅額更提高到 15.15 萬</b>。單身租屋族年薪 <b>64.4 萬</b>以下不用繳稅。</div>
+
+  <section>
+    <h2>綜所稅試算</h2>
+    <form class="tool" data-tool="tax" autocomplete="off">
+      <div class="seg" role="group" aria-label="申報身分"><button type="button" data-v="0" aria-pressed="true">單身</button><button type="button" data-v="1" aria-pressed="false">已婚</button></div>
+      <fieldset>
+        <legend>本人</legend>
+        <div class="fields">
+          <label class="field">全年薪資（元）<input name="selfSalary" inputmode="numeric" placeholder="例如 600000"></label>
+          <label class="field">其他所得（利息、租金等）<input name="selfOther" inputmode="numeric" ></label>
+        </div>
+        <label class="check"><input type="checkbox" name="selfSenior">年滿 70 歲</label>
+        <label class="check"><input type="checkbox" name="selfDisabled">領有身心障礙證明</label>
+      </fieldset>
+      <fieldset data-spouse hidden>
+        <legend>配偶</legend>
+        <div class="fields">
+          <label class="field">全年薪資（元）<input name="spSalary" inputmode="numeric" ></label>
+          <label class="field">其他所得<input name="spOther" inputmode="numeric" ></label>
+        </div>
+        <label class="check"><input type="checkbox" name="spSenior">年滿 70 歲</label>
+        <label class="check"><input type="checkbox" name="spDisabled">領有身心障礙證明</label>
+      </fieldset>
+      <fieldset>
+        <legend>扶養與扣除</legend>
+        <div class="fields">
+          <label class="field">未成年子女（人）<input name="minors" inputmode="numeric" ></label>
+          <label class="field">其中 6 歲以下（人）<input name="preschool" inputmode="numeric" ></label>
+          <label class="field">其他扶養親屬（人）<input name="adults" inputmode="numeric" ></label>
+          <label class="field">扶養 70 歲以上父母、祖父母（人）<input name="seniorDeps" inputmode="numeric" ></label>
+          <label class="field">受扶養者有身心障礙證明（人）<input name="disabledDeps" inputmode="numeric" ></label>
+          <label class="field">符合長期照顧需要（人）<input name="ltc" inputmode="numeric" ></label>
+          <label class="field">列舉扣除額合計（沒有就空白）<input name="itemized" inputmode="numeric" ></label>
+          <label class="field">已被扣繳的稅款（選填）<input name="withheld" inputmode="numeric" ></label>
+        </div>
+        <label class="check"><input type="checkbox" name="rent">租屋，且全家沒有自有房屋</label>
+      </fieldset>
+      <div class="result" id="taxOut" aria-live="polite"></div>
+    </form>
+    <p class="note" style="margin-top:8px">本試算未包含股利、儲蓄投資、教育學費等項目；基本生活費 115 年度金額公告前，暫以 114 年度每人 21.3 萬元計算。你輸入的數字只存在自己的瀏覽器，不會傳到本站。</p>
+  </section>
+
+  <div class="ad">廣告版位 336×280</div>
+
+  <section>
+    <h2>115 年度免稅額、扣除額一覽</h2>
+    <div class="tbl"><table>
+      <thead><tr><th>項目</th><th>115 年度</th><th>114 年度</th></tr></thead>
+      <tbody>
+        <tr><td>免稅額</td><td class="num">101,000</td><td class="num">97,000</td></tr>
+        <tr><td>免稅額（70 歲以上、未成年子女）</td><td class="num">151,500</td><td class="num">145,500（70 歲以上）</td></tr>
+        <tr><td>標準扣除額（單身／有配偶）</td><td class="num">136,000／272,000</td><td class="num">131,000／262,000</td></tr>
+        <tr><td>薪資所得特別扣除額</td><td class="num">227,000</td><td class="num">218,000</td></tr>
+        <tr><td>身心障礙特別扣除額</td><td class="num">227,000</td><td class="num">218,000</td></tr>
+        <tr><td>幼兒學前特別扣除額</td><td class="num">第 1 名 150,000，第 2 名起 225,000</td><td class="num">同左</td></tr>
+        <tr><td>長期照顧特別扣除額</td><td class="num">180,000</td><td class="num">180,000</td></tr>
+        <tr><td>房屋租金支出特別扣除額</td><td class="num">180,000</td><td class="num">180,000</td></tr>
+      </tbody>
+    </table></div>
+    <p class="note" style="margin-top:8px">幼兒學前、長期照顧及房屋租金支出特別扣除額，適用稅率 20% 以上者不適用。</p>
+  </section>
+
+  <section>
+    <h2>115 年度綜所稅課稅級距</h2>
+    <div class="tbl"><table>
+      <thead><tr><th>綜合所得淨額</th><th>稅率</th><th>累進差額</th></tr></thead>
+      <tbody>
+        <tr><td class="num">0～610,000</td><td class="num">5%</td><td class="num">0</td></tr>
+        <tr><td class="num">610,001～1,380,000</td><td class="num">12%</td><td class="num">42,700</td></tr>
+        <tr><td class="num">1,380,001～2,770,000</td><td class="num">20%</td><td class="num">153,100</td></tr>
+        <tr><td class="num">2,770,001～5,190,000</td><td class="num">30%</td><td class="num">430,100</td></tr>
+        <tr><td class="num">5,190,001 以上</td><td class="num">40%</td><td class="num">949,100</td></tr>
+      </tbody>
+    </table></div>
+    <p style="margin-top:12px">應納稅額 ＝ 綜合所得淨額 × 稅率 − 累進差額。例如淨額 80 萬元：800,000 × 12% − 42,700 ＝ 53,300 元。</p>
+  </section>
+
+  <section>
+    <h2>用 Excel 算綜所稅</h2>
+    <p>把綜合所得淨額放在 A2，這條公式會自動套用正確級距：</p>
+    <div class="formula"><code id="taxFormula">=MAX(A2*{0.05,0.12,0.2,0.3,0.4}-{0,42700,153100,430100,949100},0)</code><button type="button" class="copy" data-copy="taxFormula">複製</button></div>
+    <p style="margin-top:12px"><b>原理</b>：公式同時用 5 個級距去算「淨額 × 稅率 − 累進差額」，正確的那一級一定是最大值，所以取 MAX 就好，不用寫一長串 IF。</p>
+    <p>綜合所得淨額可以這樣算（單身、標準扣除額，薪資在 B2）：</p>
+    <div class="formula"><code id="netFormula">=MAX(B2-101000-136000-MIN(B2,227000),0)</code><button type="button" class="copy" data-copy="netFormula">複製</button></div>
+  </section>
+  <section>
+    <h2>常見問題</h2>
+    <details><summary>115 年度綜所稅什麼時候申報？</summary><p>115 年（2026 年）的所得，在 116 年（2027 年）5 月 1 日到 5 月 31 日申報，實際日期以財政部公告為準。</p></details>
+    <details><summary>115 年度免稅額是多少？</summary><p>每人 10.1 萬元；本人、配偶或受扶養直系尊親屬年滿 70 歲為 15.15 萬元。另依 2026 年 8 月三讀的所得稅法修正，扶養未成年子女的免稅額也提高為每人 15.15 萬元。</p></details>
+    <details><summary>單身上班族年薪多少以下不用繳稅？</summary><p>單身、只有薪資所得、用標準扣除額時，年薪 46.4 萬元以下不用繳稅；如果是無自有房屋的租屋族，可以再減除房屋租金支出特別扣除額 18 萬元，年薪 64.4 萬元以下不用繳稅。</p></details>
+    <details><summary>夫妻要合併還是分開計稅？</summary><p>夫妻要合併申報，但稅額可以選擇薪資分開計稅或各類所得分開計稅。報稅系統會自動比較，幫你選最省的方式；本試算也會比較這幾種方式，顯示最省的結果。</p></details>
+    <details><summary>試算結果和實際報稅不一樣？</summary><p>本試算只計算薪資、其他所得和常見的免稅額、扣除額，沒有包含股利、儲蓄投資特別扣除額、教育學費、最低稅負制等項目；基本生活費也暫用 114 年度金額。實際稅額請以財政部報稅系統為準。</p></details>
+  </section>
+
+  <section>
+    <h2>其他試算工具</h2>
+    <div class="related">
+      <a href="/tools/annual-leave/">特休計算機<small>輸入到職日，算出今年有幾天特休</small></a>
+      <a href="/tools/overtime/">加班費計算機<small>平日、休息日、國定假日加班費</small></a>
+      <a href="/tools/workdays/">工作天數計算<small>扣掉國定假日＋Excel NETWORKDAYS 公式</small></a>
+      <a href="/#planner">請假計算器<small>輸入特休天數，排出最長連休</small></a>
+    </div>
+  </section>
+</main>
+
+<footer><a href="/about/">關於我們</a> · <a href="/privacy/">隱私權政策</a> · <a href="/disclosure/">聯盟連結揭露</a><br>本站試算結果僅供參考，實際金額以主管機關規定、公司制度及官方系統計算為準。</footer>
+<script src="/assets/tools/calc.js?v=1"></script>
+<script src="/assets/tools/ui.js?v=1"></script>
+</body>
+</html>
