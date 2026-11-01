@@ -171,6 +171,42 @@
     return {ins, gross, salaryTax, needTable, bonusTax, supp, suppBase: over(ytd + bonus) - over(ytd), cap, other, deduct, net: gross - deduct};
   }
 
+  // ---- 資遣費 ----
+  // 新制（勞工退休金條例第 12 條）：每滿 1 年 1/2 個月平均工資，未滿 1 年按比例，最高 6 個月。
+  // 舊制（勞基法第 17 條）：每滿 1 年 1 個月平均工資，剩餘月數按比例，未滿 1 個月以 1 個月計。
+  // 年資換算依勞動部範例：新制 年＋(月＋日/30)/12；舊制 年＋(月＋1)/12（有零頭日數時）。
+  // 年資算到離職日（最後工作日）當天，所以期間的結束點是離職日隔天。
+  // 退職所得（115 年度）：一次領取 206,000 × 年資以下免稅，超過到 414,000 × 年資的部分半數課稅。
+  const SEV115 = {newSince:new Date(2005,6,1), cap:6, tax1:206000, tax2:414000};
+  function monthsBetween(a, b){ // 滿幾個月＋零頭日數（a 起算、b 不含）
+    if(b <= a) return {m:0, d:0};
+    let k = (b.getFullYear()-a.getFullYear())*12 + b.getMonth()-a.getMonth();
+    if(addMonths(a, k) > b) k--;
+    return {m:k, d:Math.round((b - addMonths(a, k))/864e5)};
+  }
+  // p = {hire, leave: Date, avg: 月平均工資, scheme:"new"|"old"|"mixed", switchDate}
+  function severance(p){
+    const S = SEV115, avg = Math.max(0, +p.avg || 0);
+    const end = new Date(p.leave); end.setDate(end.getDate()+1);
+    const hire = p.hire;
+    const sw = p.scheme === "new" ? hire : p.scheme === "old" ? end
+      : new Date(Math.min(Math.max(hire, p.switchDate || S.newSince), end));
+    const o = monthsBetween(hire, sw), w = monthsBetween(sw, end), t = monthsBetween(hire, end);
+    const oldUnits = Math.floor(o.m/12) + (o.m%12 + (o.d > 0 ? 1 : 0))/12;
+    const newRaw = (w.m + w.d/30)/12 * .5;
+    const newUnits = Math.min(S.cap, newRaw);
+    const oldPay = Math.round(avg*oldUnits), newPay = Math.round(avg*newUnits);
+    const amount = Math.round(avg*(oldUnits + newUnits));
+    const noticeDays = t.m < 3 ? 0 : t.m < 12 ? 10 : t.m < 36 ? 20 : 30;
+    // 退職所得年資：尾數未滿 6 個月以半年計，滿 6 個月以 1 年計
+    const rem = t.m%12, taxYears = Math.floor(t.m/12) + (rem === 0 && t.d === 0 ? 0 : rem < 6 ? .5 : 1);
+    const free1 = S.tax1*taxYears, free2 = S.tax2*taxYears;
+    const taxable = amount <= free1 ? 0 : amount <= free2 ? Math.round((amount-free1)/2) : Math.round((free2-free1)/2 + amount-free2);
+    const fmt = x => ({y:Math.floor(x.m/12), m:x.m%12, d:x.d});
+    return {old:{...fmt(o), units:oldUnits, pay:oldPay}, neu:{...fmt(w), units:newUnits, raw:newRaw, capped:newRaw > S.cap, pay:newPay},
+            total:fmt(t), amount, noticeDays, noticePay:Math.round(avg/30*noticeDays), taxYears, free1, taxable, invalid: end <= hire};
+  }
+
   // ---- 台灣國定假日（政府行政機關辦公日曆表 115、116 年）----
   const TW_HOL = {
     "2026-01-01":"元旦","2026-02-15":"小年夜","2026-02-16":"除夕","2026-02-17":"春節 初一","2026-02-18":"春節 初二",
@@ -210,6 +246,6 @@
   }
   const weekdayHolidays = () => Object.keys(TW_HOL).filter(k => !isWeekend(new Date(k+"T00:00")));
 
-  const api = {TAX115, INS115, PAY115, laborIns, netPay, taxOf, rateOf, incomeTax, annualLeave, calendarYearLeave, leaveDaysForYears, overtime, TW_HOL, workdays, addWorkdays, weekdayHolidays, key};
+  const api = {TAX115, INS115, PAY115, SEV115, laborIns, netPay, severance, monthsBetween, taxOf, rateOf, incomeTax, annualLeave, calendarYearLeave, leaveDaysForYears, overtime, TW_HOL, workdays, addWorkdays, weekdayHolidays, key};
   if(typeof module !== "undefined") module.exports = api; else root.Calc = api;
 })(this);

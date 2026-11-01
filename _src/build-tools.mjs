@@ -65,8 +65,8 @@ ${path === "/tools/" ? "" : related(path)}
 </main>
 
 <footer><a href="/about/">關於我們</a> · <a href="/privacy/">隱私權政策</a> · <a href="/disclosure/">聯盟連結揭露</a><br>本站試算結果僅供參考，實際金額以主管機關規定、公司制度及官方系統計算為準。</footer>
-${scripts ? `<script src="/assets/tools/calc.js?v=4"></script>
-<script src="/assets/tools/ui.js?v=4"></script>` : ""}
+${scripts ? `<script src="/assets/tools/calc.js?v=5"></script>
+<script src="/assets/tools/ui.js?v=5"></script>` : ""}
 </body>
 </html>
 `;
@@ -91,6 +91,9 @@ const TOOLS = [
   { path: "/tools/take-home-pay/", name: "薪資實領計算", sub: "月薪扣完勞健保、所得稅實際入帳多少", pill: "薪資",
     ask: "月薪 4 萬，實際入帳多少？", cta: "計算實領薪資",
     xls: "fangjiatw-payroll-115.xlsx", xlsName: "115年薪資條試算表", xlsFor: "每月薪資條：應發、各項扣款與實領一次算好" },
+  { path: "/tools/severance/", name: "資遣費計算", sub: "新制、舊制、新舊制併用資遣費", pill: "勞工",
+    ask: "被資遣了，可以拿多少？", cta: "計算資遣費",
+    xls: "fangjiatw-severance.xlsx", xlsName: "資遣費計算表", xlsFor: "人資一次算多位員工的新舊制資遣費與預告期間" },
 ];
 function related(path) {
   const others = TOOLS.filter(t => t.path !== path).map(t => `      <a href="${t.path}">${t.name}<small>${t.sub}</small></a>`);
@@ -139,7 +142,6 @@ ${TOOLS.map(t => `        <tr><td>${t.xlsName}</td><td>${t.xlsFor}</td><td><a hr
     <p>以下工具還在製作，<b>目前還不能使用</b>，完成後會出現在上方的工具列表：</p>
     <div class="toolgrid">
       <div class="soon" style="border:1px dashed var(--rule);border-radius:8px;padding:16px"><span class="pill">開發中</span><b style="display:block;margin:6px 0">勞退退休金試算</b><small class="note">公司提繳加上自提，退休時個人專戶大約累積多少。</small></div>
-      <div class="soon" style="border:1px dashed var(--rule);border-radius:8px;padding:16px"><span class="pill">開發中</span><b style="display:block;margin:6px 0">資遣費計算</b><small class="note">輸入到職日、離職日與平均工資，計算新舊制資遣費。</small></div>
     </div>
   </section>
 
@@ -756,7 +758,122 @@ ${payRows}
   </section>`,
 });
 
-const out = { "tools/index.html": hub, "tools/insurance/index.html": insurance, "tools/take-home-pay/index.html": takeHome, "tools/income-tax/index.html": tax, "tools/annual-leave/index.html": leave, "tools/overtime/index.html": overtime, "tools/workdays/index.html": workdays };
+// ---------------- 資遣費 ----------------
+const D_ = (y, m, d) => new Date(y, m - 1, d);
+const sevYears = [1, 2, 3, 5, 10, 12, 20];
+const sevRows = sevYears.map(y => {
+  const a = INS.severance({ hire: D_(2000, 1, 1), leave: D_(2000 + y, 1, 0), avg: 40000, scheme: "new" }).amount;
+  const b = INS.severance({ hire: D_(2000, 1, 1), leave: D_(2000 + y, 1, 0), avg: 40000, scheme: "old" }).amount;
+  return `        <tr><td>${y} 年</td><td class="num">${a.toLocaleString()}</td><td class="num">${b.toLocaleString()}</td></tr>`;
+}).join("\n");
+const molNew = INS.severance({ hire: D_(2023, 1, 1), leave: D_(2026, 7, 15), avg: 30000, scheme: "new" }).amount;
+const molOld = INS.severance({ hire: D_(2023, 1, 1), leave: D_(2026, 7, 15), avg: 30000, scheme: "old" }).amount;
+const sevFaq = [
+  ["資遣費怎麼算？", "新制每滿 1 年給 0.5 個月平均工資，未滿 1 年按比例計算，最多 6 個月；舊制每滿 1 年給 1 個月平均工資，沒有上限。2005 年 7 月 1 日以後到職的人都是新制。"],
+  ["平均工資包含哪些？", "離職前 6 個月內的工資總額，包括本薪、固定津貼、加班費、全勤獎金等經常性給與；年終獎金、三節獎金這類非經常性給與不算。"],
+  ["新制資遣費最多可以拿多少？", "最多 6 個月平均工資。新制每年 0.5 個月，所以年資滿 12 年就到上限，之後年資再多也是 6 個月。"],
+  ["資遣費什麼時候要發？", "公司要在勞動契約終止後 30 日內發給資遣費。另外要提前預告：年資 3 個月以上未滿 1 年 10 天、1 年以上未滿 3 年 20 天、3 年以上 30 天；沒有預告的話，要給付預告期間的工資。"],
+  ["資遣費要繳稅嗎？", "資遣費屬於退職所得。115 年一次領取時，206,000 元 × 退職服務年資以內免稅，大多數人的資遣費都在免稅範圍內。"],
+  ["被資遣可以領失業給付嗎？", "可以。被資遣屬於非自願離職，請公司開立非自願離職證明，到就業服務站辦理求職登記，符合加保年資等條件就能申請失業給付。"],
+];
+const severancePage = page({
+  path: "/tools/severance/", crumb: "資遣費計算",
+  title: "資遣費計算機｜新制、舊制資遣費怎麼算（2026）",
+  h1: "資遣費計算<br>被資遣了，可以拿多少？",
+  desc: "2026 資遣費計算機：輸入到職日、離職日與月平均工資，依勞基法及勞工退休金條例算出新制、舊制或新舊制併用的資遣費，附預告期間、退職所得免稅額與 Excel 範本。",
+  faq: sevFaq, app: "資遣費計算機",
+  body: `
+  <div class="answer">新制資遣費 ＝ 月平均工資 × 年資 × 0.5，<b>最多 6 個月</b>；舊制 ＝ 月平均工資 × 年資，沒有上限。月平均工資 4 萬、年資 3 年，新制資遣費是 <b>60,000 元</b>。2005 年 7 月 1 日以後到職的人都適用新制。</div>
+
+  <section>
+    <h2>資遣費試算</h2>
+    <form class="tool" data-tool="severance" autocomplete="off">
+      <div class="fields">
+        <label class="field">到職日<input type="date" name="hire" min="1970-01-01"></label>
+        <label class="field">離職日（最後工作日）<input type="date" name="leave" min="1970-01-01"></label>
+        ${field("avg", "月平均工資（離職前 6 個月平均）", 'placeholder="例如 40000"')}
+        <label class="field">適用制度<select name="scheme"><option value="new">新制（2005/7/1 後到職，或選新制且結清舊年資）</option><option value="mixed">新舊制併用（選新制並保留舊制年資）</option><option value="old">舊制（一直沒有改選新制）</option></select></label>
+        <span id="switchWrap" hidden><label class="field">改選新制的日期<input type="date" name="switchDate" value="2005-07-01" min="2005-07-01"></label></span>
+      </div>
+      <label class="check"><input type="checkbox" name="noNotice">公司沒有提前預告（一併計算預告期間工資）</label>
+      <div class="result" id="sevOut" aria-live="polite"></div>
+    </form>
+    <p class="note" style="margin-top:8px">依勞動基準法第 16、17 條及勞工退休金條例第 11、12 條計算，年資算到離職日當天。計算都在你的瀏覽器裡完成。</p>
+  </section>
+
+  <div class="ad">廣告版位 336×280</div>
+
+  <section>
+    <h2>新制和舊制差在哪？</h2>
+    <div class="tbl"><table>
+      <thead><tr><th></th><th>新制（勞退條例）</th><th>舊制（勞基法）</th></tr></thead>
+      <tbody>
+        <tr><td>適用對象</td><td>2005/7/1 以後到職，或改選新制後的年資</td><td>2005/7/1 以前到職、沒有改選新制</td></tr>
+        <tr><td>每滿 1 年</td><td>0.5 個月平均工資</td><td>1 個月平均工資</td></tr>
+        <tr><td>未滿 1 年</td><td>按比例（月、日都算）</td><td>按比例，未滿 1 個月以 1 個月計</td></tr>
+        <tr><td>上限</td><td>最多 6 個月</td><td>沒有上限</td></tr>
+      </tbody>
+    </table></div>
+    <p style="margin-top:12px">2005 年 7 月 1 日以前到職、後來改選新制的人，如果保留了舊制年資，要分兩段算：改制前的年資用舊制，改制後的年資用新制，再加起來。上方工具選「新舊制併用」就會自動分段。</p>
+  </section>
+
+  <section>
+    <h2>月平均工資 4 萬元，資遣費對照表</h2>
+    <div class="tbl"><table>
+      <thead><tr><th>年資</th><th>新制</th><th>舊制</th></tr></thead>
+      <tbody>
+${sevRows}
+      </tbody>
+    </table></div>
+    <p class="note" style="margin-top:8px">新制年資滿 12 年就達到 6 個月上限（240,000 元），之後不再增加。</p>
+  </section>
+
+  <section>
+    <h2>年資有零頭怎麼算？</h2>
+    <p>以勞動部的範例：月平均工資 30,000 元，年資 3 年 6 個月 15 天。</p>
+    <p><b>新制</b>：零頭的 15 天換算成 15/30 個月，30,000 × 1/2 × [3 + (6 + 15/30) ÷ 12] ≈ <b>${molNew.toLocaleString()} 元</b>。</p>
+    <p><b>舊制</b>：未滿 1 個月的 15 天當作 1 個月，30,000 × [3 + (6 + 1) ÷ 12] ≈ <b>${molOld.toLocaleString()} 元</b>。</p>
+    <p>上方工具用同樣的方法換算，結果和勞動部範例一致。</p>
+  </section>
+
+  <section>
+    <h2>月平均工資怎麼算？</h2>
+    <p>平均工資是離職前 <b>6 個月內</b>拿到的工資總額平均，實務上常用「6 個月工資總額 ÷ 6」。要算進去的是經常性給與：本薪、固定津貼、加班費、全勤獎金等；<b>年終獎金、三節獎金</b>這類非經常性給與不算。</p>
+    <p>例如 6 個月本薪各 40,000 元，其中 2 個月各有 3,000 元加班費：(240,000 + 6,000) ÷ 6 ＝ 41,000 元。</p>
+  </section>
+
+  <section>
+    <h2>預告期間和謀職假</h2>
+    <div class="tbl"><table>
+      <thead><tr><th>年資</th><th>公司要提前幾天預告</th></tr></thead>
+      <tbody>
+        <tr><td>未滿 3 個月</td><td>不用預告</td></tr>
+        <tr><td>3 個月以上未滿 1 年</td><td>10 天</td></tr>
+        <tr><td>1 年以上未滿 3 年</td><td>20 天</td></tr>
+        <tr><td>3 年以上</td><td>30 天</td></tr>
+      </tbody>
+    </table></div>
+    <p style="margin-top:12px">公司沒有預告就資遣，要另外給付預告期間的工資。預告期間內，勞工可以請<b>謀職假</b>去找工作，每星期不超過 2 天，工資照給。</p>
+  </section>
+
+  <section>
+    <h2>被資遣時要注意的事</h2>
+    <p><b>30 天內發給</b>：資遣費要在勞動契約終止後 30 日內發給。</p>
+    <p><b>非自願離職證明</b>：請公司開立，之後申請失業給付會用到。</p>
+    <p><b>特休未休工資</b>：還沒休完的特休，公司要折算工資，可以用<a href="/tools/annual-leave/">特休計算機</a>算剩幾天。</p>
+    <p><b>稅</b>：資遣費屬於退職所得，115 年一次領取時，<b>206,000 元 × 退職服務年資</b>以內免稅；超過的部分到 414,000 元 × 年資之間半數課稅，再超過的全數課稅。退職服務年資的零頭未滿 6 個月算半年、滿 6 個月算 1 年。新制資遣費最多 6 個月，大多數人都在免稅範圍內。</p>
+  </section>
+
+  <section>
+    <h2>用 Excel 算資遣費</h2>
+    ${dl("fangjiatw-severance.xlsx", "資遣費計算表_放假日曆.xlsx", "每位員工一列：填入到職日、離職日、月平均工資和適用制度，自動算出新舊制年資、資遣費、預告天數與預告期間工資。")}
+    <p>到職日在 B2、離職日在 C2、月平均工資在 D2，新制資遣費（先算滿幾個月，再把零頭天數換成 /30 個月）：</p>
+    ${formula("sevFormula", "=ROUND(D2*MIN(6,(DATEDIF(B2,C2+1,\"m\")+(C2+1-EDATE(B2,DATEDIF(B2,C2+1,\"m\")))/30)/12*0.5),0)")}
+    <p style="margin-top:12px">C2+1 是因為年資要算到離職日當天。範本裡用的是更完整的寫法，月底到職等特殊日期也能正確計算。</p>
+  </section>`,
+});
+
+const out = { "tools/index.html": hub, "tools/insurance/index.html": insurance, "tools/take-home-pay/index.html": takeHome, "tools/severance/index.html": severancePage, "tools/income-tax/index.html": tax, "tools/annual-leave/index.html": leave, "tools/overtime/index.html": overtime, "tools/workdays/index.html": workdays };
 for (const [f, html] of Object.entries(out)) {
   mkdirSync(f.replace(/\/[^/]+$/, ""), { recursive: true });
   writeFileSync(f, html);

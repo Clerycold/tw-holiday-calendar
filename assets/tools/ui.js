@@ -247,4 +247,40 @@
     pay.addEventListener("input", run); pay.addEventListener("change", run); pay.addEventListener("submit", e => { e.preventDefault(); run(); });
     run();
   }
+
+  // ---- 資遣費 ----
+  const sev = $('form[data-tool="severance"]');
+  if(sev){
+    const f = sev.elements, out = $("#sevOut");
+    const ids = ["hire","leave","avg","scheme","switchDate"];
+    const tn = x => `${x.y} 年 ${x.m} 個月 ${x.d} 天`;
+    function run(){
+      $("#switchWrap").hidden = f.scheme.value !== "mixed";
+      const hire = parseDate(f.hire.value), leave = parseDate(f.leave.value), avg = num(f.avg);
+      save("sevForm", ids.map(k => f[k].value).concat(f.noNotice.checked));
+      if(!hire || !leave || !avg){ out.innerHTML = `<div class="note">輸入到職日、離職日和月平均工資，就會算出資遣費。</div>`; return; }
+      const r = C.severance({hire, leave, avg, scheme:f.scheme.value, switchDate:parseDate(f.switchDate.value)});
+      if(r.invalid){ out.innerHTML = `<div class="warn">離職日要在到職日之後。</div>`; return; }
+      const mixed = f.scheme.value === "mixed", isOld = f.scheme.value === "old", isNew = f.scheme.value === "new";
+      const notice = f.noNotice.checked ? r.noticePay : 0;
+      out.innerHTML = `
+        <div>資遣費</div>
+        <div class="big">${money(r.amount)} <small>元</small></div>
+        <dl class="kv">
+          <dt>總年資</dt><dd>${tn(r.total)}</dd>
+          ${!isNew ? `<dt>舊制年資 ${tn(r.old)}</dt><dd>${(Math.round(r.old.units*1000)/1000)} 個月 → ${money(r.old.pay)}</dd>` : ""}
+          ${!isOld ? `<dt>新制年資 ${tn(r.neu)}</dt><dd>${(Math.round(r.neu.units*1000)/1000)} 個月 → ${money(r.neu.pay)}</dd>` : ""}
+          ${notice ? `<dt>預告期間工資 ${r.noticeDays} 天（估算）</dt><dd>${money(notice)}</dd>
+          <dt class="sum">合計</dt><dd class="sum">${money(r.amount + notice)}</dd>` : ""}
+        </dl>
+        ${r.neu.capped ? `<div class="note">新制資遣費最高 6 個月平均工資。你的新制年資算出來是 ${Math.round(r.neu.raw*100)/100} 個月，以 6 個月為上限。</div>` : ""}
+        ${r.noticeDays ? `<div class="note">依年資，公司要在 <b>${r.noticeDays} 天前</b>預告；沒有預告，要另外給付這 ${r.noticeDays} 天的工資。${notice ? "上方預告工資用月平均工資 ÷ 30 估算。" : "如果公司當天才通知，可以勾選「公司沒有提前預告」一起計算。"}</div>` : `<div class="note">年資未滿 3 個月，公司不用提前預告，但仍要給資遣費。</div>`}
+        ${isNew && hire < C.SEV115.newSince ? `<div class="warn">你在 2005 年 7 月 1 日以前到職。如果選新制時有保留舊制年資，請改選「新舊制併用」，舊制那段年資每年算 1 個月，金額通常比較高。</div>` : ""}
+        ${!isNew && hire >= C.SEV115.newSince ? `<div class="warn">2005 年 7 月 1 日以後到職的本國勞工一律適用新制，請改選「新制」。</div>` : ""}
+        <div class="note">資遣費屬於退職所得。115 年領取時，年資 ${r.taxYears} 年的免稅額度是 ${money(r.free1)} 元${r.taxable ? `，超過的部分要課稅，估計應計入所得的金額約 ${money(r.taxable)} 元` : "，這筆資遣費<b>全額免稅</b>"}。</div>`;
+    }
+    const s = load("sevForm"); if(s){ ids.forEach((k,i) => { if(s[i] != null) f[k].value = s[i]; }); f.noNotice.checked = !!s[ids.length]; }
+    sev.addEventListener("input", run); sev.addEventListener("change", run); sev.addEventListener("submit", e => { e.preventDefault(); run(); });
+    run();
+  }
 })();

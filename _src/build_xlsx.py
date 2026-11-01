@@ -323,8 +323,68 @@ def payroll():
     wb.save(f"{OUT}/fangjiatw-payroll-115.xlsx")
 
 
+# ---------------- 7. 資遣費 ----------------
+def months_f(a, b):
+    """a 起算、b 不含，滿幾個月（和 calc.js monthsBetween 相同：EDATE 月底對齊）"""
+    k0 = f"((YEAR({b})-YEAR({a}))*12+MONTH({b})-MONTH({a}))"
+    return f"IF({b}<={a},0,{k0}-IF(EDATE({a},{k0})>{b},1,0))"
+
+
+def severance():
+    wb = book(); ws = wb.active; ws.title = "資遣費"
+    base(ws, "資遣費計算表（勞基法第 16、17 條、勞工退休金條例第 11、12 條）",
+         "填入到職日、離職日（最後工作日）、月平均工資與適用制度，自動算出新舊制年資、資遣費和預告期間。")
+    header(ws, 5, ["姓名", "到職日", "離職日", "月平均工資", "適用制度", "改選新制日（併用才填）", "總年資", "舊制年資", "新制年資",
+                   "舊制（月）", "新制（月）", "資遣費", "預告天數", "預告期間工資"],
+           [10, 12, 12, 12, 10, 13, 16, 16, 16, 10, 10, 12, 10, 13])
+    ws.row_dimensions[5].height = 32
+    samples = [("王小明", dt.date(2023, 1, 1), dt.date(2026, 7, 15), 30000, "新制", None),
+               ("陳小華", dt.date(2023, 1, 1), dt.date(2026, 7, 15), 30000, "舊制", None),
+               ("林大同", dt.date(1998, 3, 1), dt.date(2026, 10, 31), 50000, "併用", dt.date(2005, 7, 1))]
+    for i in range(30):
+        r = 6 + i
+        if i < len(samples):
+            n, h, l, a, sc, sw = samples[i]
+            for col, v in zip("ABCDEF", (n, h, l, a, sc, sw)):
+                if v is not None: ws[f"{col}{r}"] = v
+        e = f"(C{r}+1)"
+        ws[f"P{r}"] = f'=IF(OR(B{r}="",C{r}=""),"",IF(E{r}="舊制",{e},IF(E{r}="併用",MIN(MAX(B{r},IF(F{r}="",DATE(2005,7,1),F{r})),{e}),B{r})))'
+        ws[f"Q{r}"] = f'=IF(P{r}="","",{months_f(f"B{r}", f"P{r}")})'
+        ws[f"R{r}"] = f'=IF(P{r}="","",IF(P{r}<=B{r},0,P{r}-EDATE(B{r},Q{r})))'
+        ws[f"S{r}"] = f'=IF(P{r}="","",{months_f(f"P{r}", e)})'
+        ws[f"T{r}"] = f'=IF(P{r}="","",IF({e}<=P{r},0,{e}-EDATE(P{r},S{r})))'
+        ws[f"U{r}"] = f'=IF(P{r}="","",{months_f(f"B{r}", e)})'
+        ws[f"V{r}"] = f'=IF(P{r}="","",IF({e}<=B{r},0,{e}-EDATE(B{r},U{r})))'
+        txt = lambda m, d: f'INT({m}{r}/12)&" 年 "&MOD({m}{r},12)&" 月 "&{d}{r}&" 天"'
+        ws[f"G{r}"] = f'=IF(P{r}="","",{txt("U", "V")})'
+        ws[f"H{r}"] = f'=IF(P{r}="","",{txt("Q", "R")})'
+        ws[f"I{r}"] = f'=IF(P{r}="","",{txt("S", "T")})'
+        ws[f"J{r}"] = f'=IF(P{r}="","",INT(Q{r}/12)+(MOD(Q{r},12)+IF(R{r}>0,1,0))/12)'
+        ws[f"K{r}"] = f'=IF(P{r}="","",MIN(6,(S{r}+T{r}/30)/12*0.5))'
+        ws[f"L{r}"] = f'=IF(OR(P{r}="",D{r}=""),"",ROUND(D{r}*(J{r}+K{r}),0))'
+        ws[f"M{r}"] = f'=IF(P{r}="","",IF(U{r}<3,0,IF(U{r}<12,10,IF(U{r}<36,20,30))))'
+        ws[f"N{r}"] = f'=IF(OR(P{r}="",D{r}=""),"",ROUND(D{r}/30*M{r},0))'
+        for col, fill, fmt in [("A", INPUT, None), ("B", INPUT, DATE), ("C", INPUT, DATE), ("D", INPUT, MONEY), ("E", INPUT, None), ("F", INPUT, DATE),
+                               ("G", OUTF, None), ("H", OUTF, None), ("I", OUTF, None), ("J", OUTF, '0.000'), ("K", OUTF, '0.000'),
+                               ("L", OUTF, MONEY), ("M", OUTF, None), ("N", OUTF, MONEY)]:
+            style(ws, f"{col}{r}", fill, fmt)
+        ws[f"L{r}"].font = Font(name=FONT, bold=True)
+    for col in "PQRSTUV":
+        ws.column_dimensions[col].hidden = True
+    dv = DataValidation(type="list", formula1='"新制,舊制,併用"', allow_blank=True); ws.add_data_validation(dv); dv.add("E6:E35")
+    ws.freeze_panes = "B6"
+    notes = ["新制：每滿 1 年 0.5 個月平均工資，未滿 1 年按比例（零頭天數 ÷ 30 換算成月），最高 6 個月。2005/7/1 以後到職一律新制。",
+             "舊制：每滿 1 年 1 個月平均工資，剩餘月數按比例，未滿 1 個月以 1 個月計，沒有上限。併用：改選新制日之前用舊制、之後用新制。",
+             "預告天數：年資 3 個月以上未滿 1 年 10 天、1 年以上未滿 3 年 20 天、3 年以上 30 天；沒有預告要給付預告期間工資（此處以月平均工資 ÷ 30 估算）。",
+             "適用制度空白時視為新制。年資算到離職日當天。P～V 欄是隱藏的計算欄，請勿刪除。"]
+    for i, t in enumerate(notes):
+        ws[f"A{37 + i}"] = t
+        ws[f"A{37 + i}"].font = Font(name=FONT, size=10, color="6B6F78")
+    wb.save(f"{OUT}/fangjiatw-severance.xlsx")
+
+
 if __name__ == "__main__":
     import os
     os.makedirs(OUT, exist_ok=True)
-    income_tax(); annual_leave(); overtime(); workdays(); insurance(); payroll()
+    income_tax(); annual_leave(); overtime(); workdays(); insurance(); payroll(); severance()
     print("ok", sorted(os.listdir(OUT)))
