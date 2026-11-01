@@ -304,16 +304,16 @@
         <div class="big">${money(r.total)} <small>元（約 ${wan(r.total)} 萬）</small></div>
         <dl class="kv">
           <dt>目前月提繳工資</dt><dd>${money(r.firstGrade)}</dd>
-          <dt>再提繳 ${r.years} 年：雇主提繳</dt><dd>${money(r.er)}</dd>
+          ${r.years ? `<dt>再提繳 ${r.years} 年：雇主提繳</dt><dd>${money(r.er)}</dd>` : ""}
           ${r.self ? `<dt>自提</dt><dd>${money(r.self)}</dd>` : ""}
           ${num(f.balance) ? `<dt>目前已累積</dt><dd>${money(num(f.balance))}</dd>` : ""}
-          <dt>投資收益</dt><dd>${money(r.gain)}</dd>
+          ${r.years ? `<dt>投資收益</dt><dd>${money(r.gain)}</dd>` : ""}
           <dt class="sum">${r.canMonthly ? `月退休金（領到 ${r.endAge} 歲）` : "請領方式"}</dt><dd class="sum">${r.canMonthly ? `每月約 ${money(r.monthly)}` : "只能一次領"}</dd>
         </dl>
         ${r.canMonthly ? `<div class="note">月退休金依勞保局公式：專戶金額 ÷ 期初年金現值因子（${r.claim} 歲平均餘命 ${r.T} 年、利率 1.1473%）÷ 12，每季發一次。<b>只領到平均餘命為止</b>，活得比 ${r.endAge} 歲久，專戶就領完了；也可以選擇一次領 ${money(r.total)} 元。</div>`
           : `<div class="warn">請領時提繳年資約 ${r.contribYears} 年，未滿 15 年，只能一次領取。</div>`}
         ${self ? `<div class="note">自提 ${self}% 讓退休時多累積 <b>${money(r.selfGain)} 元</b>${r.canMonthly ? `，月退休金從 ${money(r.monthlyNoSelf)} 元變成 ${money(r.monthly)} 元` : ""}。今年自提約 ${money(yearSelf)} 元可以從薪資所得中減除，稅率 5% 約少繳 ${money(yearSelf*.05)} 元、12% 約少繳 ${money(yearSelf*.12)} 元。</div>`
-          : `<div class="note">自提 6% 的話，每個月存進專戶的錢會變成兩倍，而且自提的錢可以從當年度薪資所得中減除。上方選擇自提比例就能比較。</div>`}
+          : !r.years ? "" : `<div class="note">自提 6% 的話，每個月存進專戶的錢會變成兩倍，而且自提的錢可以從當年度薪資所得中減除。上方選擇自提比例就能比較。</div>`}
         ${age >= claim ? `<div class="note">你已經達到請領年齡，上方金額就是目前的專戶累積。</div>` : ""}
         <div class="note">試算假設薪資每年成長 ${dec(f.growth)}%、投資報酬率每年 ${dec(f.ret)}%，實際收益每年不同，結果僅供參考。</div>`;
     }
