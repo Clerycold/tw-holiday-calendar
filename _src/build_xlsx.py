@@ -383,8 +383,71 @@ def severance():
     wb.save(f"{OUT}/fangjiatw-severance.xlsx")
 
 
+# ---------------- 8. 勞退退休金 ----------------
+PEN = json.loads(subprocess.check_output(
+    ["node", "-e", "process.stdout.write(JSON.stringify(require('./assets/tools/calc.js').PEN))"]))
+
+
+def pension():
+    wb = book(); ws = wb.active; ws.title = "勞退試算"
+    base(ws, "勞退新制退休金試算表（勞工退休金條例）",
+         "填入年齡、月薪與提繳比例，逐年估算勞退個人專戶累積金額，並依勞保局公式算出月退休金。")
+    ws.column_dimensions["A"].width = 22
+    inputs = [("目前年齡", 30, None), ("預計請領年齡（60～70）", 65, None), ("目前月薪", 40000, MONEY), ("專戶目前累積金額", 0, MONEY),
+              ("已提繳年資（年）", 0, None), ("自提比例（0～6%）", 0, '0%'), ("雇主提繳比例（至少 6%）", 0.06, '0%'),
+              ("薪資年成長率", 0.0144, '0.00%'), ("投資報酬率（年）", 0.03, '0.00%')]
+    for i, (label, v, fmt) in enumerate(inputs):
+        r = 5 + i
+        ws[f"A{r}"], ws[f"B{r}"] = label, v
+        style(ws, f"A{r}", bold=True); style(ws, f"B{r}", INPUT, fmt)
+    outs = [("再提繳年數", "=MAX(0,B6-B5)", None),
+            ("請領時專戶累積", '=IF(B15=0,B8,ROUND(INDEX(G26:G85,B15),0))', MONEY),
+            ("其中：不自提時", '=IF(B15=0,B8,ROUND(INDEX(H26:H85,B15),0))', MONEY),
+            ("平均餘命（年）", "=VLOOKUP(MIN(85,MAX(60,B6)),平均餘命!A2:B27,2,FALSE)", None),
+            ("期初年金現值因子", f"=(1-(1+{PEN['rate']})^-B18)/(12*((1+{PEN['rate']})^(1/12)-1))*(1+{PEN['rate']})^(1/12)", '0.000000000'),
+            ("月退休金", '=IF(B9+B15>=15,ROUND(B16/B19/12,0),"年資未滿 15 年，只能一次領")', MONEY),
+            ("月退休金（不自提）", '=IF(B9+B15>=15,ROUND(B17/B19/12,0),"-")', MONEY),
+            ("每年提繳累積係數", "=IF(B13=0,12,((1+((1+B13)^(1/12)-1))^12-1)/((1+B13)^(1/12)-1))", '0.000000')]
+    for i, (label, f, fmt) in enumerate(outs):
+        r = 15 + i
+        ws[f"A{r}"], ws[f"B{r}"] = label, f
+        style(ws, f"A{r}", bold=True); style(ws, f"B{r}", OUTF, fmt)
+    ws["B16"].font = Font(name=FONT, bold=True, size=13); ws["B20"].font = Font(name=FONT, bold=True, size=13)
+    ws.column_dimensions["B"].width = 16
+    header(ws, 25, ["年度序", "年齡", "月薪", "月提繳工資", "雇主月提繳", "自提月提繳", "年底累積", "不自提累積"])
+    for c, w in zip("CDEFGH", [12, 12, 12, 12, 14, 14]):
+        ws.column_dimensions[c].width = w
+    for i in range(60):
+        r = 26 + i
+        ws[f"A{r}"] = f'=IF({i}<$B$15,{i},"")'
+        ws[f"B{r}"] = f'=IF(A{r}="","",$B$5+A{r})'
+        ws[f"C{r}"] = f'=IF(A{r}="","",$B$7*(1+$B$12)^A{r})'
+        ws[f"D{r}"] = f'=IF(A{r}="","",IFERROR(INDEX(級距!$D$2:$D$63,MATCH(TRUE,INDEX(級距!$D$2:$D$63>=C{r},0),0)),150000))'
+        ws[f"E{r}"] = f'=IF(A{r}="","",ROUND(D{r}*MAX(6%,$B$11),0))'
+        ws[f"F{r}"] = f'=IF(A{r}="","",ROUND(D{r}*MIN(6%,$B$10),0))'
+        prev_g = "$B$8" if i == 0 else f"G{r - 1}"
+        prev_h = "$B$8" if i == 0 else f"H{r - 1}"
+        ws[f"G{r}"] = f'=IF(A{r}="","",{prev_g}*(1+$B$13)+(E{r}+F{r})*$B$22)'
+        ws[f"H{r}"] = f'=IF(A{r}="","",{prev_h}*(1+$B$13)+E{r}*$B$22)'
+        for col, fmt in [("A", None), ("B", None), ("C", MONEY), ("D", MONEY), ("E", MONEY), ("F", MONEY), ("G", MONEY), ("H", MONEY)]:
+            style(ws, f"{col}{r}", OUTF, fmt)
+    notes = ["月退休金 ＝ 專戶金額 ÷ 期初年金現值因子 ÷ 12（勞保局公式，利率 1.1473%，平均餘命依 111 年全國簡易生命表，113 年 4 月 1 日起適用）。",
+             "提繳年資滿 15 年才能選月退休金，未滿只能一次領。月退休金領到平均餘命為止，每季發給。",
+             "每月提繳以月底存入、按月複利估算；實際收益每年不同，勞退基金另有不低於 2 年期定存利率的保證收益。"]
+    for i, t in enumerate(notes):
+        ws[f"D{5 + i}"] = t
+        ws[f"D{5 + i}"].font = Font(name=FONT, size=10, color="6B6F78")
+    lf = wb.create_sheet("平均餘命")
+    header(lf, 1, ["請領年齡", "月退採計平均餘命（年）"], [12, 22])
+    for i, (age, t) in enumerate(sorted(PEN["life"].items(), key=lambda x: int(x[0])), start=2):
+        lf.cell(row=i, column=1, value=int(age)); lf.cell(row=i, column=2, value=t)
+    lf["D1"] = "來源：勞保局「月退休金之平均餘命」（111 年全國簡易生命表，113 年 4 月 1 日起適用）。85 歲以上以 85 歲計。"
+    grade_sheet(wb)
+    wb.save(f"{OUT}/fangjiatw-pension.xlsx")
+
+
 if __name__ == "__main__":
     import os
     os.makedirs(OUT, exist_ok=True)
-    income_tax(); annual_leave(); overtime(); workdays(); insurance(); payroll(); severance()
+    income_tax(); annual_leave(); overtime(); workdays(); insurance(); payroll(); severance(); pension()
     print("ok", sorted(os.listdir(OUT)))

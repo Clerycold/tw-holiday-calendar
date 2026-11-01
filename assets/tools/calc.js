@@ -207,6 +207,39 @@
             total:fmt(t), amount, noticeDays, noticePay:Math.round(avg/30*noticeDays), taxYears, free1, taxable, invalid: end <= hire};
   }
 
+  // ---- 勞退新制退休金（勞工退休金條例）----
+  // 雇主每月至少提繳月提繳工資 6%，勞工可自提 0～6%。年滿 60 歲可請領；提繳年資滿 15 年可選月退休金，未滿只能一次領。
+  // 月退休金（勞保局，113 年 4 月 1 日起適用）：專戶金額 ÷ 期初年金現值因子 ÷ 12。
+  //   因子 = (1 − (1+i)^−T) ÷ (12 × ((1+i)^(1/12) − 1)) × (1+i)^(1/12)，i = 1.1473%，T = 111 年全國簡易生命表平均餘命（四捨五入到整數）。
+  const PEN = {rate:.011473, life:{60:23,61:23,62:22,63:21,64:20,65:19,66:19,67:18,68:17,69:16,70:16,71:15,72:14,73:13,74:13,75:12,
+    76:11,77:11,78:10,79:9,80:9,81:8,82:8,83:7,84:6,85:6}, minAge:60, monthlyYears:15};
+  const penLife = age => PEN.life[Math.min(85, Math.max(60, Math.floor(age)))];
+  function annuityFactor(T, i){ const q = Math.pow(1+i, 1/12); return (1 - Math.pow(1+i, -T)) / (12*(q-1)) * q; }
+  // p = {age, claimAge, salary, erPct, selfPct, balance（目前專戶累積）, years（已提繳年資）, growth（薪資年成長 %）, ret（年報酬率 %）}
+  function pension(p){
+    const n = v => Math.max(0, +v || 0);
+    const age = Math.floor(n(p.age)), claim = Math.max(PEN.minAge, Math.floor(n(p.claimAge)) || 65);
+    const g = n(p.growth)/100, r = (+p.ret || 0)/100, erPct = Math.max(6, n(p.erPct) || 6), selfPct = Math.min(6, n(p.selfPct));
+    const m = Math.pow(1+r, 1/12) - 1, fvf = Math.abs(m) < 1e-12 ? 12 : (Math.pow(1+m, 12) - 1)/m;
+    let bal = n(p.balance), base = n(p.balance), er = 0, self = 0;
+    const rows = [];
+    const yrs = Math.max(0, claim - age);
+    for(let k = 0; k < yrs; k++){
+      const wage = n(p.salary)*Math.pow(1+g, k), grade = gradeUp(INS115.pension, wage);
+      const cEr = Math.round(grade*erPct/100), cSelf = Math.round(grade*selfPct/100);
+      bal = bal*(1+r) + cEr*fvf; base = base*(1+r) + cEr*fvf;
+      bal += cSelf*fvf;
+      er += cEr*12; self += cSelf*12;
+      rows.push({age:age+k, grade, cEr, cSelf, bal:Math.round(bal), base:Math.round(base)});
+    }
+    const total = Math.round(bal), noSelf = Math.round(base);
+    const T = penLife(claim), factor = annuityFactor(T, PEN.rate);
+    const years = n(p.years) + yrs;
+    return {years:yrs, total, noSelf, selfGain: total - noSelf, er, self, principal: n(p.balance) + er + self, gain: total - n(p.balance) - er - self,
+            T, factor, monthly: Math.round(total/factor/12), monthlyNoSelf: Math.round(noSelf/factor/12), endAge: claim + T,
+            contribYears: years, canMonthly: years >= PEN.monthlyYears, rows, claim, firstGrade: rows.length ? rows[0].grade : gradeUp(INS115.pension, n(p.salary))};
+  }
+
   // ---- 台灣國定假日（政府行政機關辦公日曆表 115、116 年）----
   const TW_HOL = {
     "2026-01-01":"元旦","2026-02-15":"小年夜","2026-02-16":"除夕","2026-02-17":"春節 初一","2026-02-18":"春節 初二",
@@ -246,6 +279,6 @@
   }
   const weekdayHolidays = () => Object.keys(TW_HOL).filter(k => !isWeekend(new Date(k+"T00:00")));
 
-  const api = {TAX115, INS115, PAY115, SEV115, laborIns, netPay, severance, monthsBetween, taxOf, rateOf, incomeTax, annualLeave, calendarYearLeave, leaveDaysForYears, overtime, TW_HOL, workdays, addWorkdays, weekdayHolidays, key};
+  const api = {TAX115, INS115, PAY115, SEV115, laborIns, netPay, severance, monthsBetween, PEN, pension, annuityFactor, penLife, taxOf, rateOf, incomeTax, annualLeave, calendarYearLeave, leaveDaysForYears, overtime, TW_HOL, workdays, addWorkdays, weekdayHolidays, key};
   if(typeof module !== "undefined") module.exports = api; else root.Calc = api;
 })(this);

@@ -65,8 +65,8 @@ ${path === "/tools/" ? "" : related(path)}
 </main>
 
 <footer><a href="/about/">關於我們</a> · <a href="/privacy/">隱私權政策</a> · <a href="/disclosure/">聯盟連結揭露</a><br>本站試算結果僅供參考，實際金額以主管機關規定、公司制度及官方系統計算為準。</footer>
-${scripts ? `<script src="/assets/tools/calc.js?v=5"></script>
-<script src="/assets/tools/ui.js?v=5"></script>` : ""}
+${scripts ? `<script src="/assets/tools/calc.js?v=6"></script>
+<script src="/assets/tools/ui.js?v=6"></script>` : ""}
 </body>
 </html>
 `;
@@ -94,6 +94,9 @@ const TOOLS = [
   { path: "/tools/severance/", name: "資遣費計算", sub: "新制、舊制、新舊制併用資遣費", pill: "勞工",
     ask: "被資遣了，可以拿多少？", cta: "計算資遣費",
     xls: "fangjiatw-severance.xlsx", xlsName: "資遣費計算表", xlsFor: "人資一次算多位員工的新舊制資遣費與預告期間" },
+  { path: "/tools/pension/", name: "勞退退休金試算", sub: "勞退專戶退休時累積多少、月領多少", pill: "退休",
+    ask: "退休時勞退專戶有多少錢？", cta: "試算勞退退休金",
+    xls: "fangjiatw-pension.xlsx", xlsName: "勞退退休金試算表", xlsFor: "逐年列出提繳、收益與累積，比較自提效果" },
 ];
 function related(path) {
   const others = TOOLS.filter(t => t.path !== path).map(t => `      <a href="${t.path}">${t.name}<small>${t.sub}</small></a>`);
@@ -137,13 +140,6 @@ ${TOOLS.map(t => `        <tr><td>${t.xlsName}</td><td>${t.xlsFor}</td><td><a hr
     </table></div>
   </section>
 
-  <section>
-    <h2>開發中的工具</h2>
-    <p>以下工具還在製作，<b>目前還不能使用</b>，完成後會出現在上方的工具列表：</p>
-    <div class="toolgrid">
-      <div class="soon" style="border:1px dashed var(--rule);border-radius:8px;padding:16px"><span class="pill">開發中</span><b style="display:block;margin:6px 0">勞退退休金試算</b><small class="note">公司提繳加上自提，退休時個人專戶大約累積多少。</small></div>
-    </div>
-  </section>
 
   <section>
     <h2>資料來源與更新紀錄</h2>
@@ -873,7 +869,126 @@ ${sevRows}
   </section>`,
 });
 
-const out = { "tools/index.html": hub, "tools/insurance/index.html": insurance, "tools/take-home-pay/index.html": takeHome, "tools/severance/index.html": severancePage, "tools/income-tax/index.html": tax, "tools/annual-leave/index.html": leave, "tools/overtime/index.html": overtime, "tools/workdays/index.html": workdays };
+// ---------------- 勞退退休金 ----------------
+const penEx = INS.pension({ age: 30, claimAge: 65, salary: 40000, growth: 1.44, ret: 3 });
+const penEx6 = INS.pension({ age: 30, claimAge: 65, salary: 40000, growth: 1.44, ret: 3, selfPct: 6 });
+const molEx = INS.pension({ age: 25, claimAge: 65, salary: 30000, growth: 1.44, ret: 6.09 });
+const molEx6 = INS.pension({ age: 25, claimAge: 65, salary: 30000, growth: 1.44, ret: 6.09, selfPct: 6 });
+const wan = v => (Math.round(v / 1000) / 10).toLocaleString();
+const penRows = [[25, 35000], [30, 40000], [35, 50000], [40, 60000], [45, 50000]].map(([a, s]) => {
+  const x = INS.pension({ age: a, claimAge: 65, salary: s, growth: 1.44, ret: 3 }), y = INS.pension({ age: a, claimAge: 65, salary: s, growth: 1.44, ret: 3, selfPct: 6 });
+  return `        <tr><td>${a} 歲・月薪 ${s.toLocaleString()}</td><td class="num">${wan(x.total)} 萬<br><small>月領 ${x.monthly.toLocaleString()}</small></td><td class="num">${wan(y.total)} 萬<br><small>月領 ${y.monthly.toLocaleString()}</small></td></tr>`;
+}).join("\n");
+const lifeRows = [60, 61, 62, 63, 64, 65, 66, 67, 68, 69, 70].map(a => {
+  const T = INS.penLife(a), fct = INS.annuityFactor(T, INS.PEN.rate);
+  return `        <tr><td>${a} 歲</td><td class="num">${T} 年</td><td class="num">${a + T} 歲</td><td class="num">${Math.round(1e6 / fct / 12).toLocaleString()}</td></tr>`;
+}).join("\n");
+const g40 = INS.laborIns({ salary: 40000 }).pen.grade, self40 = Math.round(g40 * 0.06) * 12;
+const penFaq = [
+  ["勞退幾歲可以領？", "年滿 60 歲就可以請領。提繳年資滿 15 年，可以選月退休金或一次領；未滿 15 年只能一次領。也可以延後請領，專戶會繼續累積收益。"],
+  ["勞退月退休金可以領多久？", "勞退月退休金只領到平均餘命為止，不是終身俸。例如 60 歲請領，平均餘命 23 年，大約領到 83 歲；65 歲請領，平均餘命 19 年，大約領到 84 歲。如果提早過世，專戶剩下的錢由遺屬或指定請領人領回。"],
+  ["勞退自提划算嗎？", "自提的錢可以從當年度薪資所得中全額減除，稅率越高省越多；專戶收益也有最低保證，不低於當地銀行 2 年期定存利率。缺點是錢要到 60 歲才能領，短期需要用錢的人要考慮。"],
+  ["公司可以拒絕我自提嗎？", "2026 年 8 月 1 日起，勞工申請自提或停止自提，雇主不得拒絕；雇主不配合時，勞工可以直接向勞保局申請。"],
+  ["勞退和勞保老年年金一樣嗎？", "不一樣。勞退是雇主每月提繳到你個人專戶的錢，領完就沒有；勞保老年年金是勞保給付，可以領到終身。退休後兩筆可以同時領。"],
+  ["怎麼查自己的勞退專戶有多少錢？", "可以用勞保局 e 化服務系統、勞動保障卡，或勞保局的行動 App 查詢個人專戶累積金額。查到後填入上方工具，試算會更準確。"],
+];
+const pensionPage = page({
+  path: "/tools/pension/", crumb: "勞退退休金試算",
+  title: "勞退退休金試算｜退休時專戶有多少、月領多少（2026）",
+  h1: "勞退退休金試算<br>退休時勞退專戶有多少錢？",
+  desc: "2026 勞退新制退休金試算：輸入年齡、月薪與自提比例，估算 60～70 歲請領時個人專戶累積金額與月退休金，依勞保局公告的平均餘命與年金現值公式計算，附 Excel 範本。",
+  faq: penFaq, app: "勞退退休金試算",
+  body: `
+  <div class="answer">雇主每月提繳月薪的 <b>6%</b> 到你的勞退個人專戶，60 歲起可以請領。30 歲、月薪 4 萬、每年調薪 1.44%、報酬率 3%，65 歲時約累積 <b>${wan(penEx.total)} 萬元</b>，月領約 <b>${penEx.monthly.toLocaleString()} 元</b>；如果自提 6%，約 ${wan(penEx6.total)} 萬元、月領 ${penEx6.monthly.toLocaleString()} 元。</div>
+
+  <section>
+    <h2>勞退退休金試算</h2>
+    <form class="tool" data-tool="pension" autocomplete="off">
+      <fieldset>
+        <legend>你的資料</legend>
+        <div class="fields">
+          ${field("age", "目前年齡", 'placeholder="例如 30"')}
+          <label class="field">預計請領年齡<select name="claimAge">${Array.from({ length: 11 }, (_, i) => 60 + i).map(v => `<option value="${v}"${v === 65 ? " selected" : ""}>${v} 歲</option>`).join("")}</select></label>
+          ${field("salary", "目前月薪", 'placeholder="例如 40000"')}
+          ${field("balance", "專戶目前累積金額（選填）")}
+          ${field("years", "已提繳年資（選填，年）")}
+        </div>
+      </fieldset>
+      <fieldset>
+        <legend>提繳與假設</legend>
+        <div class="fields">
+          <label class="field">自提比例<select name="selfPct">${[0, 1, 2, 3, 4, 5, 6].map(v => `<option value="${v}">${v}%</option>`).join("")}</select></label>
+          <label class="field">雇主提繳<select name="erPct">${[6, 7, 8, 9, 10].map(v => `<option value="${v}">${v}%${v === 6 ? "（法定最低）" : ""}</option>`).join("")}</select></label>
+          <label class="field">薪資年成長率（%）<input name="growth" inputmode="decimal" value="1.44"></label>
+          <label class="field">投資報酬率（%／年）<input name="ret" inputmode="decimal" value="3"></label>
+        </div>
+      </fieldset>
+      <div class="result" id="penOut" aria-live="polite"></div>
+    </form>
+    <p class="note" style="margin-top:8px">薪資成長率預設 1.44% 是勞動部試算表提供的經常性薪資年化成長率；報酬率預設 3% 是保守估計，可以自行調整。月提繳工資依 115 年勞工退休金月提繳分級表，最高 150,000 元。計算都在你的瀏覽器裡完成。</p>
+  </section>
+
+  <div class="ad">廣告版位 336×280</div>
+
+  <section>
+    <h2>65 歲退休，勞退專戶大約有多少？</h2>
+    <div class="tbl"><table>
+      <thead><tr><th>開始年齡・目前月薪</th><th>只有雇主提繳 6%</th><th>再自提 6%</th></tr></thead>
+      <tbody>
+${penRows}
+      </tbody>
+    </table></div>
+    <p class="note" style="margin-top:8px">假設薪資每年成長 1.44%、投資報酬率 3%、65 歲請領、專戶目前為 0。月領是 65 歲請領的月退休金，領 19 年。</p>
+    <p style="margin-top:12px">用勞動部的試算範例對照：25 歲工作到 65 歲、提繳工資 3 萬元、報酬率 6.09%，只有雇主提繳約 433 萬元、自提 6% 約 866 萬元。本工具用同樣條件算出 ${wan(molEx.total)} 萬元和 ${wan(molEx6.total)} 萬元，結果一致。</p>
+  </section>
+
+  <section>
+    <h2>月退休金怎麼算？</h2>
+    <p>勞保局的公式是：<b>月退休金 ＝ 專戶金額 ÷ 期初年金現值因子 ÷ 12</b>。年金現值因子由兩個數字決定：</p>
+    <p><b>平均餘命</b>：依內政部 111 年全國簡易生命表，請領年齡對應的平均餘命，四捨五入到整數年。</p>
+    <p><b>利率</b>：1.1473%，是勞退新制基金 110～112 年平均保證收益率。</p>
+    <p>勞保局範例：60 歲請領、專戶 200 萬元，因子 20.239737682，月退休金 2,000,000 ÷ 20.239737682 ÷ 12 ≈ <b>8,235 元</b>。本工具用同一公式計算。</p>
+    <div class="tbl"><table>
+      <thead><tr><th>請領年齡</th><th>平均餘命</th><th>約領到</th><th>專戶每 100 萬月領</th></tr></thead>
+      <tbody>
+${lifeRows}
+      </tbody>
+    </table></div>
+    <p class="note" style="margin-top:8px">113 年 4 月 1 日起適用，勞保局至少每 3 年檢討一次。月退休金每季發給一次。</p>
+  </section>
+
+  <section>
+    <h2>月領還是一次領？</h2>
+    <div class="tbl"><table>
+      <thead><tr><th></th><th>月退休金</th><th>一次退休金</th></tr></thead>
+      <tbody>
+        <tr><td>資格</td><td>提繳年資滿 15 年</td><td>年資不限</td></tr>
+        <tr><td>領多久</td><td>領到平均餘命為止，不是終身</td><td>一次領完</td></tr>
+        <tr><td>剩下的錢</td><td>留在專戶繼續有收益，過世後由遺屬領回</td><td>自己管理</td></tr>
+        <tr><td>適合</td><td>怕一次花掉、想要固定現金流的人</td><td>有明確用途或自己會理財的人</td></tr>
+      </tbody>
+    </table></div>
+    <p style="margin-top:12px">2026 年 8 月 1 日起，選擇月退休金後有 <b>30 天猶豫期</b>，期間內可以改成一次領。</p>
+  </section>
+
+  <section>
+    <h2>勞退自提划算嗎？</h2>
+    <p><b>節稅</b>：自提的錢可以從當年度薪資所得中全額減除。月薪 4 萬（月提繳工資 ${g40.toLocaleString()} 元）自提 6%，一年 ${self40.toLocaleString()} 元不用計稅，稅率 12% 的人大約少繳 ${Math.round(self40 * 0.12).toLocaleString()} 元。</p>
+    <p><b>保證收益</b>：專戶收益不低於當地銀行 2 年期定存利率，不足的部分由國庫補足。</p>
+    <p><b>缺點</b>：自提的錢要到 60 歲才能領，中途不能提出來。</p>
+    <p><b>2026 年 8 月 1 日起，勞工申請自提或停止自提，雇主不得拒絕</b>；雇主不配合時可以直接向勞保局申請。每月自提會從薪水扣，可以用<a href="/tools/take-home-pay/">薪資實領計算</a>看實際入帳的變化。</p>
+  </section>
+
+  <section>
+    <h2>用 Excel 試算勞退</h2>
+    ${dl("fangjiatw-pension.xlsx", "勞退退休金試算表_放假日曆.xlsx", "填入年齡、月薪、自提比例和報酬率，逐年列出月提繳工資、雇主提繳、自提和年底累積，最後算出月退休金。內建 115 年月提繳分級表與勞保局平均餘命表。")}
+    <p>專戶金額在 B2、請領時的平均餘命在 B3，月退休金：</p>
+    ${formula("penFormula", "=ROUND(B2/((1-(1+1.1473%)^-B3)/(12*((1+1.1473%)^(1/12)-1))*(1+1.1473%)^(1/12))/12,0)")}
+    <p style="margin-top:12px">例如 B2 填 2000000、B3 填 23，會得到勞保局範例的 8,235 元。</p>
+  </section>`,
+});
+
+const out = { "tools/index.html": hub, "tools/insurance/index.html": insurance, "tools/take-home-pay/index.html": takeHome, "tools/severance/index.html": severancePage, "tools/pension/index.html": pensionPage, "tools/income-tax/index.html": tax, "tools/annual-leave/index.html": leave, "tools/overtime/index.html": overtime, "tools/workdays/index.html": workdays };
 for (const [f, html] of Object.entries(out)) {
   mkdirSync(f.replace(/\/[^/]+$/, ""), { recursive: true });
   writeFileSync(f, html);
