@@ -446,8 +446,68 @@ def pension():
     wb.save(f"{OUT}/fangjiatw-pension.xlsx")
 
 
+# ---------------- 9. 勞保老年年金 ----------------
+def rule_f(x):
+    """一次給付月數：前 15 年每年 1 個月，超過的部分每年 2 個月"""
+    return f"IF(({x})<=15,({x}),15+2*(({x})-15))"
+
+
+def labor_insurance_pension():
+    wb = book(); ws = wb.active; ws.title = "勞保年金試算"
+    base(ws, "勞保老年年金試算表（勞工保險條例第 58～59 條）",
+         "填入出生年次、勞保年資、平均月投保薪資和請領年齡，自動算出 A／B 式擇優的月領年金、提前或延後增減給、老年一次金與一次請領比較。")
+    ws.column_dimensions["A"].width = 30; ws.column_dimensions["B"].width = 18
+    inputs = [("出生年次（民國）", 79, None), ("目前年齡", 36, None), ("目前勞保年資（年，可含小數）", 12, '0.0'),
+              ("平均月投保薪資（最高 45,800）", 45800, MONEY), ("預計請領年齡", 65, None),
+              ("持續工作加保到請領年齡（是／否）", "是", None), ("97/7/17 以前就有勞保年資（是／否）", "否", None)]
+    for i, (label, v, fmt) in enumerate(inputs):
+        r = 5 + i
+        ws[f"A{r}"], ws[f"B{r}"] = label, v
+        style(ws, f"A{r}", bold=True); style(ws, f"B{r}", INPUT, fmt)
+    for ref in ("B10", "B11"):
+        dv = DataValidation(type="list", formula1='"是,否"', allow_blank=False); ws.add_data_validation(dv); dv.add(ref)
+    pre = "(B15-B22)"
+    outs = [("法定請領年齡", "=IF(B5<=46,60,MIN(65,60+B5-46))", None),
+            ("請領時勞保年資", '=B7+IF(B10="是",MAX(0,B9-B6),0)', '0.0'),
+            ("提前（－）／延後（＋）年數", "=B9-B14", None),
+            ("增減給比例", "=IF(B15>=15,MAX(-5,MIN(5,B16))*4%,0)", '0%'),
+            ("A 式：× 年資 × 0.775% ＋ 3,000", "=ROUND(MIN(B8,45800)*B15*0.775%+3000,0)", MONEY),
+            ("B 式：× 年資 × 1.55%", "=ROUND(MIN(B8,45800)*B15*1.55%,0)", MONEY),
+            ("每月老年年金（終身）", '=IF(B15<15,"年資未滿 15 年，改領老年一次金",IF(B16<-5,"太早，最早 "&(B14-5)&" 歲才能請領",'
+                                  'ROUND(MAX(MIN(B8,45800)*B15*0.775%+3000,MIN(B8,45800)*B15*1.55%)*(1+B17),0)))', MONEY),
+            ("老年一次金（年資未滿 15 年）", '=IF(B15>=15,"-",IF(B9<B14,"要滿 "&B14&" 歲才能請領",ROUND(MIN(B8,45800)*B15,0)))', MONEY),
+            ("60 歲以後的年資", '=MIN(B15,MAX(0,IF(B10="是",B9,B6)-60))', '0.0'),
+            ("一次請領給付月數", f"=MIN(IF(B22>0,50,45),MIN(45,{rule_f(pre)})+{rule_f(pre + '+MIN(5,B22)')}-{rule_f(pre)})", '0.0'),
+            ("一次請領老年給付", '=IF(AND(B11="是",B9>=60,B15>=1),ROUND(MIN(B8,45800)*B23,0),"-")', MONEY),
+            ("回本年數（一次金 ÷ 每年年金）", '=IF(AND(ISNUMBER(B24),ISNUMBER(B20)),ROUND(B24/B20/12,1),"-")', '0.0')]
+    for i, (label, f, fmt) in enumerate(outs):
+        r = 14 + i
+        ws[f"A{r}"], ws[f"B{r}"] = label, f
+        style(ws, f"A{r}", bold=True); style(ws, f"B{r}", OUTF, fmt)
+    ws["B20"].font = Font(name=FONT, bold=True, size=13)
+    ws["D4"], ws["E4"], ws["F4"] = "請領年齡", "增減給", "每月年金（年資同 B15）"
+    for c in ("D4", "E4", "F4"):
+        ws[c].font = Font(name=FONT, bold=True, color="FFFFFF"); ws[c].fill = HEAD; ws[c].border = BOX
+    ws.column_dimensions["D"].width = 10; ws.column_dimensions["E"].width = 10; ws.column_dimensions["F"].width = 22
+    for i in range(16):
+        r = 5 + i
+        ws[f"D{r}"] = f"=$B$14-5+{i}"
+        ws[f"E{r}"] = f'=IF(D{r}>$B$14+5,"",MAX(-5,MIN(5,D{r}-$B$14))*4%)'
+        ws[f"F{r}"] = (f'=IF(OR($B$15<15,D{r}>$B$14+5),"-",ROUND(MAX(MIN($B$8,45800)*$B$15*0.775%+3000,'
+                       f'MIN($B$8,45800)*$B$15*1.55%)*(1+E{r}),0))')
+        style(ws, f"D{r}", OUTF); style(ws, f"E{r}", OUTF, '0%'); style(ws, f"F{r}", OUTF, MONEY)
+    notes = ["法定請領年齡：46 年次以前 60 歲，47 年次 61 歲，之後每年次加 1 歲，51 年次以後 65 歲。年資滿 15 年可提前最多 5 年請領，每年減給 4%；延後每年增給 4%，最多 20%。",
+             "平均月投保薪資：年金與老年一次金取加保期間最高 60 個月平均；一次請領老年給付取退保前 3 年平均（此表用同一個數字估算）。",
+             "一次請領：年資前 15 年每年 1 個月，超過 15 年的部分每年 2 個月，最高 45 個月；60 歲以後年資最多計 5 年，合計最高 50 個月。",
+             "右方表格假設請領前已退保、年資不再增加。結果是依公式的估算值，不含物價調整，實際金額以勞保局核定為準。"]
+    for i, t in enumerate(notes):
+        ws[f"A{28 + i}"] = t
+        ws[f"A{28 + i}"].font = Font(name=FONT, size=10, color="6B6F78")
+    wb.save(f"{OUT}/fangjiatw-labor-insurance-pension.xlsx")
+
+
 if __name__ == "__main__":
     import os
     os.makedirs(OUT, exist_ok=True)
-    income_tax(); annual_leave(); overtime(); workdays(); insurance(); payroll(); severance(); pension()
+    income_tax(); annual_leave(); overtime(); workdays(); insurance(); payroll(); severance(); pension(); labor_insurance_pension()
     print("ok", sorted(os.listdir(OUT)))

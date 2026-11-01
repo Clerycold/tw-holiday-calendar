@@ -65,8 +65,8 @@ ${path === "/tools/" ? "" : related(path)}
 </main>
 
 <footer><a href="/about/">關於我們</a> · <a href="/privacy/">隱私權政策</a> · <a href="/disclosure/">聯盟連結揭露</a><br>本站試算結果僅供參考，實際金額以主管機關規定、公司制度及官方系統計算為準。</footer>
-${scripts ? `<script src="/assets/tools/calc.js?v=6"></script>
-<script src="/assets/tools/ui.js?v=10"></script>` : ""}
+${scripts ? `<script src="/assets/tools/calc.js?v=7"></script>
+<script src="/assets/tools/ui.js?v=11"></script>` : ""}
 </body>
 </html>
 `;
@@ -97,6 +97,9 @@ const TOOLS = [
   { path: "/tools/pension/", name: "勞退退休金試算", sub: "勞退專戶退休時累積多少、月領多少", pill: "退休",
     ask: "退休時勞退專戶有多少錢？", cta: "試算勞退退休金",
     xls: "fangjiatw-pension.xlsx", xlsName: "勞退退休金試算表", xlsFor: "逐年列出提繳、收益與累積，比較自提效果" },
+  { path: "/tools/labor-insurance-pension/", name: "勞保老年年金試算", sub: "勞保年金月領多少，加上勞退看退休月收入", pill: "退休",
+    ask: "退休後勞保每個月可以領多少？", cta: "試算勞保老年年金",
+    xls: "fangjiatw-labor-insurance-pension.xlsx", xlsName: "勞保老年年金試算表", xlsFor: "A/B 式擇優、提前延後、一次請領回本年數" },
 ];
 function related(path) {
   const others = TOOLS.filter(t => t.path !== path).map(t => `      <a href="${t.path}">${t.name}<small>${t.sub}</small></a>`);
@@ -932,6 +935,7 @@ const pensionPage = page({
       <div class="result" id="penOut" aria-live="polite"></div>
     </form>
     <p class="note" style="margin-top:8px">薪資成長率預設 1.44% 是勞動部試算表提供的經常性薪資年化成長率；報酬率預設 3% 是模擬用的年化報酬率，不是勞退基金保證報酬，也不代表未來實際收益，可以自行調整。月提繳工資依 115 年勞工退休金月提繳分級表，最高 150,000 元。計算都在你的瀏覽器裡完成。</p>
+    <p style="margin-top:12px">勞退之外，勞保老年年金是另一筆終身的退休收入。用<a href="/tools/labor-insurance-pension/">勞保老年年金試算</a>，可以把兩筆加起來，看退休後每月大約有多少收入。</p>
   </section>
 
   <div class="ad">廣告版位 336×280</div>
@@ -1020,7 +1024,206 @@ ${lifeRows}
   </section>`,
 });
 
-const out = { "tools/index.html": hub, "tools/insurance/index.html": insurance, "tools/take-home-pay/index.html": takeHome, "tools/severance/index.html": severancePage, "tools/pension/index.html": pensionPage, "tools/income-tax/index.html": tax, "tools/annual-leave/index.html": leave, "tools/overtime/index.html": overtime, "tools/workdays/index.html": workdays };
+// ---------------- 勞保老年年金 ----------------
+const LO = INS.laborOldAge;
+const loEx = LO({ birth: 51, age: 65, years: 30, avg: 45800, claimAge: 65 });
+const loEarly = LO({ birth: 51, age: 60, years: 30, avg: 45800, claimAge: 60 });
+const loLate = LO({ birth: 51, age: 70, years: 30, avg: 45800, claimAge: 70 });
+const loAgeRows = [["46 年次以前", 46], ["47 年次", 47], ["48 年次", 48], ["49 年次", 49], ["50 年次", 50], ["51 年次以後", 51]].map(([t, b]) => {
+  const g = INS.legalAge(b);
+  return `        <tr><td>${t}</td><td class="num">${g} 歲</td><td class="num">${g - 5} 歲（減給 20%）</td></tr>`;
+}).join("\n");
+const loAdjRows = [60, 61, 62, 63, 64, 65, 66, 67, 68, 69, 70].map(c => {
+  const a = LO({ birth: 51, age: c, years: 30, avg: 45800, claimAge: c }), b = LO({ birth: 51, age: c, years: 25, avg: 36300, claimAge: c });
+  const pct = Math.round(a.adj * 100);
+  return `        <tr><td>${c} 歲${c === 65 ? "（法定）" : ""}</td><td class="num">${pct > 0 ? "+" : ""}${pct}%</td><td class="num">${a.monthly.toLocaleString()}</td><td class="num">${b.monthly.toLocaleString()}</td></tr>`;
+}).join("\n");
+const loSampleRows = [[29500, 15], [36300, 20], [40100, 25], [45800, 30], [45800, 35], [45800, 40]].map(([g, y]) => {
+  const r = LO({ birth: 51, age: 65, years: y, avg: g, claimAge: 65 });
+  return `        <tr><td class="num">${g.toLocaleString()}</td><td class="num">${y} 年</td><td class="num">${r.A.toLocaleString()}</td><td class="num">${r.B.toLocaleString()}</td><td class="num"><b>${r.monthly.toLocaleString()}</b></td></tr>`;
+}).join("\n");
+const loOne = LO({ birth: 54, age: 65, years: 35, avg: 45800, claimAge: 65, pre98: true });
+const loOneAt60 = LO({ birth: 54, age: 60, years: 30, avg: 45800, claimAge: 60, pre98: true });
+const loLump = LO({ birth: 51, age: 65, years: 10, avg: 40100, claimAge: 65 });
+const loPen = INS.pension({ age: 35, claimAge: 65, salary: 45000, growth: 1.44, ret: 3 });
+const loMix = LO({ birth: 80, age: 35, years: 10, salary: 45000, claimAge: 65, working: true });
+const loFaq = [
+  ["勞保老年年金幾歲可以領？", "依出生年次決定：46 年次以前 60 歲，47 年次 61 歲，之後每晚 1 個年次加 1 歲，51 年次以後要滿 65 歲。年資滿 15 年可以提前最多 5 年請領，每提前 1 年減給 4%。"],
+  ["勞保老年年金怎麼算？", "有兩個公式擇優發給：A 式是平均月投保薪資 × 年資 × 0.775% ＋ 3,000 元，B 式是平均月投保薪資 × 年資 × 1.55%。平均月投保薪資取加保期間最高 60 個月的平均。例如投保 45,800 元、年資 30 年，B 式每月約 21,297 元。"],
+  ["勞保年資未滿 15 年可以領年金嗎？", "不能領年金，但到了法定請領年齡可以領老年一次金：平均月投保薪資 × 年資，每滿 1 年給 1 個月。例如投保 40,100 元、年資 10 年，約 40.1 萬元。老年一次金不能提前請領。"],
+  ["勞保年金提前領還是延後領比較好？", "提前 1 年減 4%、延後 1 年加 4%，最多各 5 年，而且是終身適用。提前領每月較少但多領幾年，延後領每月較多但少領幾年，沒有一定比較好，要看健康狀況、退休後的現金需求和其他收入。"],
+  ["勞保年金和勞退可以一起領嗎？", "可以。勞保老年年金是勞保給付，勞退是雇主提繳到個人專戶的退休金，兩筆互不影響，符合條件就可以同時請領。勞保年金可以領到終身，勞退月退休金是專戶領完為止。"],
+  ["勞保年金會隨物價調整嗎？", "會。依勞工保險條例第 65-4 條，消費者物價指數累計成長率達正負 5% 時，年金給付金額依成長率調整。本工具算的是依公式計算的金額，不含日後的物價調整。"],
+];
+const laborInsPensionPage = page({
+  path: "/tools/labor-insurance-pension/", crumb: "勞保老年年金試算",
+  title: "勞保老年年金試算｜幾歲可以領、月領多少、加上勞退退休月收入（2026）",
+  h1: "勞保老年年金試算<br>退休後勞保每月可以領多少？",
+  desc: "2026 勞保老年年金試算：輸入出生年次、勞保年資與投保薪資，依勞工保險條例 A、B 式擇優計算月領金額，含提前減給、延後增給、老年一次金與一次請領比較，再加上勞退月退休金估算退休後每月收入，附 Excel 範本。",
+  faq: loFaq, app: "勞保老年年金試算",
+  body: `
+  <div class="answer">勞保老年年金 ≈ <b>平均月投保薪資 × 年資 × 1.55%</b>（另一個公式是 × 0.775% ＋ 3,000 元，兩者擇優）。51 年次以後要滿 <b>65 歲</b>才能領全額。投保 45,800 元、年資 30 年，65 歲請領每月約 <b>${loEx.monthly.toLocaleString()} 元</b>；提前到 60 歲領約 ${loEarly.monthly.toLocaleString()} 元，延後到 70 歲領約 ${loLate.monthly.toLocaleString()} 元，而且是領到終身。</div>
+
+  <section>
+    <h2>勞保老年年金試算</h2>
+    <p>填入出生年次、勞保年資和月薪，就能算出勞保年金每月領多少。再填勞退專戶，可以一起看到退休後每個月大約有多少收入。</p>
+    <form class="tool" data-tool="labor-old-age" autocomplete="off">
+      <fieldset>
+        <legend>勞保資料</legend>
+        <div class="fields">
+          ${field("birth", "出生年次（民國）", 'placeholder="例如 79"')}
+          ${field("age", "目前年齡", 'placeholder="例如 36"')}
+          <label class="field">目前勞保年資（年）<input name="years" inputmode="decimal" placeholder="例如 12.5"></label>
+          ${field("salary", "目前月薪", 'placeholder="例如 45000"')}
+          ${field("avg", "平均月投保薪資（選填）", 'placeholder="不知道就留空"')}
+          <label class="field">預計請領年齡<select name="claimAge">${Array.from({ length: 16 }, (_, i) => 55 + i).map(v => `<option value="${v}"${v === 65 ? " selected" : ""}>${v} 歲</option>`).join("")}</select></label>
+        </div>
+        <label class="check"><input type="checkbox" name="working" checked> 會持續工作、加保到請領年齡（年資會一路累積）</label>
+        <label class="check"><input type="checkbox" name="pre98"> 民國 97 年 7 月 17 日以前就有勞保年資（可以比較一次請領）</label>
+        <details><summary>平均月投保薪資是什麼？不知道怎麼填？</summary>
+          <p class="note">勞保年金用的是「加保期間最高 60 個月的月投保薪資平均」，不是實際月薪。留空的話，本工具用目前月薪對照 115 年勞保投保薪資分級表推算，月薪 43,901 元以上都以最高 45,800 元計。如果年輕時投保薪資比較低、最近 5 年才調高，這樣推算會接近實際；可以登入勞保局 e 化服務系統查詢投保紀錄後自行填入。</p>
+        </details>
+      </fieldset>
+      <fieldset>
+        <legend>加上勞退（選填）</legend>
+        <div class="fields">
+          ${field("penBalance", "勞退專戶目前累積")}
+          ${field("penYears", "勞退已提繳年資（年）")}
+          <label class="field">勞退自提比例<select name="selfPct">${[0, 1, 2, 3, 4, 5, 6].map(v => `<option value="${v}">${v}%</option>`).join("")}</select></label>
+        </div>
+        <p class="note">勞退依雇主提繳 6%、薪資年成長 1.44%、模擬報酬率 3% 估算，詳細試算請用<a href="/tools/pension/">勞退退休金試算</a>。</p>
+      </fieldset>
+      <div><button type="button" class="copy" id="loReset" style="padding:6px 14px">重設</button></div>
+      <div class="result" id="loOut" aria-live="polite"></div>
+    </form>
+    <p class="note" style="margin-top:8px">依勞工保險條例第 58～59 條計算，投保薪資依 115 年勞保投保薪資分級表（最高 45,800 元）。結果是依公式計算的估算值，不含日後物價調整，實際金額以勞保局核定為準。計算都在你的瀏覽器裡完成。</p>
+  </section>
+
+  <div class="ad">廣告版位 336×280</div>
+
+  <section>
+    <h2>勞保老年年金幾歲可以領？</h2>
+    <p>法定請領年齡依出生年次逐步提高，<b>51 年次以後都是 65 歲</b>。勞保年資滿 15 年，可以提前最多 5 年請領，但每提前 1 年少領 4%。</p>
+    <div class="tbl"><table>
+      <thead><tr><th>出生年次（民國）</th><th>全額請領年齡</th><th>最早可提前請領</th></tr></thead>
+      <tbody>
+${loAgeRows}
+      </tbody>
+    </table></div>
+    <p class="note" style="margin-top:8px">請領時要已經離職退保。依勞工保險條例第 58 條，請領年齡自 98 年起為 60 歲，第 10 年起提高 1 歲，之後每 2 年提高 1 歲，到 65 歲為止。</p>
+  </section>
+
+  <section>
+    <h2>勞保老年年金怎麼算？A 式和 B 式</h2>
+    <p>勞保局會用兩個公式計算，<b>哪個高就發哪個</b>：</p>
+    <p><b>A 式</b>：平均月投保薪資 × 年資 × 0.775% ＋ 3,000 元</p>
+    <p><b>B 式</b>：平均月投保薪資 × 年資 × 1.55%</p>
+    <p>兩式在「平均月投保薪資 × 年資」約 387,097 元時打平，低於這個數字 A 式較高。現在最低投保薪資 29,500 元、年資 15 年就有 442,500 元，所以<b>大多數人是 B 式比較高</b>；投保薪資偏低的部分工時者，或早年投保薪資低的人，才可能適用 A 式。</p>
+    <div class="tbl"><table>
+      <thead><tr><th>平均月投保薪資</th><th>年資</th><th>A 式</th><th>B 式</th><th>每月領</th></tr></thead>
+      <tbody>
+${loSampleRows}
+      </tbody>
+    </table></div>
+    <p class="note" style="margin-top:8px">以 65 歲（法定年齡）請領計算。年資未滿 1 年的部分按加保月數比例計算。</p>
+  </section>
+
+  <section>
+    <h2>提前領還是延後領？差多少</h2>
+    <p>以 51 年次、法定請領年齡 65 歲為例，提前或延後請領的增減比例<b>會跟著你一輩子</b>，不是只有前幾年：</p>
+    <div class="tbl"><table>
+      <thead><tr><th>請領年齡</th><th>增減給</th><th>投保 45,800・年資 30 年</th><th>投保 36,300・年資 25 年</th></tr></thead>
+      <tbody>
+${loAdjRows}
+      </tbody>
+    </table></div>
+    <p class="note" style="margin-top:8px">假設請領前已經退保、年資不再增加。如果延後期間繼續工作加保，年資也會增加，金額會比表上更高。</p>
+    <p style="margin-top:12px">提前領的好處是早幾年開始有收入，延後領則是每月領得多。哪個比較好沒有標準答案，要看你的健康狀況、退休後的現金需求，以及有沒有勞退、存款等其他收入可以先用。</p>
+  </section>
+
+  <section>
+    <h2>年資未滿 15 年：老年一次金</h2>
+    <p>勞保年資未滿 15 年，不能領年金，到了法定請領年齡可以請領<b>老年一次金</b>：平均月投保薪資 × 年資，每滿 1 年給 1 個月。例如投保 40,100 元、年資 10 年，約 <b>${loLump.lump.toLocaleString()} 元</b>。老年一次金不能提前請領。</p>
+    <p>如果年資只差幾年就滿 15 年，可以考慮繼續工作加保，或用國民年金年資合併計算，達到 15 年就能改領終身年金。</p>
+  </section>
+
+  <section>
+    <h2>月領還是一次領？（97 年以前就有勞保年資的人）</h2>
+    <p>民國 97 年 7 月 17 日以前就有勞保年資的人，除了月領年金，也可以選擇<b>一次請領老年給付</b>：年資前 15 年每年 1 個月，超過 15 年的部分每年 2 個月，最高 45 個月；60 歲以後的年資最多再算 5 年，合計最高 50 個月。一次請領的平均月投保薪資取退保前 3 年平均。</p>
+    <div class="tbl"><table>
+      <thead><tr><th>例子：54 年次、投保 45,800 元</th><th>月領年金</th><th>一次請領</th><th>回本年數</th></tr></thead>
+      <tbody>
+        <tr><td>60 歲退休、年資 30 年</td><td class="num">${loOneAt60.monthly.toLocaleString()}<br><small>提前 5 年，減給 20%</small></td><td class="num">${(loOneAt60.oneTime / 10000).toLocaleString()} 萬<br><small>${loOneAt60.months} 個月</small></td><td class="num">約 ${loOneAt60.breakEven.toFixed(1)} 年</td></tr>
+        <tr><td>工作到 65 歲、年資 35 年</td><td class="num">${loOne.monthly.toLocaleString()}</td><td class="num">${(loOne.oneTime / 10000).toLocaleString()} 萬<br><small>${loOne.months} 個月</small></td><td class="num">約 ${loOne.breakEven.toFixed(1)} 年</td></tr>
+      </tbody>
+    </table></div>
+    <p class="note" style="margin-top:8px">回本年數 ＝ 一次請領金額 ÷ 每年領的年金，不計物價調整和利息。</p>
+    <p style="margin-top:12px">月領的年金是<b>終身給付</b>，活得越久領越多，還會隨物價調整；一次領則是馬上拿到一筆錢，可以自己運用。選擇後就不能更改，建議先想清楚自己的現金需求再決定。</p>
+  </section>
+
+  <section>
+    <h2>勞保年金加勞退：退休後每月收入</h2>
+    <p>退休後的固定收入，通常有兩筆：勞保老年年金和勞退退休金，兩筆可以同時領。例如 80 年次、35 歲、月薪 45,000 元、目前勞保年資 10 年，工作到 65 歲：</p>
+    <div class="tbl"><table>
+      <thead><tr><th></th><th>每月約</th><th>領多久</th></tr></thead>
+      <tbody>
+        <tr><td>勞保老年年金</td><td class="num">${loMix.monthly.toLocaleString()}</td><td>終身</td></tr>
+        <tr><td>勞退月退休金（只有雇主提繳 6%）</td><td class="num">${loPen.monthly.toLocaleString()}</td><td>依平均餘命估算約 ${loPen.T} 年，專戶領完為止</td></tr>
+        <tr><td class="sum"><b>合計</b></td><td class="num"><b>${(loMix.monthly + loPen.monthly).toLocaleString()}</b></td><td></td></tr>
+      </tbody>
+    </table></div>
+    <p class="note" style="margin-top:8px">勞退假設勞退專戶目前為 0、薪資年成長 1.44%、模擬報酬率 3%（不是保證報酬）。勞保年資從 10 年累積到 40 年。</p>
+  </section>
+
+  <section>
+    <h2>勞保和勞退有什麼不同？</h2>
+    <div class="tbl"><table>
+      <thead><tr><th></th><th>勞保老年年金</th><th>勞退（新制）</th></tr></thead>
+      <tbody>
+        <tr><td>錢從哪裡來</td><td>勞保保費（勞工、雇主、政府分擔）</td><td>雇主每月提繳 6%，加上個人自提</td></tr>
+        <tr><td>幾歲可以領</td><td>依出生年次 60～65 歲，可提前 5 年</td><td>60 歲</td></tr>
+        <tr><td>月領條件</td><td>勞保年資滿 15 年</td><td>提繳年資滿 15 年</td></tr>
+        <tr><td>金額怎麼決定</td><td>平均月投保薪資 × 年資 × 1.55%</td><td>個人專戶累積的本金和收益</td></tr>
+        <tr><td>領多久</td><td>終身</td><td>專戶領完為止</td></tr>
+        <tr><td>物價調整</td><td>物價指數累計漲跌 5% 時調整</td><td>無</td></tr>
+      </tbody>
+    </table></div>
+  </section>
+
+  <section>
+    <h2>計算依據與資料來源</h2>
+    <div class="tbl"><table>
+      <thead><tr><th>項目</th><th>依據</th></tr></thead>
+      <tbody>
+        <tr><td>請領資格、法定請領年齡</td><td><a href="https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0050001&amp;flno=58" rel="noopener">勞工保險條例第 58 條</a></td></tr>
+        <tr><td>A 式、B 式擇優</td><td><a href="https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0050001&amp;flno=58-1" rel="noopener">勞工保險條例第 58-1 條</a></td></tr>
+        <tr><td>延後增給、提前減給 4%</td><td><a href="https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0050001&amp;flno=58-2" rel="noopener">勞工保險條例第 58-2 條</a></td></tr>
+        <tr><td>老年一次金、一次請領給付月數</td><td><a href="https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0050001&amp;flno=59" rel="noopener">勞工保險條例第 59 條</a></td></tr>
+        <tr><td>平均月投保薪資</td><td><a href="https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0050001&amp;flno=19" rel="noopener">勞工保險條例第 19 條</a></td></tr>
+        <tr><td>物價調整</td><td><a href="https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0050001&amp;flno=65-4" rel="noopener">勞工保險條例第 65-4 條</a></td></tr>
+        <tr><td>投保薪資級距</td><td>勞保局勞工保險投保薪資分級表（115 年 1 月 1 日起適用，最高 45,800 元）</td></tr>
+      </tbody>
+    </table></div>
+    <h3 style="margin-top:16px">更新紀錄</h3>
+    <div class="tbl"><table>
+      <thead><tr><th>更新日期</th><th>內容</th><th>適用</th></tr></thead>
+      <tbody>
+        <tr><td>2026/11/01</td><td>上線：依勞工保險條例第 58～59 條、115 年投保薪資分級表；51 年次以後法定請領年齡 65 歲</td><td>2026 年</td></tr>
+      </tbody>
+    </table></div>
+    <p class="note" style="margin-top:8px">勞工保險條例修法或投保薪資級距調整時，我們會更新公式並在這裡記錄。</p>
+  </section>
+
+  <section>
+    <h2>用 Excel 試算勞保年金</h2>
+    ${dl("fangjiatw-labor-insurance-pension.xlsx", "勞保老年年金試算表_放假日曆.xlsx", "填入出生年次、年資、平均月投保薪資和請領年齡，自動算出 A、B 式、提前或延後增減給、老年一次金，以及一次請領金額和回本年數。")}
+    <p>平均月投保薪資在 B2、年資在 B3、增減給比例在 B4（提前 2 年填 -8%，延後 1 年填 4%），每月年金：</p>
+    ${formula("loFormula", "=ROUND(MAX(B2*B3*0.775%+3000,B2*B3*1.55%)*(1+B4),0)")}
+    <p style="margin-top:12px">例如 B2 填 45800、B3 填 30、B4 填 0，會得到 ${loEx.monthly.toLocaleString()} 元。</p>
+  </section>`,
+});
+
+const out = { "tools/labor-insurance-pension/index.html": laborInsPensionPage, "tools/index.html": hub, "tools/insurance/index.html": insurance, "tools/take-home-pay/index.html": takeHome, "tools/severance/index.html": severancePage, "tools/pension/index.html": pensionPage, "tools/income-tax/index.html": tax, "tools/annual-leave/index.html": leave, "tools/overtime/index.html": overtime, "tools/workdays/index.html": workdays };
 for (const [f, html] of Object.entries(out)) {
   mkdirSync(f.replace(/\/[^/]+$/, ""), { recursive: true });
   writeFileSync(f, html);

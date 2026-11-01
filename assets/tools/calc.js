@@ -240,6 +240,44 @@
             contribYears: years, canMonthly: years >= PEN.monthlyYears, rows, claim, firstGrade: rows.length ? rows[0].grade : gradeUp(INS115.pension, n(p.salary))};
   }
 
+  // ---- 勞保老年給付（勞工保險條例第 58～59 條）----
+  // 年金（年資滿 15 年）：A 式 平均月投保薪資 × 年資 × 0.775% + 3,000，B 式 × 1.55%，擇優發給（第 58-1 條）。
+  // 延後請領每年增給 4%、提前請領每年減給 4%，各最多 5 年（第 58-2 條；提前需年資滿 15 年）。
+  // 老年一次金（年資未滿 15 年）、一次請領老年給付（97/7/17 修法前有年資者）：年資每滿 1 年 1 個月，
+  //   超過 15 年的部分每年 2 個月，最高 45 個月；60 歲後年資最多計 5 年，合計最高 50 個月（第 59 條）。
+  // 平均月投保薪資：年金、老年一次金取加保期間最高 60 個月平均；一次請領老年給付取退保前 3 年平均（第 19 條）。
+  // 法定請領年齡：46 年次以前 60 歲，之後每年次加 1 歲，51 年次以後 65 歲（第 58 條第 5 項）。
+  const LOA = {a:.00775, aPlus:3000, b:.0155, step:.04, maxYears:5, minYears:15, maxGrade:45800};
+  const legalAge = birth => birth <= 46 ? 60 : Math.min(65, 60 + (birth - 46));
+  const lumpMonths = y => y <= 15 ? y : 15 + 2*(y - 15);
+  // p = {birth（民國年次）, age（目前年齡）, years（目前勞保年資，可含小數）, salary, avg（平均月投保薪資，選填）,
+  //      claimAge, working（持續加保到請領）, pre98（97/7/17 前有年資）}
+  function laborOldAge(p){
+    const n = v => Math.max(0, +v || 0), L = LOA;
+    const birth = Math.floor(n(p.birth)), age = Math.floor(n(p.age)), claim = Math.floor(n(p.claimAge));
+    const legal = legalAge(birth);
+    const add = p.working ? Math.max(0, claim - age) : 0;
+    const years = n(p.years) + add;
+    const grade = n(p.avg) ? Math.min(L.maxGrade, n(p.avg)) : INS115.li.find(([cap]) => n(p.salary) <= cap)[1];
+    const rawA = grade*years*L.a + L.aPlus, rawB = grade*years*L.b;
+    const formula = rawB >= rawA ? "B" : "A";
+    const diff = claim - legal, adjYears = Math.max(-L.maxYears, Math.min(L.maxYears, diff));
+    const annuityOk = years >= L.minYears;
+    const tooEarly = annuityOk ? diff < -L.maxYears : diff < 0;
+    const adj = annuityOk ? adjYears*L.step : 0;
+    const monthly = annuityOk && !tooEarly ? Math.round(Math.max(rawA, rawB)*(1 + adj)) : 0;
+    // 老年一次金（年資未滿 15 年，不能提前）
+    const lump = !annuityOk && !tooEarly ? Math.round(grade*years) : 0;
+    // 一次請領老年給付：60 歲以後的年資最多算 5 年
+    const post60 = Math.min(years, Math.max(0, (p.working ? claim : age) - 60));
+    const pre = years - post60, post = Math.min(5, post60);
+    const mPre = Math.min(45, lumpMonths(pre));
+    const months = Math.min(post60 > 0 ? 50 : 45, mPre + lumpMonths(pre + post) - lumpMonths(pre));
+    const oneTime = p.pre98 && claim >= 60 && years >= 1 ? Math.round(grade*months) : 0;
+    return {legal, age, claim, diff, adjYears, adj, years, add, grade, A:Math.round(rawA), B:Math.round(rawB), formula,
+            annuityOk, tooEarly, monthly, lump, months, oneTime, breakEven: oneTime && monthly ? oneTime/monthly/12 : 0};
+  }
+
   // ---- 台灣國定假日（政府行政機關辦公日曆表 115、116 年）----
   const TW_HOL = {
     "2026-01-01":"元旦","2026-02-15":"小年夜","2026-02-16":"除夕","2026-02-17":"春節 初一","2026-02-18":"春節 初二",
@@ -279,6 +317,6 @@
   }
   const weekdayHolidays = () => Object.keys(TW_HOL).filter(k => !isWeekend(new Date(k+"T00:00")));
 
-  const api = {TAX115, INS115, PAY115, SEV115, laborIns, netPay, severance, monthsBetween, PEN, pension, annuityFactor, penLife, taxOf, rateOf, incomeTax, annualLeave, calendarYearLeave, leaveDaysForYears, overtime, TW_HOL, workdays, addWorkdays, weekdayHolidays, key};
+  const api = {TAX115, INS115, PAY115, SEV115, LOA, legalAge, laborOldAge, laborIns, netPay, severance, monthsBetween, PEN, pension, annuityFactor, penLife, taxOf, rateOf, incomeTax, annualLeave, calendarYearLeave, leaveDaysForYears, overtime, TW_HOL, workdays, addWorkdays, weekdayHolidays, key};
   if(typeof module !== "undefined") module.exports = api; else root.Calc = api;
 })(this);

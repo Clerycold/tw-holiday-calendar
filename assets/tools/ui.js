@@ -354,4 +354,77 @@
     pen.addEventListener("input", run); pen.addEventListener("change", run); pen.addEventListener("submit", e => { e.preventDefault(); run(); });
     run();
   }
+
+  // ---- 勞保老年年金（＋勞退）----
+  const lo = $('form[data-tool="labor-old-age"]');
+  if(lo){
+    const f = lo.elements, out = $("#loOut");
+    const ids = ["birth","age","years","salary","avg","claimAge","penBalance","penYears","selfPct"];
+    const dec = el => Math.max(0, +String(el.value).replace(/,/g,"") || 0);
+    const rocNow = new Date().getFullYear() - 1911;
+    const yr = v => Math.round(v*10)/10;
+    function run(){
+      save("loForm", ids.map(k => f[k].value).concat(f.working.checked, f.pre98.checked));
+      const birth = num(f.birth), salary = num(f.salary), avg = num(f.avg);
+      const age = num(f.age) || (birth ? rocNow - birth : 0);
+      if(!birth || !age || (!salary && !avg)){ out.innerHTML = `<div class="note">輸入出生年次、勞保年資和月薪，就會算出勞保老年年金每月大約領多少。</div>`; return; }
+      const claim = +f.claimAge.value;
+      const r = C.laborOldAge({birth, age, years:dec(f.years), salary, avg, claimAge:claim, working:f.working.checked, pre98:f.pre98.checked});
+      const pct = Math.round(r.adj*100);
+      const adjTxt = r.adjYears < 0 ? `提前 ${-r.adjYears} 年，減給 ${-pct}%` : r.adjYears > 0 ? `延後 ${r.adjYears} 年，增給 ${pct}%` : "法定年齡請領，不增減";
+      // 勞退：至少 60 歲才能領
+      const penClaim = Math.max(60, claim), hasPen = salary > 0;
+      const p = hasPen ? C.pension({age, claimAge:penClaim, salary, balance:num(f.penBalance), years:num(f.penYears), selfPct:num(f.selfPct), growth:1.44, ret:3}) : null;
+      let head, warn = "";
+      if(r.tooEarly){
+        head = `<div>${claim} 歲還不能請領</div><div class="big">— </div>`;
+        warn = r.annuityOk ? `<div class="warn">你的法定請領年齡是 ${r.legal} 歲，最多只能提前 5 年，也就是 ${r.legal - 5} 歲起才能請領。</div>`
+          : `<div class="warn">請領時勞保年資約 ${yr(r.years)} 年，未滿 15 年只能領老年一次金，而且不能提前，要等到 ${r.legal} 歲。</div>`;
+      } else if(!r.annuityOk){
+        head = `<div>勞保年資未滿 15 年，可領老年一次金</div><div class="big">${money(r.lump)} <small>元（一次領）</small></div>`;
+        warn = `<div class="warn">請領時勞保年資約 ${yr(r.years)} 年，未滿 15 年不能領年金。再加保約 ${yr(15 - r.years)} 年達到 15 年，就能改領終身年金。</div>`;
+      } else {
+        head = `<div>${claim} 歲起，勞保老年年金每月約</div><div class="big">${money(r.monthly)} <small>元（終身）</small></div>`;
+      }
+      const combo = p && r.monthly && !p.total ? `<div class="note">填入勞退專戶目前累積和已提繳年資，就能一起估算退休後每月收入。</div>`
+        : p && r.monthly ? (() => {
+        const pm = p.canMonthly ? p.monthly : 0;
+        return `<div class="note" style="margin-top:12px"><b>加上勞退，退休後每月收入</b></div>
+        <dl class="kv">
+          <dt>勞保老年年金（${claim} 歲起，終身）</dt><dd>${money(r.monthly)}</dd>
+          <dt>勞退月退休金（${penClaim} 歲起，約 ${p.T} 年）</dt><dd>${p.canMonthly ? money(pm) : "年資未滿 15 年，只能一次領 " + money(p.total)}</dd>
+          ${pm ? `<dt class="sum">每月合計</dt><dd class="sum">${money(r.monthly + pm)}</dd>` : ""}
+        </dl>
+        <div class="note">勞退以雇主提繳 6%${num(f.selfPct) ? `、自提 ${num(f.selfPct)}%` : ""}、薪資年成長 1.44%、模擬報酬率 3%（不是保證報酬）估算，${penClaim} 歲時專戶約 ${money(p.total)} 元。${!p.canMonthly && !num(f.penYears) ? "如果你已經提繳勞退多年，請填入已提繳年資，滿 15 年才能月領。" : ""}勞退月退休金依平均餘命估算給付期間，並非保證領到幾歲，專戶領完即停止；勞保年金則是終身。</div>`;
+      })() : "";
+      const one = r.oneTime && !r.tooEarly ? `<details><summary>月領還是一次領？</summary>
+        <dl class="kv">
+          <dt>一次請領老年給付（${r.months} 個月）</dt><dd>${money(r.oneTime)}</dd>
+          ${r.monthly ? `<dt>回本年數（一次金 ÷ 每年年金）</dt><dd>約 ${r.breakEven.toFixed(1)} 年</dd>` : ""}
+        </dl>
+        <div class="note">一次請領的平均月投保薪資是退保前 3 年平均，這裡用你填的投保薪資估算。${r.monthly ? `月領 ${claim} 歲起領超過約 ${r.breakEven.toFixed(1)} 年（${Math.floor(claim + r.breakEven)} 歲左右），總額就會超過一次領，而且年金會隨物價調整。` : ""}選擇後不能更改。</div></details>` : "";
+      const opened = [...out.querySelectorAll("details")].map(d => d.open);
+      out.innerHTML = `${head}
+        <dl class="kv">
+          <dt>法定請領年齡（${birth} 年次）</dt><dd>${r.legal} 歲</dd>
+          <dt>請領時勞保年資</dt><dd>約 ${yr(r.years)} 年${r.add ? `（再加保 ${r.add} 年）` : ""}</dd>
+          <dt>平均月投保薪資${avg ? "" : "（依月薪推算）"}</dt><dd>${money(r.grade)}</dd>
+          ${r.annuityOk ? `<dt>A 式：× 年資 × 0.775% ＋ 3,000</dt><dd>${money(r.A)}${r.formula === "A" ? "（較高）" : ""}</dd>
+          <dt>B 式：× 年資 × 1.55%</dt><dd>${money(r.B)}${r.formula === "B" ? "（較高）" : ""}</dd>
+          <dt>請領時間</dt><dd>${adjTxt}</dd>` : ""}
+        </dl>${warn}${combo}${one}
+        ${r.annuityOk && !r.tooEarly && r.diff !== 0 ? (() => {
+          const L = C.laborOldAge({birth, age, years:dec(f.years), salary, avg, claimAge:Math.max(age, r.legal), working:f.working.checked});
+          return L.monthly ? `<div class="note">提前或延後的增減比例終身適用。改在 ${Math.max(age, r.legal)} 歲請領${L.adjYears ? "" : "（法定年齡，不增減）"}，每月約 ${money(L.monthly)} 元。</div>` : "";
+        })() : ""}
+        <div class="note">依公式計算的估算值，不含日後物價調整；實際金額以勞保局核定為準。</div>`;
+      out.querySelectorAll("details").forEach((d, i) => { if(opened[i]) d.open = true; });
+    }
+    const s = load("loForm");
+    if(s){ ids.forEach((k,i) => { if(s[i] != null && s[i] !== "") f[k].value = s[i]; }); f.working.checked = s[ids.length] !== false; f.pre98.checked = !!s[ids.length+1]; }
+    const reset = $("#loReset");
+    if(reset) reset.addEventListener("click", () => { lo.reset(); try{ localStorage.removeItem("loForm"); }catch(e){} run(); });
+    lo.addEventListener("input", run); lo.addEventListener("change", run); lo.addEventListener("submit", e => { e.preventDefault(); run(); });
+    run();
+  }
 })();
