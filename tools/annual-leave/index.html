@@ -13,7 +13,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@600;900&family=Noto+Sans+TC:wght@400;500;700&family=JetBrains+Mono:wght@500&display=swap">
 <link rel="stylesheet" href="/assets/site.css?v=3">
-<link rel="stylesheet" href="/assets/tools/tools.css?v=1">
+<link rel="stylesheet" href="/assets/tools/tools.css?v=2">
 <script type="application/ld+json">
 {
  "@context": "https://schema.org",
@@ -152,6 +152,7 @@
 
   <section>
     <h2>用 Excel 算年資和特休</h2>
+    <div class="dl"><a href="/downloads/fangjiatw-annual-leave.xlsx" download="員工特休計算表_放假日曆.xlsx">⬇ 下載 Excel 範本</a><span>人資適用：一次填入多位員工的到職日，自動算出特休、下次增加日和未休工資。</span></div>
     <p>到職日在 A2，B2 先算出年資（滿幾個月）：</p>
     <div class="formula"><code id="monthFormula">=DATEDIF(A2,TODAY(),"M")</code><button type="button" class="copy" data-copy="monthFormula">複製</button></div>
     <p style="margin-top:12px">C2 依年資換算成特休天數：</p>

@@ -13,7 +13,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@600;900&family=Noto+Sans+TC:wght@400;500;700&family=JetBrains+Mono:wght@500&display=swap">
 <link rel="stylesheet" href="/assets/site.css?v=3">
-<link rel="stylesheet" href="/assets/tools/tools.css?v=1">
+<link rel="stylesheet" href="/assets/tools/tools.css?v=2">
 <script type="application/ld+json">
 {
  "@context": "https://schema.org",
@@ -136,6 +136,8 @@
 
   <section>
     <h2>用 Excel 算工作天數（扣台灣國定假日）</h2>
+    <div class="dl"><a href="/downloads/fangjiatw-workdays.xlsx" download="工作天數計算表_放假日曆.xlsx">⬇ 下載 Excel 範本</a><span>已內建 2026～2027 台灣國定假日清單，填入日期就能算，週休二日和單休都有。</span></div>
+    <p style="margin-top:12px">想自己做的話，照下面三步：</p>
     <p><b>第 1 步</b>：在 Excel 新增一個工作表，命名為「假日」，把下面的清單複製貼到 A 欄。清單只列出<b>平日</b>放假的國定假日和補假（週末本來就會被扣掉）。</p>
     <div class="formula"><textarea id="holList" class="field" rows="6" readonly style="flex:1;min-width:0;font-family:var(--f-num);font-size:.9rem;background:var(--paper);color:var(--ink);border:1px solid var(--rule);border-radius:6px;padding:9px 10px"></textarea><button type="button" class="copy" data-copy="holList">複製清單</button></div>
     <p style="margin-top:12px"><b>第 2 步</b>：開始日在 A2、結束日在 B2，計算工作天數：</p>

@@ -13,7 +13,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@600;900&family=Noto+Sans+TC:wght@400;500;700&family=JetBrains+Mono:wght@500&display=swap">
 <link rel="stylesheet" href="/assets/site.css?v=3">
-<link rel="stylesheet" href="/assets/tools/tools.css?v=1">
+<link rel="stylesheet" href="/assets/tools/tools.css?v=2">
 <script type="application/ld+json">
 {
  "@context": "https://schema.org",
@@ -164,6 +164,7 @@
 
   <section>
     <h2>用 Excel 算加班費</h2>
+    <div class="dl"><a href="/downloads/fangjiatw-overtime.xlsx" download="加班費計算表_放假日曆.xlsx">⬇ 下載 Excel 範本</a><span>每次加班記一列，自動算出每筆加班費和當月合計，附國定假日清單。</span></div>
     <p>時薪在 A2、平日加班時數在 B2：</p>
     <div class="formula"><code id="wdFormula">=A2*(MIN(B2,2)*4/3+MAX(MIN(B2,4)-2,0)*5/3)</code><button type="button" class="copy" data-copy="wdFormula">複製</button></div>
     <p style="margin-top:12px">休息日加班時數在 C2：</p>

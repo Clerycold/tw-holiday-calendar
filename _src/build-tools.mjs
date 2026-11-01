@@ -38,7 +38,7 @@ ${faq.map(([q, a]) => `    <details><summary>${q}</summary><p>${a}</p></details>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@600;900&family=Noto+Sans+TC:wght@400;500;700&family=JetBrains+Mono:wght@500&display=swap">
 <link rel="stylesheet" href="/assets/site.css?v=3">
-<link rel="stylesheet" href="/assets/tools/tools.css?v=1">
+<link rel="stylesheet" href="/assets/tools/tools.css?v=2">
 <script type="application/ld+json">
 ${JSON.stringify({ "@context": "https://schema.org", "@graph": graph }, null, 1)}
 </script>
@@ -85,6 +85,7 @@ ${others.join("\n")}
   </section>`;
 }
 const field = (name, label, attrs = "") => `<label class="field">${label}<input name="${name}" inputmode="numeric" ${attrs}></label>`;
+const dl = (file, name, what) => `<div class="dl"><a href="/downloads/${file}" download="${name}">⬇ 下載 Excel 範本</a><span>${what}</span></div>`;
 const formula = (id, text) => `<div class="formula"><code id="${id}">${text}</code><button type="button" class="copy" data-copy="${id}">複製</button></div>`;
 
 // ---------------- 試算工具總覽 ----------------
@@ -108,7 +109,7 @@ ${TOOLS.map(t => `      <a href="${t.path}"><span class="pill">${t.pill}</span><
   <section>
     <h2>為什麼每個工具都附 Excel 公式？</h2>
     <p>線上試算適合算一次；但如果你是人資、會計，或要幫整個部門算特休、加班費，用 Excel 一次算一整排更有效率。</p>
-    <p>所以每個工具下面都有對應的 Excel 公式，複製貼上就能用，也會說明公式怎麼運作，之後規定調整時你也知道要改哪裡。</p>
+    <p>所以每個工具下面都有對應的 Excel 公式，複製貼上就能用；也可以直接<b>下載已經寫好公式的 Excel 範本</b>，填入數字就會自動計算，也會說明公式怎麼運作，之後規定調整時你也知道要改哪裡。</p>
   </section>
 
   <section>
@@ -223,6 +224,7 @@ const tax = page({
 
   <section>
     <h2>用 Excel 算綜所稅</h2>
+    ${dl("fangjiatw-income-tax-115.xlsx", "115年度綜所稅試算_放假日曆.xlsx", "公式都已寫好，填入薪資和扶養人數就會算出稅額。")}
     <p>把綜合所得淨額放在 A2，這條公式會自動套用正確級距：</p>
     ${formula("taxFormula", "=MAX(A2*{0.05,0.12,0.2,0.3,0.4}-{0,42700,153100,430100,949100},0)")}
     <p style="margin-top:12px"><b>原理</b>：公式同時用 5 個級距去算「淨額 × 稅率 − 累進差額」，正確的那一級一定是最大值，所以取 MAX 就好，不用寫一長串 IF。</p>
@@ -290,6 +292,7 @@ const leave = page({
 
   <section>
     <h2>用 Excel 算年資和特休</h2>
+    ${dl("fangjiatw-annual-leave.xlsx", "員工特休計算表_放假日曆.xlsx", "人資適用：一次填入多位員工的到職日，自動算出特休、下次增加日和未休工資。")}
     <p>到職日在 A2，B2 先算出年資（滿幾個月）：</p>
     ${formula("monthFormula", '=DATEDIF(A2,TODAY(),"M")')}
     <p style="margin-top:12px">C2 依年資換算成特休天數：</p>
@@ -364,6 +367,7 @@ const overtime = page({
 
   <section>
     <h2>用 Excel 算加班費</h2>
+    ${dl("fangjiatw-overtime.xlsx", "加班費計算表_放假日曆.xlsx", "每次加班記一列，自動算出每筆加班費和當月合計，附國定假日清單。")}
     <p>時薪在 A2、平日加班時數在 B2：</p>
     ${formula("wdFormula", "=A2*(MIN(B2,2)*4/3+MAX(MIN(B2,4)-2,0)*5/3)")}
     <p style="margin-top:12px">休息日加班時數在 C2：</p>
@@ -415,6 +419,8 @@ const workdays = page({
 
   <section>
     <h2>用 Excel 算工作天數（扣台灣國定假日）</h2>
+    ${dl("fangjiatw-workdays.xlsx", "工作天數計算表_放假日曆.xlsx", "已內建 2026～2027 台灣國定假日清單，填入日期就能算，週休二日和單休都有。")}
+    <p style="margin-top:12px">想自己做的話，照下面三步：</p>
     <p><b>第 1 步</b>：在 Excel 新增一個工作表，命名為「假日」，把下面的清單複製貼到 A 欄。清單只列出<b>平日</b>放假的國定假日和補假（週末本來就會被扣掉）。</p>
     <div class="formula"><textarea id="holList" class="field" rows="6" readonly style="flex:1;min-width:0;font-family:var(--f-num);font-size:.9rem;background:var(--paper);color:var(--ink);border:1px solid var(--rule);border-radius:6px;padding:9px 10px"></textarea><button type="button" class="copy" data-copy="holList">複製清單</button></div>
     <p style="margin-top:12px"><b>第 2 步</b>：開始日在 A2、結束日在 B2，計算工作天數：</p>
