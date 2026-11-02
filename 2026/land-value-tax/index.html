@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>2026 地價稅怎麼算？115 年繳費期限、自用住宅 2‰ 稅率與試算｜放假日曆</title>
-<meta name="description" content="115 年（2026）地價稅 11/1 開徵，11/30（一）截止，以 8/31 的土地所有權人為納稅義務人。自用住宅用地稅率 2‰、一般用地 10‰ 起累進，附地價稅試算、繳納方式與逾期滯納金說明。">
+<meta name="description" content="115 年（2026）地價稅 11/1 開徵，11/30（一）截止，以 8/31 的土地所有權人為納稅義務人。自用住宅用地稅率 2‰、一般用地 10‰ 起累進，附多筆土地地價稅試算、各縣市累進起點地價、公告地價查詢方式與繳納說明。">
 <link rel="canonical" href="https://fangjiatw.com/2026/land-value-tax/">
 <meta property="og:type" content="article">
 <meta property="og:title" content="2026 地價稅怎麼算？115 年繳費期限、自用住宅 2‰ 稅率與試算">
@@ -14,6 +14,17 @@
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@600;900&family=Noto+Sans+TC:wght@400;500;700&family=JetBrains+Mono:wght@500&display=swap">
 <link rel="stylesheet" href="/assets/site.css?v=3">
 <link rel="stylesheet" href="/assets/tools/tools.css?v=3">
+<style>
+.lands{display:grid;gap:10px}
+.land{border:1px solid var(--rule);border-radius:8px;padding:12px;display:grid;gap:10px;background:var(--paper)}
+.land-head{display:flex;justify-content:space-between;align-items:center;font-weight:700;font-size:.9rem}
+.land-head button,.add-land{font:inherit;font-size:.85rem;background:none;border:1px solid var(--rule);border-radius:6px;padding:4px 10px;cursor:pointer;color:var(--ink)}
+.add-land{justify-self:start;padding:6px 14px}
+.cmp{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:8px}
+.cmp > div{border:1px solid var(--rule);border-radius:8px;padding:10px 12px;display:grid;gap:2px}
+.cmp b{font-family:var(--f-num);font-size:1.3rem}
+.cmp .save{border-color:var(--leave);background:var(--leave-soft)}
+</style>
 <script type="application/ld+json">
 {
   "@context":"https://schema.org",
@@ -39,10 +50,15 @@
       "mainEntity":[
         {"@type":"Question","name":"2026 年地價稅什麼時候要繳？","acceptedAnswer":{"@type":"Answer","text":"115 年地價稅 11 月 1 日開徵，繳納期限到 11 月 30 日（星期一）。繳款書從 10 月 19 日起陸續寄發。"}},
         {"@type":"Question","name":"2026 年地價稅沒收到繳款書怎麼辦？","acceptedAnswer":{"@type":"Answer","text":"可以向土地所在地的地方稅稽徵機關申請補發，也可以用自然人憑證、健保卡等身分驗證工具，在地方稅網路申報作業網站線上查詢及繳納。沒收到繳款書不代表不用繳，逾期一樣會加徵滯納金。"}},
-        {"@type":"Question","name":"地價稅逾期繳納會怎樣？","acceptedAnswer":{"@type":"Answer","text":"每逾 3 日按應納稅額加徵 1% 滯納金，最高 10%；逾期 30 日仍未繳納，會移送強制執行。例如稅額 10,000 元，每逾 3 日多繳 100 元。"}},
-        {"@type":"Question","name":"自用住宅用地稅率怎麼申請？","acceptedAnswer":{"@type":"Answer","text":"要向地方稅稽徵機關申請，每年地價稅開徵 40 日前（9 月 22 日）申請，當年就能適用；逾期申請，從次年開始適用。已經核准、用途沒有改變的，以後不用再申請。"}},
+        {"@type":"Question","name":"地價稅逾期繳納會怎樣？","acceptedAnswer":{"@type":"Answer","text":"每逾 3 日按應納稅額加徵 1% 滯納金，最高 10%。逾期超過 30 日仍未繳納，且未依法申請復查的，會移送行政執行。例如稅額 10,000 元，每逾 3 日多繳 100 元。"}},
+        {"@type":"Question","name":"自用住宅用地稅率怎麼申請？","acceptedAnswer":{"@type":"Answer","text":"向土地所在地的地方稅稽徵機關申請，也可以在地方稅網路申報作業網站線上申請。每年地價稅開徵 40 日前（9 月 22 日）申請，當年就能適用；逾期申請，從次年開始適用。已經核准、用途沒有改變的，以後不用再申請。"}},
         {"@type":"Question","name":"2026 年 9 月才買房，今年的地價稅誰繳？","acceptedAnswer":{"@type":"Answer","text":"地價稅以每年 8 月 31 日土地登記簿上的所有權人為納稅義務人。9 月才完成過戶的話，今年的繳款書會寄給原屋主。買賣雙方常會在契約中約定按持有天數分攤，實際以契約約定為準。"}},
-        {"@type":"Question","name":"租屋族要繳地價稅嗎？","acceptedAnswer":{"@type":"Answer","text":"不用。地價稅由土地所有權人繳納，租屋族不是納稅義務人。不過房東出租的房子不能適用自用住宅 2‰ 稅率，要按一般用地稅率課稅。"}}
+        {"@type":"Question","name":"父母名下的房子，我設籍在那裡可以申請自用住宅嗎？","acceptedAnswer":{"@type":"Answer","text":"可以，只要符合其他條件。土地所有權人本人、配偶或直系親屬在該地設籍即可，子女是直系親屬；但土地上的房屋也必須是土地所有權人本人、配偶或直系親屬所有，而且沒有出租或營業。"}},
+        {"@type":"Question","name":"房子有一部分出租，還能申請自用住宅嗎？","acceptedAnswer":{"@type":"Answer","text":"自住的部分可以。房屋部分出租或營業時，土地會依實際使用面積的比例拆開計算：自住部分適用 2‰，出租或營業部分按一般用地稅率。透天厝常見的是一樓出租、樓上自住，各層按比例分算。"}},
+        {"@type":"Question","name":"土地持分只有 1/2，地價稅怎麼算？","acceptedAnswer":{"@type":"Answer","text":"只算你持分的部分。課稅地價 ＝ 申報地價 × 你的持分面積，例如土地 50 平方公尺、持分 1/2，就以 25 平方公尺計算。各共有人分別收到自己的繳款書。"}},
+        {"@type":"Question","name":"夫妻名下有兩間房子，可以都申請自用住宅嗎？","acceptedAnswer":{"@type":"Answer","text":"不行。土地所有權人和配偶、未成年受扶養親屬，合計只能有一處適用自用住宅用地稅率，另一處按一般用地稅率課稅。已成年的子女自己名下的房子，則可以另外申請。"}},
+        {"@type":"Question","name":"空地沒有房子，可以申請自用住宅稅率嗎？","acceptedAnswer":{"@type":"Answer","text":"不行。自用住宅用地要有供自住的房屋，而且有人設籍，空地只能按一般用地稅率課稅。"}},
+        {"@type":"Question","name":"租屋族要繳地價稅嗎？","acceptedAnswer":{"@type":"Answer","text":"不用。地價稅由土地所有權人繳納，租屋族不是納稅義務人。房東出租的房子不能適用自用住宅 2‰ 稅率，要按一般用地稅率課稅。"}}
       ]
     }
   ]
@@ -66,7 +82,7 @@
     115 年地價稅 <b>11/1 開徵、11/30（一）截止</b>，以 <b>8/31</b> 土地登記簿上的所有權人為納稅義務人。自住的房子申請自用住宅用地，稅率只要 <b>2‰</b>；一般用地從 <b>10‰</b> 起累進。
   </div>
 
-  <p>每年 11 月信箱裡多一張繳款書，不少人第一次買房才發現：房子除了 5 月的房屋稅，土地還有一筆地價稅。今年剛好遇到公告地價每 2 年重新評定，全國應徵稅額約 1,046 億元，比去年增加約 6.91%，有些人的稅單可能會比去年高一點。先看看自己有沒有適用自用住宅稅率，再用下面的試算算一下大概多少。</p>
+  <p>每年 11 月信箱裡多一張繳款書，不少人第一次買房才發現：房子除了 5 月的房屋稅，土地還有一筆地價稅。今年剛好遇到公告地價每 2 年重新評定，財政部賦稅署公布全國開徵約 939 萬戶、稅額約 1,046 億元，比去年增加約 6.91%（<a href="https://news.nextapple.com/finance/20261022/4443E55F481B180618D0FEA3DBAA8B6F" rel="noopener">2026/10/22 報導</a>），有些人的稅單可能會比去年高一點。先看看自己有沒有適用自用住宅稅率，再用下面的試算算一下大概多少。</p>
 
   <div class="stat">
     <div><b>2026 地價稅重點提醒</b></div>
@@ -91,34 +107,42 @@
           <tr><td>自用住宅用地</td><td>2‰（都市土地 3 公畝、非都市土地 7 公畝內）</td></tr>
           <tr><td>一般用地</td><td>10‰ 起，超過累進起點地價後 15‰～55‰ 累進</td></tr>
           <tr><td>自用住宅申請期限</td><td>開徵 40 日前，也就是 9/22，逾期次年適用</td></tr>
-          <tr><td>逾期</td><td>每 3 日加徵 1% 滯納金，最高 10%；逾 30 日移送強制執行</td></tr>
+          <tr><td>逾期</td><td>每 3 日加徵 1% 滯納金，最高 10%；逾 30 日仍未繳納且未申請復查，移送行政執行</td></tr>
         </tbody>
       </table>
     </div>
-    <p class="note" style="margin-top:8px">日期依財政部公告的 115 年地價稅開徵資訊；稅率依土地稅法第 16、17 條。</p>
+    <p class="note" style="margin-top:8px">日期依財政部公告的 115 年地價稅開徵資訊；稅率依<a href="https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=G0340096&amp;flno=16" rel="noopener">土地稅法第 16 條</a>、<a href="https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=G0340096&amp;flno=17" rel="noopener">第 17 條</a>。</p>
   </section>
 
   <section>
     <h2>地價稅試算：你的土地大概要繳多少？</h2>
-    <p>輸入繳款書或地政資料上的公告地價、持分面積和用途，就能算出大概的地價稅，也能看到申請自用住宅能省多少。</p>
+    <p>輸入土地的公告地價、持分面積和用途，就能算出大概的地價稅，並比較申請自用住宅前後差多少。同一縣市有好幾筆土地的話，可以按「新增一筆土地」一起算，累進稅率會用地價總額判斷。</p>
     <form class="tool" id="lvt" autocomplete="off">
       <fieldset>
-        <legend>土地資料</legend>
+        <legend>土地所在縣市</legend>
         <div class="fields">
-          <label class="field">公告地價（元／平方公尺）<input name="price" inputmode="numeric" placeholder="例如 60000"></label>
-          <label class="field">持分面積（平方公尺）<input name="area" inputmode="decimal" placeholder="例如 25"></label>
-          <label class="field">用途<select name="use">
-            <option value="urban">自用住宅（都市土地）</option>
-            <option value="rural">自用住宅（非都市土地）</option>
-            <option value="general">一般用地（出租、營業、非自住）</option>
+          <label class="field">縣市<select name="county">
+            <option value="">其他縣市（自行輸入）</option>
+            <option value="43957000">臺北市</option>
+            <option value="7878000">新北市</option>
+            <option value="1741000">臺中市</option>
+            <option value="2195000">臺南市</option>
+            <option value="4032000">高雄市</option>
+            <option value="965000">彰化縣</option>
+            <option value="775000">屏東縣</option>
           </select></label>
-          <label class="field">申報地價（選填）<input name="declared" inputmode="numeric" placeholder="不填以公告地價 80% 計"></label>
-          <label class="field">累進起點地價（選填）<input name="start" inputmode="numeric" placeholder="不填視為未超過"></label>
+          <label class="field">累進起點地價（元）<input name="start" inputmode="numeric" placeholder="不填視為未超過"></label>
         </div>
+        <p class="note" id="startNote">選擇縣市會自動帶入 115 年累進起點地價，也可以手動修改。</p>
+      </fieldset>
+      <fieldset>
+        <legend>土地資料</legend>
+        <div class="lands" id="lands"></div>
+        <button type="button" class="add-land" id="addLand">＋ 新增一筆土地</button>
       </fieldset>
       <div class="result" id="lvtOut" aria-live="polite"></div>
     </form>
-    <p class="note" style="margin-top:8px">多數人沒有另外申報地價，政府會以公告地價的 80% 作為申報地價。累進起點地價各縣市不同，可以在當地稅務局網站查詢；一般用地要把同一縣市內的所有土地地價加總後才判斷是否超過，這裡只算單筆土地。結果僅供參考，以繳款書金額為準。計算都在你的瀏覽器裡完成。</p>
+    <p class="note" style="margin-top:8px">申報地價不填，以公告地價的 80% 計算，多數人屬於這種。結果僅供參考，實際稅額以稅務機關歸戶核定的繳款書為準。輸入的資料只在你的瀏覽器裡計算，不會傳到任何地方。</p>
   </section>
 
   <div class="ad">廣告版位 336×280</div>
@@ -126,7 +150,8 @@
   <section>
     <h2>地價稅怎麼算？公式一次看懂</h2>
     <p><b>地價稅 ＝ 課稅地價 × 稅率</b>，課稅地價 ＝ 申報地價 × 持分面積。</p>
-    <p><b>公告地價</b>：由政府每 2 年重新評定一次，115 年剛好是重新評定的年度。<b>申報地價</b>：土地所有權人可以在公告地價的 80%～120% 之間申報；沒有申報的，就以公告地價的 80% 計算，大多數人屬於這種。</p>
+    <p><b>公告地價</b>：由政府每 2 年重新評定一次，115 年剛好是重新評定的年度。</p>
+    <p><b>申報地價</b>：政府舉辦規定地價或重新規定地價時，土地所有權人可以在公告地價的 <b>80%～120%</b> 範圍內申報；沒有申報的，依法以公告地價的 <b>80%</b> 作為申報地價，大多數人屬於這種。申報只在規定地價的期間辦理，不是每年都能自己重新選比例來降低地價稅。</p>
     <h3 style="margin:16px 0 8px">例子：公告地價每平方公尺 60,000 元、持分 25 平方公尺</h3>
     <div class="tbl">
       <table>
@@ -147,31 +172,68 @@
     <p>一般用地以土地所有權人在<b>同一直轄市或縣（市）</b>的地價總額計算，超過「累進起點地價」的部分稅率逐級提高。累進起點地價是當地 7 公畝的平均地價，各縣市不同，也會隨公告地價調整。</p>
     <div class="tbl">
       <table>
-        <thead><tr><th>地價總額</th><th>稅率</th><th>速算公式</th></tr></thead>
+        <thead><tr><th>超過累進起點地價的部分</th><th>稅率</th><th>速算公式</th></tr></thead>
         <tbody>
-          <tr><td>未超過累進起點地價</td><td class="num">10‰</td><td>課稅地價 × 10‰</td></tr>
-          <tr><td>超過部分未達 5 倍</td><td class="num">15‰</td><td>課稅地價 × 15‰ － 起點 × 0.005</td></tr>
-          <tr><td>超過 5 倍～未達 10 倍</td><td class="num">25‰</td><td>課稅地價 × 25‰ － 起點 × 0.065</td></tr>
-          <tr><td>超過 10 倍～未達 15 倍</td><td class="num">35‰</td><td>課稅地價 × 35‰ － 起點 × 0.175</td></tr>
-          <tr><td>超過 15 倍～未達 20 倍</td><td class="num">45‰</td><td>課稅地價 × 45‰ － 起點 × 0.335</td></tr>
-          <tr><td>超過 20 倍以上</td><td class="num">55‰</td><td>課稅地價 × 55‰ － 起點 × 0.545</td></tr>
+          <tr><td>未超過起點</td><td class="num">10‰</td><td>課稅地價 × 10‰</td></tr>
+          <tr><td>超過起點，未達起點的 5 倍</td><td class="num">15‰</td><td>課稅地價 × 15‰ － 起點 × 0.005</td></tr>
+          <tr><td>5 倍至未達 10 倍</td><td class="num">25‰</td><td>課稅地價 × 25‰ － 起點 × 0.065</td></tr>
+          <tr><td>10 倍至未達 15 倍</td><td class="num">35‰</td><td>課稅地價 × 35‰ － 起點 × 0.175</td></tr>
+          <tr><td>15 倍至未達 20 倍</td><td class="num">45‰</td><td>課稅地價 × 45‰ － 起點 × 0.335</td></tr>
+          <tr><td>20 倍以上</td><td class="num">55‰</td><td>課稅地價 × 55‰ － 起點 × 0.545</td></tr>
         </tbody>
       </table>
     </div>
-    <p class="note" style="margin-top:8px">「超過部分未達 5 倍」是指超過累進起點地價的部分，未達起點的 5 倍。多數只有一間自住房子的人，不會碰到累進稅率。</p>
+    <p class="note" style="margin-top:8px">倍數是指「超過起點的部分」是起點的幾倍，不是地價總額的倍數。例如起點 400 萬、地價總額 2,000 萬，超過的部分 1,600 萬是起點的 4 倍，適用 15‰。多數只有一間自住房子的人，不會碰到累進稅率。</p>
+    <h3 style="margin:16px 0 8px">115 年各縣市累進起點地價（部分）</h3>
+    <div class="tbl">
+      <table>
+        <thead><tr><th>縣市</th><th>累進起點地價</th><th>來源</th></tr></thead>
+        <tbody>
+          <tr><td>臺北市</td><td class="num">43,957,000</td><td><a href="https://www-ws.gov.taipei/001/Upload/336/relfile/16184/2554828/b3b843d6-e88e-45ea-8b1c-f40e34b27051.pdf" rel="noopener">臺北市稅捐稽徵處</a></td></tr>
+          <tr><td>新北市</td><td class="num">7,878,000</td><td><a href="https://www.etax.nat.gov.tw/etwmain/announcement/news/7nYaev7" rel="noopener">財政部稅務入口網</a></td></tr>
+          <tr><td>臺中市</td><td class="num">1,741,000</td><td><a href="https://www.etax.nat.gov.tw/etwmain/announcement/news/q6QPop" rel="noopener">財政部稅務入口網</a></td></tr>
+          <tr><td>臺南市</td><td class="num">2,195,000</td><td><a href="https://www.etax.nat.gov.tw/etwmain/announcement/news/NzlVKBV" rel="noopener">財政部稅務入口網</a></td></tr>
+          <tr><td>高雄市</td><td class="num">4,032,000</td><td><a href="https://wwwap.kcg.gov.tw/News_Content.aspx?n=F29A02A9D36C47F0&amp;sms=19902EF36D6B551D&amp;s=4F789530B4E98C72" rel="noopener">高雄市政府</a></td></tr>
+          <tr><td>彰化縣</td><td class="num">965,000</td><td><a href="https://www.etax.nat.gov.tw/etwmain/announcement/news/LWNM2mP" rel="noopener">財政部稅務入口網</a></td></tr>
+          <tr><td>屏東縣</td><td class="num">775,000</td><td><a href="https://www.etax.nat.gov.tw/etwmain/announcement/news/VjxpWPa" rel="noopener">財政部稅務入口網</a></td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="note" style="margin-top:8px">適用 115～116 年。其他縣市請洽當地地方稅稽徵機關，我們確認官方數字後會陸續補上。</p>
   </section>
 
   <section>
     <h2>自用住宅用地 2‰：條件與申請</h2>
-    <p>符合以下條件，就可以申請自用住宅用地稅率：</p>
+    <p>以下條件<b>都要符合</b>，才可以申請自用住宅用地稅率：</p>
     <ul>
       <li>土地所有權人或配偶、直系親屬在這個地址<b>設有戶籍</b>。</li>
-      <li>沒有出租，也沒有供營業使用。</li>
+      <li>土地上的房屋，必須為土地所有權人本人、配偶或直系親屬<b>所有</b>。不能只因為本人設籍在該地址，就認定符合資格。</li>
+      <li>沒有出租，也沒有供營業使用。部分出租或營業的，按使用面積比例拆開計算。</li>
       <li>都市土地以 <b>3 公畝</b>（300 平方公尺）、非都市土地以 <b>7 公畝</b>（700 平方公尺）為限，超過的部分按一般稅率。</li>
       <li>土地所有權人、配偶和未成年受扶養親屬，合計<b>只能適用一處</b>。</li>
     </ul>
-    <p><b>申請期限</b>：每年地價稅開徵 40 日前，也就是 <b>9 月 22 日</b>前提出申請，當年就能適用；錯過的話從明年開始。今年才買房、還沒申請的人，可以現在就去申請，明年的稅單就會用 2‰ 計算。已經核准、用途沒變的，以後不用每年重新申請。</p>
-    <p>如果之後把房子出租、遷出戶籍，不再符合條件時，要主動向稅務局申報。</p>
+    <p><b>申請期限</b>：每年地價稅開徵 40 日前，也就是 <b>9 月 22 日</b>前提出申請，當年就能適用。</p>
+    <p>2026 年尚未申請自用住宅用地優惠稅率的人，雖然今年 9 月 22 日的期限已經過了，仍然可以向土地所在地的地方稅稽徵機關提出申請，或在<a href="https://net.tax.nat.gov.tw/" rel="noopener">地方稅網路申報作業</a>網站線上申請，符合條件的原則上<b>自 2027 年起</b>適用 2‰。已核准且土地使用情形沒有改變的，不需要每年重新申請。</p>
+    <p>之後如果把房子出租、遷出戶籍，不再符合條件時，要主動向稅務局申報（<a href="https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=G0340096&amp;flno=41" rel="noopener">土地稅法第 41 條</a>）。</p>
+  </section>
+
+  <section>
+    <h2>公告地價怎麼查？持分面積在哪裡看？</h2>
+    <p><b>最簡單：看繳款書</b>。地價稅繳款書上會列出土地的地段地號、持分面積和申報地價，直接填進上面的試算就行。</p>
+    <p><b>線上查公告地價</b>：到內政部的<a href="https://easymap.land.moi.gov.tw/" rel="noopener">地籍圖資網路便民服務系統</a>，選縣市、鄉鎮和地段，輸入地號，就能查到公告地價和公告土地現值。</p>
+    <p><b>地段地號和持分</b>：寫在土地所有權狀上；也可以到地政事務所申請土地登記謄本，上面有地號、面積和權利範圍（持分比例）。持分面積 ＝ 土地面積 × 權利範圍。</p>
+    <h3 style="margin:16px 0 8px">公告地價和公告土地現值有什麼不同？</h3>
+    <div class="tbl">
+      <table>
+        <thead><tr><th></th><th>公告地價</th><th>公告土地現值</th></tr></thead>
+        <tbody>
+          <tr><td>用來算</td><td><b>地價稅</b></td><td>土地增值稅（賣地時）、徵收補償</td></tr>
+          <tr><td>多久調整</td><td>每 2 年</td><td>每年 1 月 1 日</td></tr>
+          <tr><td>金額高低</td><td>通常比較低</td><td>通常比較高，較接近市價</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="note" style="margin-top:8px">算地價稅要用<b>公告地價</b>，不要填成公告土地現值，否則會算得太高。</p>
   </section>
 
   <section>
@@ -182,6 +244,7 @@
       <div><h3>線上繳稅</h3><p>可以用信用卡、晶片金融卡、活期存款帳戶、電子支付帳戶繳納，或用行動支付 App 掃描繳款書上的 QR Code。</p></div>
     </div>
     <p>沒收到繳款書，可以向土地所在地的稅務局申請補發，或用自然人憑證、健保卡等身分驗證工具上網查詢繳納。<b>沒收到不代表不用繳</b>，逾期一樣會加徵滯納金。</p>
+    <p>逾期每 3 日加徵 1% 滯納金，最高 10%。逾期超過 30 日仍未繳納，且未依法申請復查的，會移送行政執行。</p>
     <p>因天災、事變等不可抗力因素，或經濟弱勢等原因無法如期繳納的人，可以在 11 月 30 日前檢附證明，向稅務局申請延期或分期繳納。</p>
   </section>
 
@@ -204,10 +267,27 @@
     <h2>常見問題</h2>
     <details><summary>2026 年地價稅什麼時候要繳？</summary><p>115 年地價稅 11 月 1 日開徵，繳納期限到 11 月 30 日（星期一）。繳款書從 10 月 19 日起陸續寄發。</p></details>
     <details><summary>2026 年地價稅沒收到繳款書怎麼辦？</summary><p>可以向土地所在地的地方稅稽徵機關申請補發，也可以用自然人憑證、健保卡等身分驗證工具，在地方稅網路申報作業網站線上查詢及繳納。沒收到繳款書不代表不用繳，逾期一樣會加徵滯納金。</p></details>
-    <details><summary>地價稅逾期繳納會怎樣？</summary><p>每逾 3 日按應納稅額加徵 1% 滯納金，最高 10%；逾期 30 日仍未繳納，會移送強制執行。例如稅額 10,000 元，每逾 3 日多繳 100 元。</p></details>
-    <details><summary>自用住宅用地稅率怎麼申請？</summary><p>要向地方稅稽徵機關申請，每年地價稅開徵 40 日前（9 月 22 日）申請，當年就能適用；逾期申請，從次年開始適用。已經核准、用途沒有改變的，以後不用再申請。</p></details>
+    <details><summary>地價稅逾期繳納會怎樣？</summary><p>每逾 3 日按應納稅額加徵 1% 滯納金，最高 10%。逾期超過 30 日仍未繳納，且未依法申請復查的，會移送行政執行。例如稅額 10,000 元，每逾 3 日多繳 100 元。</p></details>
+    <details><summary>自用住宅用地稅率怎麼申請？</summary><p>向土地所在地的地方稅稽徵機關申請，也可以在地方稅網路申報作業網站線上申請。每年地價稅開徵 40 日前（9 月 22 日）申請，當年就能適用；逾期申請，從次年開始適用。已經核准、用途沒有改變的，以後不用再申請。</p></details>
     <details><summary>2026 年 9 月才買房，今年的地價稅誰繳？</summary><p>地價稅以每年 8 月 31 日土地登記簿上的所有權人為納稅義務人。9 月才完成過戶的話，今年的繳款書會寄給原屋主。買賣雙方常會在契約中約定按持有天數分攤，實際以契約約定為準。</p></details>
-    <details><summary>租屋族要繳地價稅嗎？</summary><p>不用。地價稅由土地所有權人繳納，租屋族不是納稅義務人。不過房東出租的房子不能適用自用住宅 2‰ 稅率，要按一般用地稅率課稅。</p></details>
+    <details><summary>父母名下的房子，我設籍在那裡可以申請自用住宅嗎？</summary><p>可以，只要符合其他條件。土地所有權人本人、配偶或直系親屬在該地設籍即可，子女是直系親屬；但土地上的房屋也必須是土地所有權人本人、配偶或直系親屬所有，而且沒有出租或營業。</p></details>
+    <details><summary>房子有一部分出租，還能申請自用住宅嗎？</summary><p>自住的部分可以。房屋部分出租或營業時，土地會依實際使用面積的比例拆開計算：自住部分適用 2‰，出租或營業部分按一般用地稅率。透天厝常見的是一樓出租、樓上自住，各層按比例分算。</p></details>
+    <details><summary>土地持分只有 1/2，地價稅怎麼算？</summary><p>只算你持分的部分。課稅地價 ＝ 申報地價 × 你的持分面積，例如土地 50 平方公尺、持分 1/2，就以 25 平方公尺計算。各共有人分別收到自己的繳款書。</p></details>
+    <details><summary>夫妻名下有兩間房子，可以都申請自用住宅嗎？</summary><p>不行。土地所有權人和配偶、未成年受扶養親屬，合計只能有一處適用自用住宅用地稅率，另一處按一般用地稅率課稅。已成年的子女自己名下的房子，則可以另外申請。</p></details>
+    <details><summary>空地沒有房子，可以申請自用住宅稅率嗎？</summary><p>不行。自用住宅用地要有供自住的房屋，而且有人設籍，空地只能按一般用地稅率課稅。</p></details>
+    <details><summary>租屋族要繳地價稅嗎？</summary><p>不用。地價稅由土地所有權人繳納，租屋族不是納稅義務人。房東出租的房子不能適用自用住宅 2‰ 稅率，要按一般用地稅率課稅。</p></details>
+  </section>
+
+  <section>
+    <h2>資料來源</h2>
+    <ul>
+      <li><a href="https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=G0340096&amp;flno=16" rel="noopener">土地稅法第 16 條</a>：基本稅率與累進稅率</li>
+      <li><a href="https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=G0340096&amp;flno=17" rel="noopener">土地稅法第 17 條</a>：自用住宅用地 2‰ 與面積、一處限制</li>
+      <li><a href="https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=G0340096&amp;flno=41" rel="noopener">土地稅法第 41 條</a>：特別稅率申請期限</li>
+      <li><a href="https://www.etax.nat.gov.tw/etwmain/announcement/news/kAwomDx" rel="noopener">財政部稅務入口網：115 年地價稅開徵公告</a></li>
+      <li>財政部賦稅署 2026/10/22 宣布的開徵戶數與稅額（<a href="https://news.nextapple.com/finance/20261022/4443E55F481B180618D0FEA3DBAA8B6F" rel="noopener">壹蘋新聞網報導</a>）</li>
+      <li><a href="https://net.tax.nat.gov.tw/" rel="noopener">地方稅網路申報作業</a>：自用住宅用地線上申請、查繳</li>
+    </ul>
   </section>
 
   <section>
@@ -227,42 +307,100 @@
   </section>
 </main>
 
-<footer><a href="/about/">關於我們</a> · <a href="/privacy/">隱私權政策</a> · <a href="/disclosure/">聯盟連結揭露</a><br>資料來源：財政部稅務入口網 115 年地價稅開徵公告、土地稅法第 16、17、41 條。本站僅供參考，實際稅額以稅務機關核定的繳款書為準。</footer>
+<footer><a href="/about/">關於我們</a> · <a href="/privacy/">隱私權政策</a> · <a href="/disclosure/">聯盟連結揭露</a><br>資料來源：財政部稅務入口網 115 年地價稅開徵公告、土地稅法第 16、17、41 條、各縣市地方稅稽徵機關。本站僅供參考，實際稅額以稅務機關核定的繳款書為準。</footer>
 
 <script>
 (function(){
-  const f = document.getElementById("lvt"), out = document.getElementById("lvtOut");
-  const num = el => Math.max(0, +String(el.value).replace(/,/g,"") || 0);
+  const f = document.getElementById("lvt"), out = document.getElementById("lvtOut"), box = document.getElementById("lands");
+  const num = v => Math.max(0, +String(v).replace(/[,\s]/g,"") || 0);
   const money = v => Math.round(v).toLocaleString("zh-TW");
   // 一般用地累進（土地稅法第 16 條）：[地價總額上限（起點倍數）, 稅率, 速算扣除（起點倍數）]
+  // 「超過起點未達 5 倍」＝ 總額 ≤ 起點 × 6，以此類推。
   const TIERS = [[1,.010,0],[6,.015,.005],[11,.025,.065],[16,.035,.175],[21,.045,.335],[Infinity,.055,.545]];
   function general(v, start){
+    if(v <= 0) return {tax:0, rate:.010};
     if(!start) return {tax: v*.010, rate: .010};
     const t = TIERS.find(t => v <= start*t[0]);
     return {tax: v*t[1] - start*t[2], rate: t[1]};
   }
+  const CAP = {urban:300, rural:700, general:0};
+  let n = 0;
+  function addLand(vals){
+    n++;
+    const d = document.createElement("div"); d.className = "land";
+    d.innerHTML = `<div class="land-head"><span>土地 ${box.children.length + 1}</span><button type="button" class="del" aria-label="刪除這筆土地">刪除</button></div>
+      <div class="fields">
+        <label class="field">公告地價（元／㎡）<input name="price" inputmode="numeric" placeholder="例如 60,000"></label>
+        <label class="field">持分面積（㎡）<input name="area" inputmode="decimal" placeholder="例如 25"></label>
+        <label class="field">用途<select name="use">
+          <option value="urban">自用住宅（都市土地）</option>
+          <option value="rural">自用住宅（非都市土地）</option>
+          <option value="general">一般用地（出租、營業、非自住）</option>
+        </select></label>
+        <label class="field">申報地價（元／㎡，選填）<input name="declared" inputmode="numeric" placeholder="不填以公告地價 80% 計"></label>
+      </div>`;
+    if(vals) for(const k in vals) d.querySelector(`[name="${k}"]`).value = vals[k];
+    if(box.children.length) d.querySelector('[name="use"]').value = "general";
+    box.appendChild(d); renumber();
+  }
+  function renumber(){
+    [...box.children].forEach((d, i) => { d.querySelector(".land-head span").textContent = `土地 ${i+1}`; d.querySelector(".del").hidden = box.children.length === 1; });
+  }
   function run(){
-    const price = num(f.price), area = num(f.area), use = f.use.value;
-    if(!price || !area){ out.innerHTML = '<div class="note">輸入公告地價和持分面積，就會算出大概的地價稅。</div>'; return; }
-    const unit = num(f.declared) || price*.8, v = unit*area, start = num(f.start);
-    const cap = use === "urban" ? 300 : use === "rural" ? 700 : 0;
-    const selfArea = Math.min(area, cap), restV = unit*(area - selfArea);
-    const selfTax = unit*selfArea*.002, g = general(restV, start);
-    const tax = Math.round(selfTax + g.tax), allGeneral = general(v, start);
+    const start = num(f.start.value);
+    const rows = [...box.children].map(d => {
+      const g = k => d.querySelector(`[name="${k}"]`).value;
+      const price = num(g("price")), area = num(g("area")), unit = num(g("declared")) || price*.8;
+      return {price, area, unit, use: g("use"), v: unit*area};
+    }).filter(r => r.unit && r.area);
+    if(!rows.length){ out.innerHTML = '<div class="note">輸入公告地價和持分面積，就會算出大概的地價稅。</div>'; return; }
+    // 自用住宅：本人、配偶及未成年受扶養親屬合計一處，只採計第一筆
+    const selfIdx = rows.findIndex(r => r.use !== "general");
+    const extraSelf = rows.filter(r => r.use !== "general").length > 1;
+    let selfV = 0, genV = 0, selfArea = 0, overArea = 0;
+    const lines = rows.map((r, i) => {
+      if(i === selfIdx){
+        const a = Math.min(r.area, CAP[r.use]); selfArea = a; overArea = r.area - a;
+        selfV += r.unit*a; genV += r.unit*(r.area - a);
+      } else genV += r.v;
+      return `<dt>土地 ${i+1}：${money(r.unit)} 元／㎡ × ${+r.area.toFixed(2)} ㎡${i === selfIdx ? "（自用住宅）" : ""}</dt><dd>${money(r.v)}</dd>`;
+    }).join("");
+    const totalV = selfV + genV, g = general(genV, start), selfTax = selfV*.002;
+    const tax = Math.round(selfTax + g.tax), allGen = Math.round(general(totalV, start).tax);
+    const hasSelf = selfIdx >= 0;
     out.innerHTML = `
-      <div>${use === "general" ? "一般用地" : "自用住宅用地"}，地價稅約</div>
+      <div>地價稅約</div>
       <div class="big">${money(tax)} <small>元</small></div>
       <dl class="kv">
-        <dt>申報地價${num(f.declared) ? "" : "（公告地價 × 80%）"}</dt><dd>${money(unit)} 元／㎡</dd>
-        <dt>課稅地價</dt><dd>${money(v)}</dd>
-        ${selfArea ? `<dt>自用住宅 ${money(selfArea)} ㎡ × 2‰</dt><dd>${money(selfTax)}</dd>` : ""}
-        ${restV ? `<dt>${selfArea ? `超過 ${cap} ㎡ 的部分` : "一般用地"} × ${(g.rate*1000).toFixed(0)}‰${start ? "（累進）" : ""}</dt><dd>${money(g.tax)}</dd>` : ""}
+        ${lines}
+        <dt class="sum">課稅地價合計</dt><dd class="sum">${money(totalV)}</dd>
+        ${hasSelf ? `<dt>自用住宅 ${+selfArea.toFixed(2)} ㎡ × 2‰</dt><dd>${money(selfTax)}</dd>` : ""}
+        ${genV ? `<dt>一般用地 ${money(genV)} × ${(g.rate*1000).toFixed(0)}‰${start && g.rate > .01 ? "（累進）" : ""}</dt><dd>${money(g.tax)}</dd>` : ""}
       </dl>
-      ${use !== "general" ? `<div class="note">如果沒有申請自用住宅、按一般用地計算，約 ${money(allGeneral.tax)} 元，申請後每年省下約 <b>${money(allGeneral.tax - tax)} 元</b>。</div>` : `<div class="note">如果符合自住條件並申請自用住宅用地，約 ${money(Math.min(area,300)*unit*.002 + general(unit*Math.max(0,area-300), start).tax)} 元（以都市土地計）。</div>`}
-      ${restV && !start ? `<div class="note">沒有填累進起點地價，一般用地以 10‰ 計算。名下同縣市土地地價總額較高的人，可能會適用更高的累進稅率。</div>` : ""}`;
+      ${hasSelf ? `<div class="cmp">
+        <div><span>全部按一般用地</span><b>${money(allGen)}</b></div>
+        <div><span>申請自用住宅</span><b>${money(tax)}</b></div>
+        <div class="save"><span>每年約省下</span><b>${money(allGen - tax)}</b></div>
+      </div>` : `<div class="note">如果其中一筆符合自住條件並申請自用住宅用地，把那筆的用途改成「自用住宅」就能比較差多少。</div>`}
+      ${overArea > 0 ? `<div class="note">自用住宅用地${rows[selfIdx].use === "urban" ? "都市土地以 300" : "非都市土地以 700"} ㎡ 為限，超過的 ${+overArea.toFixed(2)} ㎡ 按一般用地稅率計算。</div>` : ""}
+      ${extraSelf ? `<div class="warn">本人、配偶和未成年受扶養親屬合計只能一處適用自用住宅稅率，這裡只把第一筆算成自用住宅，其他按一般用地計算。</div>` : ""}
+      ${genV && !start ? `<div class="note">沒有填累進起點地價，一般用地以 10‰ 計算。選擇縣市或填入起點，可以判斷是否適用累進稅率。</div>` : ""}`;
   }
+  f.county.addEventListener("change", () => {
+    const v = f.county.value;
+    f.start.value = v ? (+v).toLocaleString("zh-TW") : "";
+    document.getElementById("startNote").textContent = v ? `${f.county.selectedOptions[0].text} 115 年累進起點地價 ${(+v).toLocaleString("zh-TW")} 元（適用 115～116 年），可以手動修改。` : "其他縣市請向當地地方稅稽徵機關查詢累進起點地價後填入。";
+  });
+  // 千分位：離開欄位時加上逗號
+  f.addEventListener("focusout", e => {
+    const el = e.target;
+    if(el.matches('input[inputmode="numeric"]') && el.value.trim()){ const v = num(el.value); el.value = v ? v.toLocaleString("zh-TW") : ""; }
+    if(el.matches('input[inputmode="decimal"]') && el.value.trim()){ const v = num(el.value); el.value = v ? String(v) : ""; }
+  });
+  box.addEventListener("click", e => { const b = e.target.closest(".del"); if(b){ b.closest(".land").remove(); renumber(); run(); } });
+  document.getElementById("addLand").addEventListener("click", () => { addLand(); run(); });
   f.addEventListener("input", run); f.addEventListener("change", run); f.addEventListener("submit", e => { e.preventDefault(); run(); });
-  run();
+  addLand(); run();
 })();
 </script>
 </body>
