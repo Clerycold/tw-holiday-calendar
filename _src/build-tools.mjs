@@ -109,6 +109,7 @@ function related(path) {
     <div class="related">
 ${others.join("\n")}
       <a href="/#planner">請假計算器<small>輸入特休天數，排出最長連休</small></a>
+      <a href="/2027/qingjia/">2027 全年請假攻略<small>9 個連假一次排好</small></a>
     </div>
   </section>`;
 }
