@@ -9,10 +9,10 @@ const UPDATED = "2026-11-01";
 const NAV = `<nav><a href="/#planner">請假計算器</a><a href="/tools/">試算工具</a><a href="/concert/">演唱會住宿</a><a href="/#calendar">全年行事曆</a></nav>`;
 const esc = s => s.replace(/"/g, "&quot;");
 
-function page({ path, title, h1, desc, crumb, faq = [], body, scripts = true, app }) {
+function page({ path, title, h1, desc, crumb, faq = [], body, scripts = true, app, updated = UPDATED }) {
   const url = SITE + path;
   const graph = [
-    { "@type": "WebPage", name: title, url, inLanguage: "zh-Hant-TW", dateModified: UPDATED,
+    { "@type": "WebPage", name: title, url, inLanguage: "zh-Hant-TW", dateModified: updated,
       publisher: { "@type": "Organization", name: "放假日曆", url: SITE + "/" } },
     ...(app ? [{ "@type": "WebApplication", name: app, url, applicationCategory: "FinanceApplication", operatingSystem: "Any",
       inLanguage: "zh-Hant-TW", isAccessibleForFree: true, offers: { "@type": "Offer", price: "0", priceCurrency: "TWD" } }] : []),
@@ -58,15 +58,15 @@ ${JSON.stringify({ "@context": "https://schema.org", "@graph": graph }, null, 1)
   <div>
     <div class="crumb"><a href="/">放假日曆</a> › ${path === "/tools/" ? "試算工具" : `<a href="/tools/">試算工具</a> › ${crumb}`}</div>
     <h1>${h1}</h1>
-    <div class="meta">更新日期：2026 年 11 月 1 日</div>
+    <div class="meta">更新日期：${(([y, m, d]) => `${+y} 年 ${+m} 月 ${+d} 日`)(updated.split("-"))}</div>
   </div>
 ${body}${faqHtml}
 ${path === "/tools/" ? "" : related(path)}
 </main>
 
 <footer><a href="/about/">關於我們</a> · <a href="/privacy/">隱私權政策</a> · <a href="/disclosure/">聯盟連結揭露</a><br>本站試算結果僅供參考，實際金額以主管機關規定、公司制度及官方系統計算為準。</footer>
-${scripts ? `<script src="/assets/tools/calc.js?v=7"></script>
-<script src="/assets/tools/ui.js?v=11"></script>` : ""}
+${scripts ? `<script src="/assets/tools/calc.js?v=8"></script>
+<script src="/assets/tools/ui.js?v=12"></script>` : ""}
 </body>
 </html>
 `;
@@ -100,6 +100,14 @@ const TOOLS = [
   { path: "/tools/labor-insurance-pension/", name: "勞保老年年金試算", sub: "勞保年金月領多少，加上勞退看退休月收入", pill: "退休",
     ask: "退休後勞保每個月可以領多少？", cta: "試算勞保老年年金",
     xls: "fangjiatw-labor-insurance-pension.xlsx", xlsName: "勞保老年年金試算表", xlsFor: "A/B 式擇優、提前延後、一次請領回本年數" },
+  { path: "/tools/loan/", name: "房貸、信貸試算", sub: "每月還多少、總利息、寬限期", pill: "貸款",
+    ask: "貸款 1,000 萬，每月要還多少？", cta: "試算每月還款" },
+  { path: "/tools/interest/", name: "存款利息計算", sub: "定存、存本取息、零存整付利息", pill: "存款",
+    ask: "定存一年可以拿多少利息？", cta: "計算存款利息" },
+  { path: "/tools/currency/", name: "匯率換算", sub: "日圓、美元、韓元換台幣多少", pill: "旅遊",
+    ask: "1 萬日圓是多少台幣？", cta: "換算匯率" },
+  { path: "/tools/unit/", name: "單位換算", sub: "坪、台斤、吋等台灣常用單位", pill: "生活",
+    ask: "30 坪是幾平方公尺？", cta: "換算單位" },
 ];
 function related(path) {
   const others = TOOLS.filter(t => t.path !== path).map(t => `      <a href="${t.path}">${t.name}<small>${t.sub}</small></a>`);
@@ -120,9 +128,9 @@ const formula = (id, text) => `<div class="formula"><code id="${id}">${text}</co
 // ---------------- 試算工具總覽 ----------------
 const hub = page({
   path: "/tools/", crumb: "試算工具",
-  title: "生活計算工具｜報稅、特休、加班費、工作天數一次搞定",
-  h1: "生活計算工具<br>報稅、特休、加班費、工作天數一次搞定",
-  desc: "不用下載軟體、不用自己研究公式：115 年度綜所稅試算、特休計算、加班費計算、扣除台灣國定假日的工作天數計算。每項工具附計算說明、Excel 公式及免費範本。",
+  title: "生活計算工具｜報稅、薪資、退休金、房貸、利息、匯率一次搞定", updated: "2026-11-03",
+  h1: "生活計算工具<br>報稅、薪資、房貸、匯率一次搞定",
+  desc: "不用下載軟體、不用自己研究公式：綜所稅、特休、加班費、薪資實領、勞健保、資遣費、勞退與勞保年金、房貸、存款利息、匯率與單位換算。每項工具附計算說明與 Excel 公式。",
   body: `
   <div class="answer">不用下載軟體、不用自己研究公式，<b>輸入資料就能快速算出結果</b>。每項工具都附計算說明、Excel 公式及<b>免費 Excel 範本</b>。</div>
 
@@ -139,7 +147,7 @@ ${TOOLS.map(t => `      <a href="${t.path}"><span class="pill">${t.pill}</span><
     <div class="tbl"><table>
       <thead><tr><th>範本</th><th>適合</th><th>下載</th></tr></thead>
       <tbody>
-${TOOLS.map(t => `        <tr><td>${t.xlsName}</td><td>${t.xlsFor}</td><td><a href="/downloads/${t.xls}" download="${t.xlsName}_放假日曆.xlsx">下載 .xlsx</a></td></tr>`).join("\n")}
+${TOOLS.filter(t => t.xls).map(t => `        <tr><td>${t.xlsName}</td><td>${t.xlsFor}</td><td><a href="/downloads/${t.xls}" download="${t.xlsName}_放假日曆.xlsx">下載 .xlsx</a></td></tr>`).join("\n")}
       </tbody>
     </table></div>
   </section>
@@ -147,8 +155,8 @@ ${TOOLS.map(t => `        <tr><td>${t.xlsName}</td><td>${t.xlsFor}</td><td><a hr
 
   <section>
     <h2>資料來源與更新紀錄</h2>
-    <p>稅額依財政部公告的 115 年度免稅額、扣除額及課稅級距；特休與加班費依勞動基準法；國定假日依人事行政總處公布的辦公日曆表。規定更新時，我們會同步修正工具與 Excel 範本，並在各工具頁的「法規更新紀錄」註明修法日期、適用年度和官方連結。</p>
-    <p class="note">所有計算都在你的瀏覽器裡完成，輸入的薪資、所得等數字不會傳到本站或任何第三方。試算結果僅供參考，個人情況較複雜（例如有股利、海外所得或特殊排班）時，請以官方系統或專業人士的計算為準。</p>
+    <p>稅額依財政部公告的 115 年度免稅額、扣除額及課稅級距；特休與加班費依勞動基準法；國定假日依人事行政總處公布的辦公日曆表；匯率換算使用每日更新的國際市場參考匯率。規定更新時，我們會同步修正工具與 Excel 範本，並在各工具頁的「法規更新紀錄」註明修法日期、適用年度和官方連結。</p>
+    <p class="note">所有計算都在你的瀏覽器裡完成，輸入的薪資、所得、存款等數字不會傳到本站或任何第三方（匯率換算頁只會下載公開的參考匯率）。試算結果僅供參考，個人情況較複雜（例如有股利、海外所得或特殊排班）時，請以官方系統或專業人士的計算為準。</p>
   </section>
 
   <section>
@@ -1229,7 +1237,392 @@ ${loAdjRows}
   </section>`,
 });
 
-const out = { "tools/labor-insurance-pension/index.html": laborInsPensionPage, "tools/index.html": hub, "tools/insurance/index.html": insurance, "tools/take-home-pay/index.html": takeHome, "tools/severance/index.html": severancePage, "tools/pension/index.html": pensionPage, "tools/income-tax/index.html": tax, "tools/annual-leave/index.html": leave, "tools/overtime/index.html": overtime, "tools/workdays/index.html": workdays };
+// ---------------- 貸款試算 ----------------
+const NEW = "2026-11-03";
+const lnEx = INS.loan({ amount: 10e6, rate: 2.2, years: 30 });
+const lnExP = INS.loan({ amount: 10e6, rate: 2.2, years: 30, method: "principal" });
+const lnExG = INS.loan({ amount: 10e6, rate: 2.2, years: 30, grace: 3 });
+const lnRows = [300, 500, 800, 1000, 1500, 2000].map(w => `        <tr><td>${w.toLocaleString()} 萬</td>${[20, 30, 40].map(y => `<td class="num">${Math.round(INS.loan({ amount: w * 1e4, rate: 2.2, years: y }).firstPay).toLocaleString()}</td>`).join("")}</tr>`).join("\n");
+const capRows = [40000, 60000, 80000, 100000, 150000].map(inc => `        <tr><td>${inc.toLocaleString()}</td><td class="num">${Math.round(inc / 3).toLocaleString()}</td><td class="num">約 ${Math.round(INS.loanCap(inc / 3, 2.2, 30) / 1e4).toLocaleString()} 萬</td></tr>`).join("\n");
+const loanFaq = [
+  ["本息平均攤還和本金平均攤還哪個比較划算？", "本金平均攤還的總利息比較少，因為本金還得比較快；但前期每月要繳的錢比較多。本息平均攤還每月金額固定、前期壓力小，是多數人選的方式。總利息相差多少，可以在上方工具切換比較。"],
+  ["寬限期要不要用？", "寬限期內只繳利息、本金不會減少，寬限期結束後要用比較短的時間還完本金，月付金會明顯變高，總利息也比較多。除非前幾年確實有資金壓力，否則不建議為了月付金低而使用。"],
+  ["房貸月付金占收入多少比較安全？", "常見的參考是每月房貸不超過家庭月收入的三分之一，銀行審核時也會看負債比。這只是參考，還要考慮其他貸款、生活費和緊急預備金。"],
+  ["信貸也可以用這個工具算嗎？", "可以。信用貸款大多是本息平均攤還、沒有寬限期，輸入貸款金額、年利率和年限就能算出月付金。信貸常有開辦費等費用，比較方案時要看總費用年百分率。"],
+  ["利率調整後月付金會變嗎？", "會。房貸多是機動利率，跟著銀行指數利率調整，月付金會依剩餘本金和剩餘期數重新計算。本工具假設利率全期不變，利率變動時可以用剩餘本金和剩餘年限重新試算。"],
+];
+const loanPage = page({
+  path: "/tools/loan/", crumb: "貸款試算", updated: NEW,
+  title: "房貸計算機｜貸款每月還多少、總利息多少（本息、本金攤還、寬限期）",
+  h1: "房貸、信貸試算<br>每月要還多少？總利息多少？",
+  desc: "房貸、信貸計算機：輸入貸款金額、年利率、年限與寬限期，算出本息平均攤還或本金平均攤還的每月還款、總利息與逐年還款明細，附 Excel PMT 公式。",
+  faq: loanFaq, app: "貸款計算機",
+  body: `
+  <div class="answer">貸款 1,000 萬、年利率 2.2%、30 年，本息平均攤還每月約 <b>${Math.round(lnEx.firstPay).toLocaleString()} 元</b>，30 年總利息約 <b>${Math.round(lnEx.totalInt / 1e4).toLocaleString()} 萬元</b>。改用本金平均攤還，總利息約 ${Math.round(lnExP.totalInt / 1e4).toLocaleString()} 萬元，但第 1 個月要繳 ${Math.round(lnExP.firstPay).toLocaleString()} 元。</div>
+
+  <section>
+    <h2>貸款試算</h2>
+    <form class="tool" data-tool="loan" autocomplete="off">
+      <div class="fields">
+        <label class="field">貸款金額（萬元）<input name="amount" inputmode="decimal" placeholder="例如 1000"></label>
+        <label class="field">年利率（%）<input name="rate" inputmode="decimal" placeholder="例如 2.2"></label>
+        <label class="field">貸款年限（年）<input name="years" inputmode="numeric" value="30"></label>
+        <label class="field">寬限期（年，沒有填 0）<input name="grace" inputmode="numeric" value="0"></label>
+        <label class="field">還款方式<select name="method"><option value="pmt">本息平均攤還（每月金額固定）</option><option value="principal">本金平均攤還（每月本金固定）</option></select></label>
+      </div>
+      <div class="result" id="loanOut" aria-live="polite"></div>
+    </form>
+    <p class="note" style="margin-top:8px">利率請填銀行核貸的年利率；以月利率＝年利率 ÷ 12 計算。計算都在你的瀏覽器裡完成。</p>
+  </section>
+
+  <div class="ad">廣告版位 336×280</div>
+
+  <section>
+    <h2>房貸每月還多少？金額對照表</h2>
+    <p>以年利率 2.2%、本息平均攤還、沒有寬限期為例（單位：元／月）：</p>
+    <div class="tbl"><table>
+      <thead><tr><th>貸款金額</th><th>20 年</th><th>30 年</th><th>40 年</th></tr></thead>
+      <tbody>
+${lnRows}
+      </tbody>
+    </table></div>
+    <p class="note" style="margin-top:8px">2.2% 只是舉例，實際利率依銀行、貸款方案和個人條件而定，請把你的利率填進上方工具計算。</p>
+  </section>
+
+  <section>
+    <h2>本息平均攤還和本金平均攤還差在哪？</h2>
+    <div class="tbl"><table>
+      <thead><tr><th></th><th>本息平均攤還</th><th>本金平均攤還</th></tr></thead>
+      <tbody>
+        <tr><td>每月還款</td><td>每月固定</td><td>第 1 個月最高，之後逐月減少</td></tr>
+        <tr><td>前期壓力</td><td>較小</td><td>較大</td></tr>
+        <tr><td>總利息</td><td>較多</td><td>較少</td></tr>
+        <tr><td>1,000 萬・2.2%・30 年</td><td>每月 ${Math.round(lnEx.firstPay).toLocaleString()}，總利息 ${Math.round(lnEx.totalInt / 1e4).toLocaleString()} 萬</td><td>首月 ${Math.round(lnExP.firstPay).toLocaleString()}、末月 ${Math.round(lnExP.lastPay).toLocaleString()}，總利息 ${Math.round(lnExP.totalInt / 1e4).toLocaleString()} 萬</td></tr>
+      </tbody>
+    </table></div>
+    <p style="margin-top:12px">本息平均攤還前期繳的錢大多是利息，本金減少得慢；本金平均攤還每月固定還一樣多的本金，本金減少得快，所以總利息比較少。</p>
+  </section>
+
+  <section>
+    <h2>寬限期是什麼？用了會多付多少？</h2>
+    <p>寬限期內每月只繳利息、不還本金。以 1,000 萬、2.2%、30 年、寬限期 3 年為例：</p>
+    <dl class="kv" style="max-width:520px">
+      <dt>前 3 年每月（只繳利息）</dt><dd>${Math.round(lnExG.gracePay).toLocaleString()} 元</dd>
+      <dt>第 4 年起每月</dt><dd>${Math.round(lnExG.firstPay).toLocaleString()} 元</dd>
+      <dt>總利息</dt><dd>${Math.round(lnExG.totalInt).toLocaleString()} 元</dd>
+      <dt>不用寬限期的總利息</dt><dd>${Math.round(lnEx.totalInt).toLocaleString()} 元</dd>
+    </dl>
+    <p style="margin-top:12px">寬限期結束後，月付金從 ${Math.round(lnExG.gracePay).toLocaleString()} 元跳到 ${Math.round(lnExG.firstPay).toLocaleString()} 元，比不用寬限期還高。申請前要先確認寬限期後的月付金負擔得起。</p>
+  </section>
+
+  <section>
+    <h2>月收入多少可以貸多少？</h2>
+    <p>常見的參考是房貸月付金不超過家庭月收入的三分之一。以這個比例、年利率 2.2%、30 年本息平均攤還推算：</p>
+    <div class="tbl"><table>
+      <thead><tr><th>家庭月收入</th><th>月付金上限（1/3）</th><th>約可貸金額</th></tr></thead>
+      <tbody>
+${capRows}
+      </tbody>
+    </table></div>
+    <p class="note" style="margin-top:8px">實際可貸金額還要看房屋鑑價、貸款成數、信用紀錄和其他負債，以銀行核貸為準。</p>
+  </section>
+
+  <section>
+    <h2>用 Excel 算月付金</h2>
+    <p>貸款金額在 B1、年利率在 B2（填 2.2%）、年限在 B3，本息平均攤還每月還款：</p>
+    ${formula("pmtFormula", "=PMT(B2/12,B3*12,-B1)")}
+    <p style="margin-top:12px">全期總利息（本息平均攤還）：</p>
+    ${formula("ipmtFormula", "=PMT(B2/12,B3*12,-B1)*B3*12-B1")}
+    <p style="margin-top:12px">第 n 個月的利息和本金可以用 <code>IPMT</code>、<code>PPMT</code>，例如第 1 個月利息 <code>=IPMT(B2/12,1,B3*12,-B1)</code>。</p>
+  </section>
+
+  <section>
+    <h2>計算依據與更新紀錄</h2>
+    <p>本息平均攤還依年金現值公式：月付金 ＝ 貸款金額 × 月利率 ÷ [1 −（1 ＋ 月利率）^−期數]，與 Excel PMT 函數相同；本金平均攤還每月本金 ＝ 貸款金額 ÷ 期數，利息依剩餘本金計算。</p>
+    <div class="tbl"><table>
+      <thead><tr><th>更新日期</th><th>內容</th></tr></thead>
+      <tbody>
+        <tr><td>2026/11/03</td><td>上線：本息平均攤還、本金平均攤還、寬限期、逐年還款明細</td></tr>
+      </tbody>
+    </table></div>
+  </section>`,
+});
+
+// ---------------- 存款利息 ----------------
+const dpEx = INS.deposit({ amount: 1e6, rate: 1.7, months: 12 });
+const dpExP = INS.deposit({ amount: 1e6, rate: 1.7, months: 12, mode: "payout" });
+const dpExM = INS.deposit({ amount: 10000, rate: 1.7, months: 12, mode: "monthly" });
+const dpRows = [100000, 500000, 1000000, 3000000].map(a => `        <tr><td>${(a / 1e4).toLocaleString()} 萬</td>${[1, 1.5, 2].map(r => `<td class="num">${INS.deposit({ amount: a, rate: r, months: 12 }).interest.toLocaleString()}</td>`).join("")}</tr>`).join("\n");
+const depFaq = [
+  ["定存利息怎麼算？", "整存整付按月複利：本利和 ＝ 本金 ×（1 ＋ 年利率 ÷ 12）^月數。存本取息每月領息、本金不變：每月利息 ＝ 本金 × 年利率 ÷ 12。100 萬元、年利率 1.7%、存 1 年，整存整付利息約 " + dpEx.interest.toLocaleString() + " 元，存本取息每月約 " + dpExP.monthlyPay.toLocaleString() + " 元。"],
+  ["存款利息要繳稅嗎？", "要併入綜合所得申報，但每戶有 27 萬元的儲蓄投資特別扣除額，全家存款利息（加上其他適用的利息）在 27 萬元以內，就不用為利息繳稅。"],
+  ["定存利息會被扣二代健保嗎？", "單次給付的利息達 2 萬元，銀行會扣 2.11% 的二代健保補充保費；未達 2 萬元不扣。存本取息每月領息，每次金額較小，比較不容易達到門檻。"],
+  ["機動利率和固定利率怎麼選？", "固定利率在存款期間不變；機動利率會跟著銀行牌告利率調整。預期利率會上升時選機動比較有利，預期會下降時選固定可以鎖住利率。"],
+  ["定存提前解約會怎樣？", "提前解約通常會依實際存款期間的利率打八折計算利息，未滿 1 個月不給息，各銀行規定可能不同，請以銀行說明為準。"],
+];
+const depositPage = page({
+  path: "/tools/interest/", crumb: "利息計算", updated: NEW,
+  title: "定存利息計算機｜整存整付、存本取息、零存整付利息怎麼算",
+  h1: "存款利息計算<br>定存一年可以拿多少利息？",
+  desc: "定存利息計算機：輸入存款金額、年利率與期間，算出整存整付、存本取息、零存整付的利息與本利和，並提醒二代健保補充保費、利息扣繳與 27 萬儲蓄投資特別扣除額，附 Excel FV 公式。",
+  faq: depFaq, app: "存款利息計算機",
+  body: `
+  <div class="answer">100 萬元、年利率 1.7%、存 1 年：<b>整存整付</b>到期利息約 <b>${dpEx.interest.toLocaleString()} 元</b>；<b>存本取息</b>每月領約 <b>${dpExP.monthlyPay.toLocaleString()} 元</b>。每月存 1 萬元<b>零存整付</b> 1 年，利息約 ${dpExM.interest.toLocaleString()} 元。</div>
+
+  <section>
+    <h2>存款利息試算</h2>
+    <form class="tool" data-tool="deposit" autocomplete="off">
+      <div class="fields">
+        <label class="field">存款方式<select name="mode"><option value="compound">整存整付（到期領本金＋利息）</option><option value="payout">存本取息（每月領利息）</option><option value="monthly">零存整付（每月存固定金額）</option></select></label>
+        <label class="field" id="depAmtLabel">存款金額（元）<input name="amount" inputmode="numeric" placeholder="例如 1000000"></label>
+        <label class="field">年利率（%）<input name="rate" inputmode="decimal" placeholder="例如 1.7"></label>
+        <label class="field">存款期間（月）<input name="months" inputmode="numeric" value="12"></label>
+      </div>
+      <div class="result" id="depOut" aria-live="polite"></div>
+    </form>
+    <p class="note" style="margin-top:8px">年利率請填銀行牌告的定存或活存利率。計算都在你的瀏覽器裡完成。</p>
+  </section>
+
+  <div class="ad">廣告版位 336×280</div>
+
+  <section>
+    <h2>定存 1 年利息對照表</h2>
+    <p>整存整付、存 12 個月（單位：元）：</p>
+    <div class="tbl"><table>
+      <thead><tr><th>存款金額</th><th>年利率 1%</th><th>1.5%</th><th>2%</th></tr></thead>
+      <tbody>
+${dpRows}
+      </tbody>
+    </table></div>
+    <p class="note" style="margin-top:8px">利率只是舉例，各銀行、各期別的利率不同，也會隨央行調整利率而變動。</p>
+  </section>
+
+  <section>
+    <h2>整存整付、存本取息、零存整付差在哪？</h2>
+    <div class="tbl"><table>
+      <thead><tr><th>方式</th><th>怎麼存</th><th>怎麼領息</th><th>適合</th></tr></thead>
+      <tbody>
+        <tr><td>整存整付</td><td>一次存入</td><td>利息每月滾入本金（複利），到期一次領</td><td>短期用不到的錢，想多賺一點複利</td></tr>
+        <tr><td>存本取息</td><td>一次存入</td><td>每月領利息，本金到期領回</td><td>退休族、想每月有固定收入</td></tr>
+        <tr><td>零存整付</td><td>每月存固定金額</td><td>按月複利，到期一次領</td><td>小資族強迫儲蓄</td></tr>
+      </tbody>
+    </table></div>
+    <p style="margin-top:12px">同樣金額、利率和期間，整存整付因為利息會再生利息，總利息比存本取息多一點。</p>
+  </section>
+
+  <section>
+    <h2>利息的稅和二代健保</h2>
+    <p><b>27 萬元免稅額度</b>：存款利息要併入綜合所得，但每戶可以減除最多 27 萬元的儲蓄投資特別扣除額。以年利率 1.7% 估算，全家存款大約 1,500 多萬元，利息才會超過 27 萬。報稅時可以用<a href="/tools/income-tax/">所得稅試算</a>估算稅額。</p>
+    <p><b>二代健保補充保費</b>：單次給付的利息達 2 萬元，銀行會先扣 2.11%。例如定存到期一次領 3 萬元利息，會扣 633 元。</p>
+    <p><b>扣繳所得稅</b>：單次給付的利息超過 2 萬元，銀行會先預扣 10% 所得稅，報稅時再多退少補。</p>
+  </section>
+
+  <section>
+    <h2>用 Excel 算利息</h2>
+    <p>本金在 B1、年利率在 B2（填 1.7%）、月數在 B3，整存整付到期利息：</p>
+    ${formula("fvFormula", "=ROUND(FV(B2/12,B3,0,-B1)-B1,0)")}
+    <p style="margin-top:12px">零存整付（B1 改填每月存入金額），到期本利和：</p>
+    ${formula("fvmFormula", "=ROUND(FV(B2/12,B3,-B1,0,1),0)")}
+    <p style="margin-top:12px">存本取息每月利息：<code>=ROUND(B1*B2/12,0)</code>。</p>
+  </section>
+
+  <section>
+    <h2>計算依據與更新紀錄</h2>
+    <p>以月利率＝年利率 ÷ 12 計算。整存整付與零存整付按月複利，存本取息每月以本金計息。二代健保補充保費費率 2.11%、單次給付 2 萬元起扣，依<a href="https://www.nhi.gov.tw/" rel="noopener">衛福部中央健康保險署</a>規定；儲蓄投資特別扣除額 27 萬元依所得稅法第 17 條。</p>
+    <div class="tbl"><table>
+      <thead><tr><th>更新日期</th><th>內容</th></tr></thead>
+      <tbody>
+        <tr><td>2026/11/03</td><td>上線：整存整付、存本取息、零存整付；二代健保補充保費與扣繳提醒</td></tr>
+      </tbody>
+    </table></div>
+  </section>`,
+});
+
+// ---------------- 匯率換算 ----------------
+const CUR = [["JPY", "日圓"], ["USD", "美元"], ["KRW", "韓元"], ["EUR", "歐元"], ["CNY", "人民幣"], ["HKD", "港幣"], ["THB", "泰銖"], ["VND", "越南盾"], ["SGD", "新加坡幣"], ["GBP", "英鎊"], ["AUD", "澳幣"], ["CAD", "加幣"], ["NZD", "紐西蘭幣"], ["MYR", "馬來西亞令吉"], ["PHP", "菲律賓披索"], ["IDR", "印尼盾"], ["CHF", "瑞士法郎"]];
+const fxFaq = [
+  ["這裡的匯率和銀行一樣嗎？", "不一樣。這裡自動帶入的是國際市場參考價（每天更新一次），銀行牌告匯率會再加上買賣價差。要精準換算，可以把銀行的牌告匯率填進「匯率」欄。"],
+  ["銀行的買入、賣出匯率要看哪一個？", "站在銀行的角度看：你拿台幣去買外幣，看銀行的「賣出」匯率；你把外幣換回台幣，看銀行的「買入」匯率。賣出匯率比較高、買入比較低，中間的差價就是換匯成本。"],
+  ["現金匯率和即期匯率差在哪？", "現金匯率是換實體鈔票用的，銀行要負擔運鈔、保管成本，價差比較大；即期匯率用在外幣帳戶之間轉帳，價差比較小。只有要拿現金出國時才需要用現金匯率。"],
+  ["出國刷卡還是換現金比較划算？", "刷卡的匯率接近即期匯率，但多數信用卡會收約 1.5% 的國外交易手續費（部分卡片有回饋可抵銷）；換現金則要承擔現金匯率的價差。可以把兩邊的總成本算出來比較，也可以兩者搭配。"],
+  ["日圓 1 萬元大約是多少台幣？", "選擇「日圓」、方向「外幣換台幣」、金額填 10000，就會依今天的參考匯率換算。實際換匯金額請以銀行牌告為準。"],
+];
+const fxPage = page({
+  path: "/tools/currency/", crumb: "匯率換算", updated: NEW,
+  title: "匯率換算｜日圓、美元、韓元換台幣多少（每日參考匯率）",
+  h1: "匯率換算<br>日圓、美元、韓元換台幣多少？",
+  desc: "匯率換算工具：日圓、美元、韓元、歐元、人民幣等 17 種外幣與新台幣互換，自動帶入每日參考匯率，也能填入銀行牌告匯率；附銀行買入賣出、現金與即期匯率說明。",
+  faq: fxFaq, app: "匯率換算",
+  body: `
+  <div class="answer">選擇幣別、輸入金額，就會依<b>每日參考匯率</b>換算成新台幣，也可以反過來算台幣能換多少外幣。到銀行換匯時，買外幣看銀行的<b>「賣出」</b>匯率，換回台幣看<b>「買入」</b>匯率，想算得準可以把牌告匯率填進「匯率」欄。</div>
+
+  <section>
+    <h2>外幣、台幣換算</h2>
+    <form class="tool" data-tool="fx" autocomplete="off">
+      <div class="fields">
+        <label class="field">幣別<select name="cur">${CUR.map(([c, n]) => `<option value="${c}">${n}（${c}）</option>`).join("")}</select></label>
+        <label class="field">換算方向<select name="dir"><option value="to-twd">外幣換台幣</option><option value="from-twd">台幣換外幣</option></select></label>
+        <label class="field">金額<input name="amount" inputmode="decimal" value="10000"></label>
+        <label class="field" id="fxRateLabel">匯率（1 外幣 ＝ ? 新台幣）<input name="rate" inputmode="decimal"></label>
+      </div>
+      <div><button type="button" class="copy" id="fxReset" style="padding:8px 12px">改回參考匯率</button></div>
+      <div class="result" id="fxOut" aria-live="polite"></div>
+    </form>
+    <p class="note" style="margin-top:8px" id="fxInfo">正在取得參考匯率…</p>
+    <p class="note">頁面只會向匯率資料來源下載公開匯率，你輸入的金額不會傳出去。</p>
+  </section>
+
+  <div class="ad">廣告版位 336×280</div>
+
+  <section>
+    <h2>銀行匯率怎麼看？</h2>
+    <div class="tbl"><table>
+      <thead><tr><th></th><th>銀行買入</th><th>銀行賣出</th></tr></thead>
+      <tbody>
+        <tr><td>什麼時候用</td><td>你把外幣換回台幣</td><td>你用台幣買外幣</td></tr>
+        <tr><td>數字</td><td>比較低</td><td>比較高</td></tr>
+        <tr><td>現金</td><td colspan="2">換實體鈔票，價差較大</td></tr>
+        <tr><td>即期</td><td colspan="2">外幣帳戶之間轉帳，價差較小</td></tr>
+      </tbody>
+    </table></div>
+    <p style="margin-top:12px">例如出國前要換日圓現金，看的是銀行的「現金賣出」匯率；把旅行剩下的日圓換回台幣，看的是「現金買入」匯率。一買一賣之間的價差，就是換匯的成本。</p>
+  </section>
+
+  <section>
+    <h2>出國換匯怎麼比較省？</h2>
+    <p><b>先比價</b>：各銀行的牌告匯率和手續費不同，可以先在銀行官網查詢。部分銀行的線上結匯、外幣帳戶提供比臨櫃更好的匯率。</p>
+    <p><b>刷卡</b>：信用卡海外消費的匯率接近即期匯率，但通常要付約 1.5% 的國外交易手續費，選有海外回饋的卡片可以抵銷。</p>
+    <p><b>只換需要的量</b>：現金買賣價差大，旅行回來剩太多外幣，換回台幣時又要再付一次價差。</p>
+    <p>規劃連假出國，可以先看 <a href="/2027/qingjia/">2027 全年請假攻略</a>，搭配特休排出最長的假期。</p>
+  </section>
+
+  <section>
+    <h2>用 Excel 或 Google 試算表換算</h2>
+    <p>外幣金額在 A2、匯率（1 外幣 ＝ ? 台幣）在 B2，換成台幣：</p>
+    ${formula("fxFormula", "=ROUND(A2*B2,0)")}
+    <p style="margin-top:12px">Google 試算表可以直接抓即時參考匯率，例如日圓換台幣：</p>
+    ${formula("gfFormula", "=A2*GOOGLEFINANCE(\"CURRENCY:JPYTWD\")")}
+  </section>
+
+  <section>
+    <h2>資料來源與更新紀錄</h2>
+    <p>參考匯率由 <a href="https://www.exchangerate-api.com" rel="noopener">ExchangeRate-API</a> 提供，為國際市場參考價，每天更新一次，不是任何銀行的牌告匯率。實際換匯請以銀行公告為準。</p>
+    <div class="tbl"><table>
+      <thead><tr><th>更新日期</th><th>內容</th></tr></thead>
+      <tbody>
+        <tr><td>2026/11/03</td><td>上線：17 種外幣與新台幣互換，可自行填入銀行牌告匯率</td></tr>
+      </tbody>
+    </table></div>
+  </section>`,
+});
+
+// ---------------- 單位換算 ----------------
+const U = INS.UNITS, cv = INS.convertUnit, r2 = (v, d = 2) => (Math.round(v * 10 ** d) / 10 ** d).toLocaleString();
+const pingRows = [10, 15, 20, 25, 30, 35, 40, 50, 60].map(p => `        <tr><td>${p} 坪</td><td class="num">${r2(cv("area", p, "坪", "平方公尺"))}</td></tr>`).join("\n");
+const sqmRows = [30, 50, 66, 80, 100, 120, 150].map(m => `        <tr><td>${m} 平方公尺</td><td class="num">${r2(cv("area", m, "平方公尺", "坪"))}</td></tr>`).join("\n");
+const jinRows = [0.5, 1, 2, 3, 5, 10].map(j => `        <tr><td>${j} 台斤</td><td class="num">${r2(cv("weight", j, "台斤", "公斤"), 3)}</td><td class="num">${r2(cv("weight", j, "台斤", "兩"), 1)}</td></tr>`).join("\n");
+const inchRows = [13, 15.6, 24, 27, 32, 43, 55, 65, 75].map(i => `        <tr><td>${i} 吋</td><td class="num">${r2(cv("length", i, "吋", "公分"), 1)}</td></tr>`).join("\n");
+const qb = (label, v) => `<button type="button" class="copy" data-unit="${v}" style="padding:8px 12px">${label}</button>`;
+const unitFaq = [
+  ["1 坪等於幾平方公尺？", "1 坪 ＝ 400/121 平方公尺，約 3.3058 平方公尺；1 平方公尺約 0.3025 坪。換算時用「平方公尺 × 0.3025」就能快速得到坪數。"],
+  ["1 台斤是幾公斤？", "1 台斤 ＝ 600 公克 ＝ 0.6 公斤，1 台斤 ＝ 16 兩，1 兩 ＝ 37.5 公克。傳統市場、菜市場常用台斤計價。"],
+  ["電視 55 吋是多大？", "電視、螢幕的吋數指的是螢幕對角線長度。1 吋 ＝ 2.54 公分，55 吋約 139.7 公分；16:9 的 55 吋電視，畫面寬約 121.8 公分、高約 68.5 公分。"],
+  ["權狀坪數和室內坪數一樣嗎？", "不一樣。權狀坪數包含主建物、附屬建物（陽台等）和公共設施的持分，實際室內使用的坪數會比較小。看房時要問清楚公設比。"],
+  ["攝氏和華氏怎麼換算？", "°F ＝ °C × 9/5 ＋ 32，°C ＝（°F − 32）× 5/9。例如體溫 37°C 約 98.6°F，美國天氣預報的 77°F 是 25°C。"],
+];
+const unitPage = page({
+  path: "/tools/unit/", crumb: "單位換算", updated: NEW,
+  title: "單位換算｜坪、平方公尺、台斤、公斤、吋、公分換算（台灣常用單位）",
+  h1: "單位換算<br>坪、台斤、吋換算一次搞定",
+  desc: "台灣常用單位換算：坪與平方公尺、台斤與公斤、兩、吋與公分、英尺、加侖、攝氏華氏一鍵換算，附坪數對照表、台斤對照表、電視吋數對照表與 Excel 公式。",
+  faq: unitFaq, app: "單位換算",
+  body: `
+  <div class="answer"><b>1 坪 ≈ 3.3058 平方公尺</b>（1 平方公尺 ≈ 0.3025 坪）；<b>1 台斤 ＝ 600 公克</b> ＝ 16 兩；<b>1 吋 ＝ 2.54 公分</b>。選擇類別、輸入數值，就會換算成所有常用單位。</div>
+
+  <section>
+    <h2>單位換算</h2>
+    <form class="tool" data-tool="unit" autocomplete="off">
+      <div class="fields">
+        <label class="field">類別<select name="cat">${Object.entries(U).map(([k, v]) => `<option value="${k}">${v.label}</option>`).join("")}<option value="temp">溫度</option></select></label>
+        <label class="field">數值<input name="v" inputmode="decimal" value="30"></label>
+      </div>
+      <div class="fields" id="unitPair">
+        <label class="field">從<select name="from"></select></label>
+        <label class="field">換成<select name="to"></select></label>
+      </div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
+        <button type="button" class="copy" id="unitSwap" style="padding:8px 12px">⇄ 對調單位</button>
+        ${qb("坪 → 平方公尺", "area|坪|平方公尺|30")}
+        ${qb("台斤 → 公斤", "weight|台斤|公斤|1")}
+        ${qb("吋 → 公分", "length|吋|公分|55")}
+        ${qb("攝氏 ⇄ 華氏", "temp|||37")}
+      </div>
+      <div class="result" id="unitOut" aria-live="polite"></div>
+    </form>
+  </section>
+
+  <div class="ad">廣告版位 336×280</div>
+
+  <section>
+    <h2>坪數換算對照表</h2>
+    <div class="tbl"><table>
+      <thead><tr><th>坪</th><th>平方公尺</th></tr></thead>
+      <tbody>
+${pingRows}
+      </tbody>
+    </table></div>
+    <div class="tbl" style="margin-top:12px"><table>
+      <thead><tr><th>平方公尺</th><th>坪</th></tr></thead>
+      <tbody>
+${sqmRows}
+      </tbody>
+    </table></div>
+    <p style="margin-top:12px">1 坪是邊長 6 台尺的正方形，1 台尺 ＝ 10/33 公尺，所以 1 坪 ＝（60/33）² ＝ 400/121 平方公尺。土地常用的 1 甲 ＝ 2,934 坪，約 0.97 公頃。</p>
+  </section>
+
+  <section>
+    <h2>台斤、兩、公斤對照表</h2>
+    <div class="tbl"><table>
+      <thead><tr><th>台斤</th><th>公斤</th><th>兩</th></tr></thead>
+      <tbody>
+${jinRows}
+      </tbody>
+    </table></div>
+    <p style="margin-top:12px">1 台斤 ＝ 16 兩 ＝ 600 公克，1 兩 ＝ 10 錢 ＝ 37.5 公克。中國大陸的「斤」是 500 公克，和台斤不同。</p>
+  </section>
+
+  <section>
+    <h2>螢幕吋數換算公分</h2>
+    <div class="tbl"><table>
+      <thead><tr><th>吋數（對角線）</th><th>公分</th></tr></thead>
+      <tbody>
+${inchRows}
+      </tbody>
+    </table></div>
+    <p class="note" style="margin-top:8px">螢幕吋數是對角線長度；16:9 螢幕的寬約為對角線 × 0.87、高約為 × 0.49。</p>
+  </section>
+
+  <section>
+    <h2>用 Excel 換算單位</h2>
+    <p>平方公尺在 A2，換成坪：</p>
+    ${formula("pingFormula", "=ROUND(A2*121/400,2)")}
+    <p style="margin-top:12px">台斤在 A2，換成公斤：<code>=A2*0.6</code>。英制單位可以用 Excel 內建的 CONVERT，例如吋換公分：</p>
+    ${formula("convFormula", "=CONVERT(A2,\"in\",\"cm\")")}
+  </section>
+
+  <section>
+    <h2>換算依據與更新紀錄</h2>
+    <p>1 坪 ＝ 400/121 平方公尺、1 台斤 ＝ 600 公克、1 甲 ＝ 2,934 坪；英制單位依國際定義（1 吋 ＝ 2.54 公分、1 磅 ＝ 453.59237 公克、1 美制加侖 ＝ 3.785411784 公升）。</p>
+    <div class="tbl"><table>
+      <thead><tr><th>更新日期</th><th>內容</th></tr></thead>
+      <tbody>
+        <tr><td>2026/11/03</td><td>上線：面積、重量、長度、容量、溫度換算</td></tr>
+      </tbody>
+    </table></div>
+  </section>`,
+});
+
+const out = { "tools/loan/index.html": loanPage, "tools/interest/index.html": depositPage, "tools/currency/index.html": fxPage, "tools/unit/index.html": unitPage, "tools/labor-insurance-pension/index.html": laborInsPensionPage, "tools/index.html": hub, "tools/insurance/index.html": insurance, "tools/take-home-pay/index.html": takeHome, "tools/severance/index.html": severancePage, "tools/pension/index.html": pensionPage, "tools/income-tax/index.html": tax, "tools/annual-leave/index.html": leave, "tools/overtime/index.html": overtime, "tools/workdays/index.html": workdays };
 for (const [f, html] of Object.entries(out)) {
   mkdirSync(f.replace(/\/[^/]+$/, ""), { recursive: true });
   writeFileSync(f, html);

@@ -1,0 +1,238 @@
+<!doctype html>
+<html lang="zh-Hant-TW">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>定存利息計算機｜整存整付、存本取息、零存整付利息怎麼算｜放假日曆</title>
+<meta name="description" content="定存利息計算機：輸入存款金額、年利率與期間，算出整存整付、存本取息、零存整付的利息與本利和，並提醒二代健保補充保費、利息扣繳與 27 萬儲蓄投資特別扣除額，附 Excel FV 公式。">
+<link rel="canonical" href="https://fangjiatw.com/tools/interest/">
+<meta property="og:type" content="website">
+<meta property="og:title" content="定存利息計算機｜整存整付、存本取息、零存整付利息怎麼算">
+<meta property="og:description" content="定存利息計算機：輸入存款金額、年利率與期間，算出整存整付、存本取息、零存整付的利息與本利和，並提醒二代健保補充保費、利息扣繳與 27 萬儲蓄投資特別扣除額，附 Excel FV 公式。">
+<meta property="og:url" content="https://fangjiatw.com/tools/interest/">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@600;900&family=Noto+Sans+TC:wght@400;500;700&family=JetBrains+Mono:wght@500&display=swap">
+<link rel="stylesheet" href="/assets/site.css?v=3">
+<link rel="stylesheet" href="/assets/tools/tools.css?v=3">
+<script type="application/ld+json">
+{
+ "@context": "https://schema.org",
+ "@graph": [
+  {
+   "@type": "WebPage",
+   "name": "定存利息計算機｜整存整付、存本取息、零存整付利息怎麼算",
+   "url": "https://fangjiatw.com/tools/interest/",
+   "inLanguage": "zh-Hant-TW",
+   "dateModified": "2026-11-03",
+   "publisher": {
+    "@type": "Organization",
+    "name": "放假日曆",
+    "url": "https://fangjiatw.com/"
+   }
+  },
+  {
+   "@type": "WebApplication",
+   "name": "存款利息計算機",
+   "url": "https://fangjiatw.com/tools/interest/",
+   "applicationCategory": "FinanceApplication",
+   "operatingSystem": "Any",
+   "inLanguage": "zh-Hant-TW",
+   "isAccessibleForFree": true,
+   "offers": {
+    "@type": "Offer",
+    "price": "0",
+    "priceCurrency": "TWD"
+   }
+  },
+  {
+   "@type": "BreadcrumbList",
+   "itemListElement": [
+    {
+     "@type": "ListItem",
+     "position": 1,
+     "name": "放假日曆",
+     "item": "https://fangjiatw.com/"
+    },
+    {
+     "@type": "ListItem",
+     "position": 2,
+     "name": "試算工具",
+     "item": "https://fangjiatw.com/tools/"
+    },
+    {
+     "@type": "ListItem",
+     "position": 3,
+     "name": "利息計算",
+     "item": "https://fangjiatw.com/tools/interest/"
+    }
+   ]
+  },
+  {
+   "@type": "FAQPage",
+   "mainEntity": [
+    {
+     "@type": "Question",
+     "name": "定存利息怎麼算？",
+     "acceptedAnswer": {
+      "@type": "Answer",
+      "text": "整存整付按月複利：本利和 ＝ 本金 ×（1 ＋ 年利率 ÷ 12）^月數。存本取息每月領息、本金不變：每月利息 ＝ 本金 × 年利率 ÷ 12。100 萬元、年利率 1.7%、存 1 年，整存整付利息約 17,133 元，存本取息每月約 1,417 元。"
+     }
+    },
+    {
+     "@type": "Question",
+     "name": "存款利息要繳稅嗎？",
+     "acceptedAnswer": {
+      "@type": "Answer",
+      "text": "要併入綜合所得申報，但每戶有 27 萬元的儲蓄投資特別扣除額，全家存款利息（加上其他適用的利息）在 27 萬元以內，就不用為利息繳稅。"
+     }
+    },
+    {
+     "@type": "Question",
+     "name": "定存利息會被扣二代健保嗎？",
+     "acceptedAnswer": {
+      "@type": "Answer",
+      "text": "單次給付的利息達 2 萬元，銀行會扣 2.11% 的二代健保補充保費；未達 2 萬元不扣。存本取息每月領息，每次金額較小，比較不容易達到門檻。"
+     }
+    },
+    {
+     "@type": "Question",
+     "name": "機動利率和固定利率怎麼選？",
+     "acceptedAnswer": {
+      "@type": "Answer",
+      "text": "固定利率在存款期間不變；機動利率會跟著銀行牌告利率調整。預期利率會上升時選機動比較有利，預期會下降時選固定可以鎖住利率。"
+     }
+    },
+    {
+     "@type": "Question",
+     "name": "定存提前解約會怎樣？",
+     "acceptedAnswer": {
+      "@type": "Answer",
+      "text": "提前解約通常會依實際存款期間的利率打八折計算利息，未滿 1 個月不給息，各銀行規定可能不同，請以銀行說明為準。"
+     }
+    }
+   ]
+  }
+ ]
+}
+</script>
+</head>
+<body>
+<header class="top">
+  <a class="logo" href="/">放假<span>日曆</span></a>
+  <nav><a href="/#planner">請假計算器</a><a href="/tools/">試算工具</a><a href="/concert/">演唱會住宿</a><a href="/#calendar">全年行事曆</a></nav>
+</header>
+
+<main class="article">
+  <div>
+    <div class="crumb"><a href="/">放假日曆</a> › <a href="/tools/">試算工具</a> › 利息計算</div>
+    <h1>存款利息計算<br>定存一年可以拿多少利息？</h1>
+    <div class="meta">更新日期：2026 年 11 月 3 日</div>
+  </div>
+
+  <div class="answer">100 萬元、年利率 1.7%、存 1 年：<b>整存整付</b>到期利息約 <b>17,133 元</b>；<b>存本取息</b>每月領約 <b>1,417 元</b>。每月存 1 萬元<b>零存整付</b> 1 年，利息約 1,111 元。</div>
+
+  <section>
+    <h2>存款利息試算</h2>
+    <form class="tool" data-tool="deposit" autocomplete="off">
+      <div class="fields">
+        <label class="field">存款方式<select name="mode"><option value="compound">整存整付（到期領本金＋利息）</option><option value="payout">存本取息（每月領利息）</option><option value="monthly">零存整付（每月存固定金額）</option></select></label>
+        <label class="field" id="depAmtLabel">存款金額（元）<input name="amount" inputmode="numeric" placeholder="例如 1000000"></label>
+        <label class="field">年利率（%）<input name="rate" inputmode="decimal" placeholder="例如 1.7"></label>
+        <label class="field">存款期間（月）<input name="months" inputmode="numeric" value="12"></label>
+      </div>
+      <div class="result" id="depOut" aria-live="polite"></div>
+    </form>
+    <p class="note" style="margin-top:8px">年利率請填銀行牌告的定存或活存利率。計算都在你的瀏覽器裡完成。</p>
+  </section>
+
+  <div class="ad">廣告版位 336×280</div>
+
+  <section>
+    <h2>定存 1 年利息對照表</h2>
+    <p>整存整付、存 12 個月（單位：元）：</p>
+    <div class="tbl"><table>
+      <thead><tr><th>存款金額</th><th>年利率 1%</th><th>1.5%</th><th>2%</th></tr></thead>
+      <tbody>
+        <tr><td>10 萬</td><td class="num">1,005</td><td class="num">1,510</td><td class="num">2,018</td></tr>
+        <tr><td>50 萬</td><td class="num">5,023</td><td class="num">7,552</td><td class="num">10,092</td></tr>
+        <tr><td>100 萬</td><td class="num">10,046</td><td class="num">15,104</td><td class="num">20,184</td></tr>
+        <tr><td>300 萬</td><td class="num">30,138</td><td class="num">45,311</td><td class="num">60,553</td></tr>
+      </tbody>
+    </table></div>
+    <p class="note" style="margin-top:8px">利率只是舉例，各銀行、各期別的利率不同，也會隨央行調整利率而變動。</p>
+  </section>
+
+  <section>
+    <h2>整存整付、存本取息、零存整付差在哪？</h2>
+    <div class="tbl"><table>
+      <thead><tr><th>方式</th><th>怎麼存</th><th>怎麼領息</th><th>適合</th></tr></thead>
+      <tbody>
+        <tr><td>整存整付</td><td>一次存入</td><td>利息每月滾入本金（複利），到期一次領</td><td>短期用不到的錢，想多賺一點複利</td></tr>
+        <tr><td>存本取息</td><td>一次存入</td><td>每月領利息，本金到期領回</td><td>退休族、想每月有固定收入</td></tr>
+        <tr><td>零存整付</td><td>每月存固定金額</td><td>按月複利，到期一次領</td><td>小資族強迫儲蓄</td></tr>
+      </tbody>
+    </table></div>
+    <p style="margin-top:12px">同樣金額、利率和期間，整存整付因為利息會再生利息，總利息比存本取息多一點。</p>
+  </section>
+
+  <section>
+    <h2>利息的稅和二代健保</h2>
+    <p><b>27 萬元免稅額度</b>：存款利息要併入綜合所得，但每戶可以減除最多 27 萬元的儲蓄投資特別扣除額。以年利率 1.7% 估算，全家存款大約 1,500 多萬元，利息才會超過 27 萬。報稅時可以用<a href="/tools/income-tax/">所得稅試算</a>估算稅額。</p>
+    <p><b>二代健保補充保費</b>：單次給付的利息達 2 萬元，銀行會先扣 2.11%。例如定存到期一次領 3 萬元利息，會扣 633 元。</p>
+    <p><b>扣繳所得稅</b>：單次給付的利息超過 2 萬元，銀行會先預扣 10% 所得稅，報稅時再多退少補。</p>
+  </section>
+
+  <section>
+    <h2>用 Excel 算利息</h2>
+    <p>本金在 B1、年利率在 B2（填 1.7%）、月數在 B3，整存整付到期利息：</p>
+    <div class="formula"><code id="fvFormula">=ROUND(FV(B2/12,B3,0,-B1)-B1,0)</code><button type="button" class="copy" data-copy="fvFormula">複製</button></div>
+    <p style="margin-top:12px">零存整付（B1 改填每月存入金額），到期本利和：</p>
+    <div class="formula"><code id="fvmFormula">=ROUND(FV(B2/12,B3,-B1,0,1),0)</code><button type="button" class="copy" data-copy="fvmFormula">複製</button></div>
+    <p style="margin-top:12px">存本取息每月利息：<code>=ROUND(B1*B2/12,0)</code>。</p>
+  </section>
+
+  <section>
+    <h2>計算依據與更新紀錄</h2>
+    <p>以月利率＝年利率 ÷ 12 計算。整存整付與零存整付按月複利，存本取息每月以本金計息。二代健保補充保費費率 2.11%、單次給付 2 萬元起扣，依<a href="https://www.nhi.gov.tw/" rel="noopener">衛福部中央健康保險署</a>規定；儲蓄投資特別扣除額 27 萬元依所得稅法第 17 條。</p>
+    <div class="tbl"><table>
+      <thead><tr><th>更新日期</th><th>內容</th></tr></thead>
+      <tbody>
+        <tr><td>2026/11/03</td><td>上線：整存整付、存本取息、零存整付；二代健保補充保費與扣繳提醒</td></tr>
+      </tbody>
+    </table></div>
+  </section>
+  <section>
+    <h2>常見問題</h2>
+    <details><summary>定存利息怎麼算？</summary><p>整存整付按月複利：本利和 ＝ 本金 ×（1 ＋ 年利率 ÷ 12）^月數。存本取息每月領息、本金不變：每月利息 ＝ 本金 × 年利率 ÷ 12。100 萬元、年利率 1.7%、存 1 年，整存整付利息約 17,133 元，存本取息每月約 1,417 元。</p></details>
+    <details><summary>存款利息要繳稅嗎？</summary><p>要併入綜合所得申報，但每戶有 27 萬元的儲蓄投資特別扣除額，全家存款利息（加上其他適用的利息）在 27 萬元以內，就不用為利息繳稅。</p></details>
+    <details><summary>定存利息會被扣二代健保嗎？</summary><p>單次給付的利息達 2 萬元，銀行會扣 2.11% 的二代健保補充保費；未達 2 萬元不扣。存本取息每月領息，每次金額較小，比較不容易達到門檻。</p></details>
+    <details><summary>機動利率和固定利率怎麼選？</summary><p>固定利率在存款期間不變；機動利率會跟著銀行牌告利率調整。預期利率會上升時選機動比較有利，預期會下降時選固定可以鎖住利率。</p></details>
+    <details><summary>定存提前解約會怎樣？</summary><p>提前解約通常會依實際存款期間的利率打八折計算利息，未滿 1 個月不給息，各銀行規定可能不同，請以銀行說明為準。</p></details>
+  </section>
+
+  <section>
+    <h2>其他試算工具</h2>
+    <div class="related">
+      <a href="/tools/income-tax/">所得稅試算<small>115 年度綜所稅，明年 5 月報稅用</small></a>
+      <a href="/tools/annual-leave/">特休計算機<small>輸入到職日，算出今年有幾天特休</small></a>
+      <a href="/tools/overtime/">加班費計算機<small>平日、休息日、國定假日加班費</small></a>
+      <a href="/tools/workdays/">工作天數計算<small>扣掉國定假日＋Excel NETWORKDAYS 公式</small></a>
+      <a href="/tools/insurance/">勞健保費計算機<small>勞保、健保、勞退每月扣多少</small></a>
+      <a href="/tools/take-home-pay/">薪資實領計算<small>月薪扣完勞健保、所得稅實際入帳多少</small></a>
+      <a href="/tools/severance/">資遣費計算<small>新制、舊制、新舊制併用資遣費</small></a>
+      <a href="/tools/pension/">勞退退休金試算<small>勞退專戶退休時累積多少、月領多少</small></a>
+      <a href="/tools/labor-insurance-pension/">勞保老年年金試算<small>勞保年金月領多少，加上勞退看退休月收入</small></a>
+      <a href="/tools/loan/">房貸、信貸試算<small>每月還多少、總利息、寬限期</small></a>
+      <a href="/tools/currency/">匯率換算<small>日圓、美元、韓元換台幣多少</small></a>
+      <a href="/tools/unit/">單位換算<small>坪、台斤、吋等台灣常用單位</small></a>
+      <a href="/#planner">請假計算器<small>輸入特休天數，排出最長連休</small></a>
+      <a href="/2027/qingjia/">2027 全年請假攻略<small>9 個連假一次排好</small></a>
+    </div>
+  </section>
+</main>
+
+<footer><a href="/about/">關於我們</a> · <a href="/privacy/">隱私權政策</a> · <a href="/disclosure/">聯盟連結揭露</a><br>本站試算結果僅供參考，實際金額以主管機關規定、公司制度及官方系統計算為準。</footer>
+<script src="/assets/tools/calc.js?v=8"></script>
+<script src="/assets/tools/ui.js?v=12"></script>
+</body>
+</html>

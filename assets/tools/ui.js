@@ -427,4 +427,154 @@
     lo.addEventListener("input", run); lo.addEventListener("change", run); lo.addEventListener("submit", e => { e.preventDefault(); run(); });
     run();
   }
+
+  // ---- 貸款 ----
+  const ln = $('form[data-tool="loan"]');
+  if(ln){
+    const f = ln.elements, out = $("#loanOut");
+    const ids = ["amount","rate","years","grace","method"];
+    const dec = el => Math.max(0, parseFloat(String(el.value).replace(/,/g,"")) || 0);
+    function run(){
+      save("loanForm", ids.map(k => f[k].value));
+      const amount = dec(f.amount)*10000, rate = dec(f.rate), years = Math.min(40, dec(f.years)), grace = dec(f.grace), method = f.method.value;
+      if(!amount || !years){ out.innerHTML = `<div class="note">輸入貸款金額、年利率和貸款年限，就會算出每月要繳多少。</div>`; return; }
+      if(grace >= years){ out.innerHTML = `<div class="warn">寬限期要比貸款年限短。</div>`; return; }
+      const r = C.loan({amount, rate, years, grace, method});
+      const other = C.loan({amount, rate, years, grace, method: method === "pmt" ? "principal" : "pmt"});
+      const yearRows = [];
+      for(let y = 1; (y-1)*12 < r.n; y++){
+        const part = r.rows.slice((y-1)*12, y*12);
+        yearRows.push(`<tr><td>第 ${y} 年</td><td class="num">${money(part.reduce((a,x)=>a+x.pay,0))}</td><td class="num">${money(part.reduce((a,x)=>a+x.prin,0))}</td><td class="num">${money(part.reduce((a,x)=>a+x.int,0))}</td><td class="num">${money(part[part.length-1].bal)}</td></tr>`);
+      }
+      const opened = [...out.querySelectorAll("details")].map(d => d.open);
+      out.innerHTML = `
+        <div>${r.g ? "寬限期後每月還款" : method === "pmt" ? "每月還款" : "第 1 個月還款"}</div>
+        <div class="big">${money(r.firstPay)} <small>元</small></div>
+        <dl class="kv">
+          ${r.g ? `<dt>寬限期 ${grace} 年內（只繳利息）</dt><dd>${money(r.gracePay)}</dd>` : ""}
+          ${method === "principal" ? `<dt>最後 1 個月還款</dt><dd>${money(r.lastPay)}</dd>` : ""}
+          <dt>總利息</dt><dd>${money(r.totalInt)}</dd>
+          <dt class="sum">本金＋利息合計</dt><dd class="sum">${money(r.total)}</dd>
+        </dl>
+        <div class="note">改用「${method === "pmt" ? "本金平均攤還" : "本息平均攤還"}」：${method === "pmt" ? `第 1 個月 ${money(other.firstPay)} 元，總利息 ${money(other.totalInt)} 元（少 ${money(r.totalInt - other.totalInt)} 元）` : `每月 ${money(other.firstPay)} 元，總利息 ${money(other.totalInt)} 元（多 ${money(other.totalInt - r.totalInt)} 元）`}。</div>
+        ${r.g ? `<div class="note">寬限期內本金完全沒減少，之後要用比較短的時間還完，月付金會變高，總利息也比較多。不用寬限期的總利息是 ${money(C.loan({amount, rate, years, method}).totalInt)} 元。</div>` : ""}
+        <details><summary>逐年還款明細</summary><div class="tbl"><table>
+          <thead><tr><th>年度</th><th>當年繳款</th><th>本金</th><th>利息</th><th>剩餘本金</th></tr></thead>
+          <tbody>${yearRows.join("")}</tbody></table></div></details>
+        <div class="note">假設利率全期不變。實際月付金依銀行計算方式、利率調整與手續費而定。</div>`;
+      out.querySelectorAll("details").forEach((d, i) => { if(opened[i]) d.open = true; });
+    }
+    const s = load("loanForm"); if(s){ ids.forEach((k,i) => { if(s[i] != null && s[i] !== "") f[k].value = s[i]; }); }
+    ln.addEventListener("input", run); ln.addEventListener("change", run); ln.addEventListener("submit", e => { e.preventDefault(); run(); });
+    run();
+  }
+
+  // ---- 存款利息 ----
+  const dp = $('form[data-tool="deposit"]');
+  if(dp){
+    const f = dp.elements, out = $("#depOut");
+    const ids = ["amount","rate","months","mode"];
+    const dec = el => Math.max(0, parseFloat(String(el.value).replace(/,/g,"")) || 0);
+    function run(){
+      save("depForm", ids.map(k => f[k].value));
+      const mode = f.mode.value, amount = num(f.amount), rate = dec(f.rate), months = Math.min(600, Math.round(dec(f.months)));
+      $("#depAmtLabel").firstChild.textContent = mode === "monthly" ? "每月存入金額（元）" : "存款金額（元）";
+      if(!amount || !rate || !months){ out.innerHTML = `<div class="note">輸入存款金額、年利率和存款期間，就會算出利息。</div>`; return; }
+      const r = C.deposit({amount, rate, months, mode});
+      out.innerHTML = `
+        <div>${mode === "payout" ? "每月領到利息" : "到期利息"}</div>
+        <div class="big">${money(mode === "payout" ? r.monthlyPay : r.interest)} <small>元</small></div>
+        <dl class="kv">
+          <dt>${mode === "monthly" ? `本金（${money(amount)} × ${months} 個月）` : "本金"}</dt><dd>${money(r.principal)}</dd>
+          <dt>${months} 個月利息合計</dt><dd>${money(r.interest)}</dd>
+          <dt class="sum">${mode === "payout" ? "到期領回本金" : "到期本利和"}</dt><dd class="sum">${money(mode === "payout" ? r.principal : r.total)}</dd>
+        </dl>
+        ${r.nhi ? `<div class="warn">單次領到的利息達 2 萬元，銀行會先扣 2.11% 二代健保補充保費，約 ${money(r.nhi)} 元${mode === "payout" ? `（每月扣一次，${months} 個月約 ${money(r.nhiTotal)} 元）` : ""}${r.single > C.DEP.withholdMin ? `；超過 2 萬元還會預扣 10% 所得稅約 ${money(Math.round(r.single*C.DEP.withhold))} 元，報稅時再多退少補` : ""}。</div>`
+          : `<div class="note">單次領到的利息未達 2 萬元，不扣二代健保補充保費，也不用預先扣繳所得稅。</div>`}
+        <div class="note">存款利息要併入綜合所得報稅，但每戶有 27 萬元儲蓄投資特別扣除額${r.overSaving ? "；這筆利息已超過 27 萬，超過的部分要課稅" : "，全家利息加總在 27 萬以內就不用為利息繳稅"}。</div>
+        <div class="note">以月利率＝年利率 ÷ 12 計算，各銀行的計息天數與尾數處理略有不同，實際金額以銀行為準。</div>`;
+    }
+    const s = load("depForm"); if(s){ ids.forEach((k,i) => { if(s[i] != null && s[i] !== "") f[k].value = s[i]; }); }
+    dp.addEventListener("input", run); dp.addEventListener("change", run); dp.addEventListener("submit", e => { e.preventDefault(); run(); });
+    run();
+  }
+
+  // ---- 匯率 ----
+  const fx = $('form[data-tool="fx"]');
+  if(fx){
+    const f = fx.elements, out = $("#fxOut"), info = $("#fxInfo");
+    const NAMES = {USD:"美元",JPY:"日圓",KRW:"韓元",EUR:"歐元",CNY:"人民幣",HKD:"港幣",GBP:"英鎊",AUD:"澳幣",SGD:"新加坡幣",THB:"泰銖",VND:"越南盾",MYR:"馬來西亞令吉",PHP:"菲律賓披索",CAD:"加幣",NZD:"紐西蘭幣",CHF:"瑞士法郎",IDR:"印尼盾"};
+    let rates = null;
+    const fmt = (v, d) => v.toLocaleString("zh-TW", {maximumFractionDigits:d});
+    function setRate(){ const c = f.cur.value; if(rates && rates[c]) f.rate.value = +(1/rates[c]).toPrecision(5); run(); }
+    function run(){
+      save("fxForm", [f.cur.value, f.dir.value, f.amount.value]);
+      const c = f.cur.value, rate = parseFloat(f.rate.value) || 0, amt = Math.max(0, parseFloat(String(f.amount.value).replace(/,/g,"")) || 0);
+      $("#fxRateLabel").firstChild.textContent = `匯率（1 ${NAMES[c]} ＝ ? 新台幣）`;
+      if(!rate){ out.innerHTML = `<div class="note">${rates === null ? "正在取得參考匯率…" : "請在「匯率」欄填入銀行牌告匯率。"}</div>`; return; }
+      if(!amt){ out.innerHTML = `<div class="note">輸入金額就會換算。</div>`; return; }
+      const twd = f.dir.value === "to-twd";
+      const res = twd ? amt*rate : amt/rate;
+      const examples = (twd ? [1000, 5000, 10000, 50000] : [1000, 10000, 30000, 100000]).map(v =>
+        `<dt>${fmt(v,0)} ${twd ? NAMES[c] : "新台幣"}</dt><dd>${fmt(twd ? v*rate : v/rate, 2)} ${twd ? "新台幣" : NAMES[c]}</dd>`).join("");
+      out.innerHTML = `
+        <div>${fmt(amt,2)} ${twd ? NAMES[c] : "新台幣"} 約等於</div>
+        <div class="big">${fmt(res, res < 100 ? 2 : 0)} <small>${twd ? "新台幣" : NAMES[c]}</small></div>
+        <dl class="kv">${examples}</dl>
+        <div class="note">用 1 ${NAMES[c]} ＝ ${rate} 新台幣換算。到銀行實際換匯時，買外幣用銀行的「賣出」匯率、外幣換回台幣用「買入」匯率，現金匯率的價差又比即期匯率大，金額會和這裡不同。</div>`;
+    }
+    const s = load("fxForm"); if(s){ if(s[0] && NAMES[s[0]]) f.cur.value = s[0]; if(s[1]) f.dir.value = s[1]; if(s[2]) f.amount.value = s[2]; }
+    f.cur.addEventListener("change", setRate);
+    fx.addEventListener("input", e => { if(e.target !== f.cur) run(); }); fx.addEventListener("submit", e => { e.preventDefault(); run(); });
+    $("#fxReset").addEventListener("click", setRate);
+    run();
+    fetch("https://open.er-api.com/v6/latest/TWD").then(r => r.json()).then(d => {
+      if(d.result !== "success") throw 0;
+      rates = d.rates;
+      const t = new Date(d.time_last_update_unix*1000), p2 = x => String(x).padStart(2,"0");
+      info.innerHTML = `參考匯率更新時間：${t.getFullYear()}/${t.getMonth()+1}/${t.getDate()} ${p2(t.getHours())}:${p2(t.getMinutes())}，資料來源 <a href="https://www.exchangerate-api.com" rel="noopener" target="_blank">Rates By Exchange Rate API</a>（國際市場參考價，每天更新一次，不是銀行牌告匯率）。`;
+      setRate();
+    }).catch(() => { rates = {}; info.textContent = "暫時無法取得參考匯率，請自行填入銀行牌告匯率。"; run(); });
+  }
+
+  // ---- 單位換算 ----
+  const un = $('form[data-tool="unit"]');
+  if(un){
+    const f = un.elements, out = $("#unitOut");
+    const fmt = v => { const a = Math.abs(v); return v.toLocaleString("zh-TW", {maximumFractionDigits: a >= 1000 ? 2 : a >= 1 ? 4 : 6}); };
+    function fill(from, to){
+      const names = Object.keys(C.UNITS[f.cat.value].u);
+      [f.from, f.to].forEach((sel, j) => { const want = j ? to : from; sel.innerHTML = names.map(n => `<option>${n}</option>`).join(""); sel.value = names.includes(want) ? want : names[j]; });
+    }
+    function run(){
+      const cat = f.cat.value;
+      save("unitForm", [cat, f.from.value, f.to.value, f.v.value]);
+      $("#unitPair").hidden = cat === "temp";
+      const v = parseFloat(String(f.v.value).replace(/,/g,""));
+      if(isNaN(v)){ out.innerHTML = `<div class="note">輸入數值就會換算。</div>`; return; }
+      if(cat === "temp"){
+        out.innerHTML = `<dl class="kv"><dt>${fmt(v)} °C</dt><dd>${fmt(C.cToF(v))} °F</dd><dt>${fmt(v)} °F</dt><dd>${fmt(C.fToC(v))} °C</dd></dl>
+          <div class="note">°F ＝ °C × 9/5 ＋ 32；°C ＝（°F − 32）× 5/9。</div>`; return;
+      }
+      const res = C.convertUnit(cat, v, f.from.value, f.to.value);
+      const all = Object.keys(C.UNITS[cat].u).filter(n => n !== f.from.value).map(n => `<dt>${n}</dt><dd>${fmt(C.convertUnit(cat, v, f.from.value, n))}</dd>`).join("");
+      const opened = (out.querySelector("details") || {open:true}).open;
+      out.innerHTML = `
+        <div>${fmt(v)} ${f.from.value} ＝</div>
+        <div class="big">${fmt(res)} <small>${f.to.value}</small></div>
+        <details${opened ? " open" : ""}><summary>${fmt(v)} ${f.from.value} 換算成其他單位</summary><dl class="kv">${all}</dl></details>`;
+    }
+    const s = load("unitForm");
+    if(s && (C.UNITS[s[0]] || s[0] === "temp")) f.cat.value = s[0];
+    if(f.cat.value !== "temp") fill(s && s[0] === f.cat.value ? s[1] : null, s && s[0] === f.cat.value ? s[2] : null);
+    if(s && s[3] != null && s[3] !== "") f.v.value = s[3];
+    f.cat.addEventListener("change", () => { if(f.cat.value !== "temp") fill(); run(); });
+    $("#unitSwap").addEventListener("click", () => { const a = f.from.value; f.from.value = f.to.value; f.to.value = a; run(); });
+    un.addEventListener("input", e => { if(e.target !== f.cat) run(); }); un.addEventListener("submit", e => { e.preventDefault(); run(); });
+    document.querySelectorAll("[data-unit]").forEach(b => b.addEventListener("click", () => {
+      const [cat, from, to, v] = b.dataset.unit.split("|"); f.cat.value = cat; if(cat !== "temp") fill(from, to); f.v.value = v; run();
+      un.scrollIntoView({behavior:"smooth", block:"start"});
+    }));
+    run();
+  }
 })();

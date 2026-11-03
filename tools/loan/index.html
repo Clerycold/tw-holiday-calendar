@@ -1,0 +1,263 @@
+<!doctype html>
+<html lang="zh-Hant-TW">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>房貸計算機｜貸款每月還多少、總利息多少（本息、本金攤還、寬限期）｜放假日曆</title>
+<meta name="description" content="房貸、信貸計算機：輸入貸款金額、年利率、年限與寬限期，算出本息平均攤還或本金平均攤還的每月還款、總利息與逐年還款明細，附 Excel PMT 公式。">
+<link rel="canonical" href="https://fangjiatw.com/tools/loan/">
+<meta property="og:type" content="website">
+<meta property="og:title" content="房貸計算機｜貸款每月還多少、總利息多少（本息、本金攤還、寬限期）">
+<meta property="og:description" content="房貸、信貸計算機：輸入貸款金額、年利率、年限與寬限期，算出本息平均攤還或本金平均攤還的每月還款、總利息與逐年還款明細，附 Excel PMT 公式。">
+<meta property="og:url" content="https://fangjiatw.com/tools/loan/">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@600;900&family=Noto+Sans+TC:wght@400;500;700&family=JetBrains+Mono:wght@500&display=swap">
+<link rel="stylesheet" href="/assets/site.css?v=3">
+<link rel="stylesheet" href="/assets/tools/tools.css?v=3">
+<script type="application/ld+json">
+{
+ "@context": "https://schema.org",
+ "@graph": [
+  {
+   "@type": "WebPage",
+   "name": "房貸計算機｜貸款每月還多少、總利息多少（本息、本金攤還、寬限期）",
+   "url": "https://fangjiatw.com/tools/loan/",
+   "inLanguage": "zh-Hant-TW",
+   "dateModified": "2026-11-03",
+   "publisher": {
+    "@type": "Organization",
+    "name": "放假日曆",
+    "url": "https://fangjiatw.com/"
+   }
+  },
+  {
+   "@type": "WebApplication",
+   "name": "貸款計算機",
+   "url": "https://fangjiatw.com/tools/loan/",
+   "applicationCategory": "FinanceApplication",
+   "operatingSystem": "Any",
+   "inLanguage": "zh-Hant-TW",
+   "isAccessibleForFree": true,
+   "offers": {
+    "@type": "Offer",
+    "price": "0",
+    "priceCurrency": "TWD"
+   }
+  },
+  {
+   "@type": "BreadcrumbList",
+   "itemListElement": [
+    {
+     "@type": "ListItem",
+     "position": 1,
+     "name": "放假日曆",
+     "item": "https://fangjiatw.com/"
+    },
+    {
+     "@type": "ListItem",
+     "position": 2,
+     "name": "試算工具",
+     "item": "https://fangjiatw.com/tools/"
+    },
+    {
+     "@type": "ListItem",
+     "position": 3,
+     "name": "貸款試算",
+     "item": "https://fangjiatw.com/tools/loan/"
+    }
+   ]
+  },
+  {
+   "@type": "FAQPage",
+   "mainEntity": [
+    {
+     "@type": "Question",
+     "name": "本息平均攤還和本金平均攤還哪個比較划算？",
+     "acceptedAnswer": {
+      "@type": "Answer",
+      "text": "本金平均攤還的總利息比較少，因為本金還得比較快；但前期每月要繳的錢比較多。本息平均攤還每月金額固定、前期壓力小，是多數人選的方式。總利息相差多少，可以在上方工具切換比較。"
+     }
+    },
+    {
+     "@type": "Question",
+     "name": "寬限期要不要用？",
+     "acceptedAnswer": {
+      "@type": "Answer",
+      "text": "寬限期內只繳利息、本金不會減少，寬限期結束後要用比較短的時間還完本金，月付金會明顯變高，總利息也比較多。除非前幾年確實有資金壓力，否則不建議為了月付金低而使用。"
+     }
+    },
+    {
+     "@type": "Question",
+     "name": "房貸月付金占收入多少比較安全？",
+     "acceptedAnswer": {
+      "@type": "Answer",
+      "text": "常見的參考是每月房貸不超過家庭月收入的三分之一，銀行審核時也會看負債比。這只是參考，還要考慮其他貸款、生活費和緊急預備金。"
+     }
+    },
+    {
+     "@type": "Question",
+     "name": "信貸也可以用這個工具算嗎？",
+     "acceptedAnswer": {
+      "@type": "Answer",
+      "text": "可以。信用貸款大多是本息平均攤還、沒有寬限期，輸入貸款金額、年利率和年限就能算出月付金。信貸常有開辦費等費用，比較方案時要看總費用年百分率。"
+     }
+    },
+    {
+     "@type": "Question",
+     "name": "利率調整後月付金會變嗎？",
+     "acceptedAnswer": {
+      "@type": "Answer",
+      "text": "會。房貸多是機動利率，跟著銀行指數利率調整，月付金會依剩餘本金和剩餘期數重新計算。本工具假設利率全期不變，利率變動時可以用剩餘本金和剩餘年限重新試算。"
+     }
+    }
+   ]
+  }
+ ]
+}
+</script>
+</head>
+<body>
+<header class="top">
+  <a class="logo" href="/">放假<span>日曆</span></a>
+  <nav><a href="/#planner">請假計算器</a><a href="/tools/">試算工具</a><a href="/concert/">演唱會住宿</a><a href="/#calendar">全年行事曆</a></nav>
+</header>
+
+<main class="article">
+  <div>
+    <div class="crumb"><a href="/">放假日曆</a> › <a href="/tools/">試算工具</a> › 貸款試算</div>
+    <h1>房貸、信貸試算<br>每月要還多少？總利息多少？</h1>
+    <div class="meta">更新日期：2026 年 11 月 3 日</div>
+  </div>
+
+  <div class="answer">貸款 1,000 萬、年利率 2.2%、30 年，本息平均攤還每月約 <b>37,970 元</b>，30 年總利息約 <b>367 萬元</b>。改用本金平均攤還，總利息約 331 萬元，但第 1 個月要繳 46,111 元。</div>
+
+  <section>
+    <h2>貸款試算</h2>
+    <form class="tool" data-tool="loan" autocomplete="off">
+      <div class="fields">
+        <label class="field">貸款金額（萬元）<input name="amount" inputmode="decimal" placeholder="例如 1000"></label>
+        <label class="field">年利率（%）<input name="rate" inputmode="decimal" placeholder="例如 2.2"></label>
+        <label class="field">貸款年限（年）<input name="years" inputmode="numeric" value="30"></label>
+        <label class="field">寬限期（年，沒有填 0）<input name="grace" inputmode="numeric" value="0"></label>
+        <label class="field">還款方式<select name="method"><option value="pmt">本息平均攤還（每月金額固定）</option><option value="principal">本金平均攤還（每月本金固定）</option></select></label>
+      </div>
+      <div class="result" id="loanOut" aria-live="polite"></div>
+    </form>
+    <p class="note" style="margin-top:8px">利率請填銀行核貸的年利率；以月利率＝年利率 ÷ 12 計算。計算都在你的瀏覽器裡完成。</p>
+  </section>
+
+  <div class="ad">廣告版位 336×280</div>
+
+  <section>
+    <h2>房貸每月還多少？金額對照表</h2>
+    <p>以年利率 2.2%、本息平均攤還、沒有寬限期為例（單位：元／月）：</p>
+    <div class="tbl"><table>
+      <thead><tr><th>貸款金額</th><th>20 年</th><th>30 年</th><th>40 年</th></tr></thead>
+      <tbody>
+        <tr><td>300 萬</td><td class="num">15,462</td><td class="num">11,391</td><td class="num">9,404</td></tr>
+        <tr><td>500 萬</td><td class="num">25,770</td><td class="num">18,985</td><td class="num">15,673</td></tr>
+        <tr><td>800 萬</td><td class="num">41,233</td><td class="num">30,376</td><td class="num">25,076</td></tr>
+        <tr><td>1,000 萬</td><td class="num">51,541</td><td class="num">37,970</td><td class="num">31,345</td></tr>
+        <tr><td>1,500 萬</td><td class="num">77,311</td><td class="num">56,955</td><td class="num">47,018</td></tr>
+        <tr><td>2,000 萬</td><td class="num">103,082</td><td class="num">75,940</td><td class="num">62,691</td></tr>
+      </tbody>
+    </table></div>
+    <p class="note" style="margin-top:8px">2.2% 只是舉例，實際利率依銀行、貸款方案和個人條件而定，請把你的利率填進上方工具計算。</p>
+  </section>
+
+  <section>
+    <h2>本息平均攤還和本金平均攤還差在哪？</h2>
+    <div class="tbl"><table>
+      <thead><tr><th></th><th>本息平均攤還</th><th>本金平均攤還</th></tr></thead>
+      <tbody>
+        <tr><td>每月還款</td><td>每月固定</td><td>第 1 個月最高，之後逐月減少</td></tr>
+        <tr><td>前期壓力</td><td>較小</td><td>較大</td></tr>
+        <tr><td>總利息</td><td>較多</td><td>較少</td></tr>
+        <tr><td>1,000 萬・2.2%・30 年</td><td>每月 37,970，總利息 367 萬</td><td>首月 46,111、末月 27,829，總利息 331 萬</td></tr>
+      </tbody>
+    </table></div>
+    <p style="margin-top:12px">本息平均攤還前期繳的錢大多是利息，本金減少得慢；本金平均攤還每月固定還一樣多的本金，本金減少得快，所以總利息比較少。</p>
+  </section>
+
+  <section>
+    <h2>寬限期是什麼？用了會多付多少？</h2>
+    <p>寬限期內每月只繳利息、不還本金。以 1,000 萬、2.2%、30 年、寬限期 3 年為例：</p>
+    <dl class="kv" style="max-width:520px">
+      <dt>前 3 年每月（只繳利息）</dt><dd>18,333 元</dd>
+      <dt>第 4 年起每月</dt><dd>40,961 元</dd>
+      <dt>總利息</dt><dd>3,931,215 元</dd>
+      <dt>不用寬限期的總利息</dt><dd>3,669,230 元</dd>
+    </dl>
+    <p style="margin-top:12px">寬限期結束後，月付金從 18,333 元跳到 40,961 元，比不用寬限期還高。申請前要先確認寬限期後的月付金負擔得起。</p>
+  </section>
+
+  <section>
+    <h2>月收入多少可以貸多少？</h2>
+    <p>常見的參考是房貸月付金不超過家庭月收入的三分之一。以這個比例、年利率 2.2%、30 年本息平均攤還推算：</p>
+    <div class="tbl"><table>
+      <thead><tr><th>家庭月收入</th><th>月付金上限（1/3）</th><th>約可貸金額</th></tr></thead>
+      <tbody>
+        <tr><td>40,000</td><td class="num">13,333</td><td class="num">約 351 萬</td></tr>
+        <tr><td>60,000</td><td class="num">20,000</td><td class="num">約 527 萬</td></tr>
+        <tr><td>80,000</td><td class="num">26,667</td><td class="num">約 702 萬</td></tr>
+        <tr><td>100,000</td><td class="num">33,333</td><td class="num">約 878 萬</td></tr>
+        <tr><td>150,000</td><td class="num">50,000</td><td class="num">約 1,317 萬</td></tr>
+      </tbody>
+    </table></div>
+    <p class="note" style="margin-top:8px">實際可貸金額還要看房屋鑑價、貸款成數、信用紀錄和其他負債，以銀行核貸為準。</p>
+  </section>
+
+  <section>
+    <h2>用 Excel 算月付金</h2>
+    <p>貸款金額在 B1、年利率在 B2（填 2.2%）、年限在 B3，本息平均攤還每月還款：</p>
+    <div class="formula"><code id="pmtFormula">=PMT(B2/12,B3*12,-B1)</code><button type="button" class="copy" data-copy="pmtFormula">複製</button></div>
+    <p style="margin-top:12px">全期總利息（本息平均攤還）：</p>
+    <div class="formula"><code id="ipmtFormula">=PMT(B2/12,B3*12,-B1)*B3*12-B1</code><button type="button" class="copy" data-copy="ipmtFormula">複製</button></div>
+    <p style="margin-top:12px">第 n 個月的利息和本金可以用 <code>IPMT</code>、<code>PPMT</code>，例如第 1 個月利息 <code>=IPMT(B2/12,1,B3*12,-B1)</code>。</p>
+  </section>
+
+  <section>
+    <h2>計算依據與更新紀錄</h2>
+    <p>本息平均攤還依年金現值公式：月付金 ＝ 貸款金額 × 月利率 ÷ [1 −（1 ＋ 月利率）^−期數]，與 Excel PMT 函數相同；本金平均攤還每月本金 ＝ 貸款金額 ÷ 期數，利息依剩餘本金計算。</p>
+    <div class="tbl"><table>
+      <thead><tr><th>更新日期</th><th>內容</th></tr></thead>
+      <tbody>
+        <tr><td>2026/11/03</td><td>上線：本息平均攤還、本金平均攤還、寬限期、逐年還款明細</td></tr>
+      </tbody>
+    </table></div>
+  </section>
+  <section>
+    <h2>常見問題</h2>
+    <details><summary>本息平均攤還和本金平均攤還哪個比較划算？</summary><p>本金平均攤還的總利息比較少，因為本金還得比較快；但前期每月要繳的錢比較多。本息平均攤還每月金額固定、前期壓力小，是多數人選的方式。總利息相差多少，可以在上方工具切換比較。</p></details>
+    <details><summary>寬限期要不要用？</summary><p>寬限期內只繳利息、本金不會減少，寬限期結束後要用比較短的時間還完本金，月付金會明顯變高，總利息也比較多。除非前幾年確實有資金壓力，否則不建議為了月付金低而使用。</p></details>
+    <details><summary>房貸月付金占收入多少比較安全？</summary><p>常見的參考是每月房貸不超過家庭月收入的三分之一，銀行審核時也會看負債比。這只是參考，還要考慮其他貸款、生活費和緊急預備金。</p></details>
+    <details><summary>信貸也可以用這個工具算嗎？</summary><p>可以。信用貸款大多是本息平均攤還、沒有寬限期，輸入貸款金額、年利率和年限就能算出月付金。信貸常有開辦費等費用，比較方案時要看總費用年百分率。</p></details>
+    <details><summary>利率調整後月付金會變嗎？</summary><p>會。房貸多是機動利率，跟著銀行指數利率調整，月付金會依剩餘本金和剩餘期數重新計算。本工具假設利率全期不變，利率變動時可以用剩餘本金和剩餘年限重新試算。</p></details>
+  </section>
+
+  <section>
+    <h2>其他試算工具</h2>
+    <div class="related">
+      <a href="/tools/income-tax/">所得稅試算<small>115 年度綜所稅，明年 5 月報稅用</small></a>
+      <a href="/tools/annual-leave/">特休計算機<small>輸入到職日，算出今年有幾天特休</small></a>
+      <a href="/tools/overtime/">加班費計算機<small>平日、休息日、國定假日加班費</small></a>
+      <a href="/tools/workdays/">工作天數計算<small>扣掉國定假日＋Excel NETWORKDAYS 公式</small></a>
+      <a href="/tools/insurance/">勞健保費計算機<small>勞保、健保、勞退每月扣多少</small></a>
+      <a href="/tools/take-home-pay/">薪資實領計算<small>月薪扣完勞健保、所得稅實際入帳多少</small></a>
+      <a href="/tools/severance/">資遣費計算<small>新制、舊制、新舊制併用資遣費</small></a>
+      <a href="/tools/pension/">勞退退休金試算<small>勞退專戶退休時累積多少、月領多少</small></a>
+      <a href="/tools/labor-insurance-pension/">勞保老年年金試算<small>勞保年金月領多少，加上勞退看退休月收入</small></a>
+      <a href="/tools/interest/">存款利息計算<small>定存、存本取息、零存整付利息</small></a>
+      <a href="/tools/currency/">匯率換算<small>日圓、美元、韓元換台幣多少</small></a>
+      <a href="/tools/unit/">單位換算<small>坪、台斤、吋等台灣常用單位</small></a>
+      <a href="/#planner">請假計算器<small>輸入特休天數，排出最長連休</small></a>
+      <a href="/2027/qingjia/">2027 全年請假攻略<small>9 個連假一次排好</small></a>
+    </div>
+  </section>
+</main>
+
+<footer><a href="/about/">關於我們</a> · <a href="/privacy/">隱私權政策</a> · <a href="/disclosure/">聯盟連結揭露</a><br>本站試算結果僅供參考，實際金額以主管機關規定、公司制度及官方系統計算為準。</footer>
+<script src="/assets/tools/calc.js?v=8"></script>
+<script src="/assets/tools/ui.js?v=12"></script>
+</body>
+</html>

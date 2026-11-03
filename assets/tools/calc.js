@@ -317,6 +317,52 @@
   }
   const weekdayHolidays = () => Object.keys(TW_HOL).filter(k => !isWeekend(new Date(k+"T00:00")));
 
-  const api = {TAX115, INS115, PAY115, SEV115, LOA, legalAge, laborOldAge, laborIns, netPay, severance, monthsBetween, PEN, pension, annuityFactor, penLife, taxOf, rateOf, incomeTax, annualLeave, calendarYearLeave, leaveDaysForYears, overtime, TW_HOL, workdays, addWorkdays, weekdayHolidays, key};
+  // ---- 貸款（房貸、信貸）----
+  // method: "pmt" 本息平均攤還、"principal" 本金平均攤還；grace 寬限期年數（只繳利息）。
+  function loan({amount, rate, years, grace = 0, method = "pmt"}){
+    const n = Math.round(years*12), g = Math.min(Math.round(grace*12), Math.max(0, n-1)), m = n - g, i = rate/100/12;
+    const pmt = P => i ? P*i/(1 - Math.pow(1+i, -m)) : P/m;
+    const rows = []; let bal = amount, totalInt = 0;
+    for(let k = 1; k <= n; k++){
+      const int = bal*i; let prin = 0;
+      if(k > g) prin = method === "principal" ? amount/m : (k === n ? bal : pmt(amount) - int);
+      if(k === n) prin = bal;
+      bal = Math.max(0, bal - prin); totalInt += int;
+      rows.push({k, pay:int+prin, int, prin, bal});
+    }
+    const first = rows[g] || rows[0];
+    return {n, g, m, rows, totalInt, total:amount+totalInt,
+      gracePay: g ? rows[0].pay : 0, firstPay:first.pay, lastPay:rows[n-1].pay};
+  }
+  // 依每月可負擔金額反推可貸額度（本息平均攤還、無寬限期）
+  const loanCap = (monthly, rate, years) => { const i = rate/100/12, n = years*12; return i ? monthly*(1 - Math.pow(1+i, -n))/i : monthly*n; };
+
+  // ---- 存款利息 ----
+  // mode: "payout" 存本取息（每月領息、單利）、"compound" 整存整付（按月複利）、"monthly" 零存整付（每月存入、按月複利）
+  const DEP = {nhi:.0211, nhiMin:20000, saving:270000, withhold:.10, withholdMin:20000};
+  function deposit({amount, rate, months, mode = "compound"}){
+    const i = rate/100/12; let interest, principal;
+    if(mode === "payout"){ principal = amount; interest = Math.round(amount*i)*months; }
+    else if(mode === "monthly"){ principal = amount*months; interest = i ? Math.round(amount*(1+i)*(Math.pow(1+i, months) - 1)/i) - principal : 0; }
+    else { principal = amount; interest = Math.round(amount*Math.pow(1+i, months) - amount); }
+    const monthlyPay = mode === "payout" ? Math.round(amount*i) : 0;
+    // 二代健保補充保費、扣繳以「單次給付」判斷：存本取息每月給付一次，其餘到期一次給付
+    const single = mode === "payout" ? monthlyPay : interest;
+    const nhi = single >= DEP.nhiMin ? Math.round(single*DEP.nhi) : 0;
+    return {principal, interest, total:principal+interest, monthlyPay, single, nhi,
+      nhiTotal: mode === "payout" ? nhi*months : nhi, overSaving: interest > DEP.saving};
+  }
+
+  // ---- 單位換算（台灣常用）----
+  const UNITS = {
+    area:{label:"面積", base:"平方公尺", u:{"坪":400/121, "平方公尺":1, "平方公分":1e-4, "平方英尺":0.09290304, "公畝":100, "公頃":10000, "甲":2934*400/121, "分（地）":293.4*400/121}},
+    weight:{label:"重量", base:"公克", u:{"台斤":600, "兩":37.5, "錢":3.75, "公斤":1000, "公克":1, "磅":453.59237, "盎司":28.349523125}},
+    length:{label:"長度", base:"公分", u:{"公分":1, "公尺":100, "公里":100000, "毫米":0.1, "吋":2.54, "英尺":30.48, "碼":91.44, "英里":160934.4, "台尺":1000/33}},
+    volume:{label:"容量", base:"毫升", u:{"毫升":1, "公升":1000, "立方公尺":1e6, "美制加侖":3785.411784, "美制液量盎司":29.5735295625, "杯（240 毫升）":240}},
+  };
+  const convertUnit = (cat, v, from, to) => v*UNITS[cat].u[from]/UNITS[cat].u[to];
+  const cToF = c => c*9/5 + 32, fToC = f => (f - 32)*5/9;
+
+  const api = {TAX115, INS115, PAY115, SEV115, LOA, legalAge, laborOldAge, laborIns, netPay, severance, monthsBetween, PEN, pension, annuityFactor, penLife, taxOf, rateOf, incomeTax, annualLeave, calendarYearLeave, leaveDaysForYears, overtime, TW_HOL, workdays, addWorkdays, weekdayHolidays, key, loan, loanCap, DEP, deposit, UNITS, convertUnit, cToF, fToC};
   if(typeof module !== "undefined") module.exports = api; else root.Calc = api;
 })(this);
