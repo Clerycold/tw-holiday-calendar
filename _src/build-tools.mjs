@@ -65,8 +65,8 @@ ${path === "/tools/" ? "" : related(path)}
 </main>
 
 <footer><a href="/about/">關於我們</a> · <a href="/privacy/">隱私權政策</a> · <a href="/disclosure/">聯盟連結揭露</a><br>${disclaimer || "本站試算結果僅供參考，實際金額以主管機關規定、公司制度及官方系統計算為準。"}</footer>
-${scripts ? `<script src="/assets/tools/calc.js?v=10"></script>
-<script src="/assets/tools/ui.js?v=15"></script>` : ""}
+${scripts ? `<script src="/assets/tools/calc.js?v=11"></script>
+<script src="/assets/tools/ui.js?v=16"></script>` : ""}
 </body>
 </html>
 `;
@@ -1692,53 +1692,80 @@ const fxPage = page({
 
 // ---------------- 單位換算 ----------------
 const U = INS.UNITS, cv = INS.convertUnit, r2 = (v, d = 2) => (Math.round(v * 10 ** d) / 10 ** d).toLocaleString();
-const pingRows = [10, 15, 20, 25, 30, 35, 40, 50, 60].map(p => `        <tr><td>${p} 坪</td><td class="num">${r2(cv("area", p, "坪", "平方公尺"))}</td></tr>`).join("\n");
-const sqmRows = [30, 50, 66, 80, 100, 120, 150].map(m => `        <tr><td>${m} 平方公尺</td><td class="num">${r2(cv("area", m, "平方公尺", "坪"))}</td></tr>`).join("\n");
-const jinRows = [0.5, 1, 2, 3, 5, 10].map(j => `        <tr><td>${j} 台斤</td><td class="num">${r2(cv("weight", j, "台斤", "公斤"), 3)}</td><td class="num">${r2(cv("weight", j, "台斤", "兩"), 1)}</td></tr>`).join("\n");
-const inchRows = [13, 15.6, 24, 27, 32, 43, 55, 65, 75].map(i => `        <tr><td>${i} 吋</td><td class="num">${r2(cv("length", i, "吋", "公分"), 1)}</td></tr>`).join("\n");
+const M2 = "平方公尺（m²）";
+const pingRows = [10, 15, 20, 25, 30, 35, 40, 50, 60].map(p => `        <tr><td>${p} 坪</td><td class="num">${r2(cv("area", p, "坪", M2))}</td></tr>`).join("\n");
+const sqmRows = [30, 50, 66, 80, 100, 120, 150].map(m => `        <tr><td>${m} 平方公尺</td><td class="num">${r2(cv("area", m, M2, "坪"))}</td></tr>`).join("\n");
+const landRows = [["1 分", "分（土地）"], ["1 甲", "甲"], ["1 公頃", "公頃（ha）"], ["1 英畝", "英畝（acre）"]].map(([l, u]) => `        <tr><td>${l}</td><td class="num">${r2(cv("area", 1, u, "坪"), 1)}</td><td class="num">${r2(cv("area", 1, u, M2), 1)}</td></tr>`).join("\n");
+const jinRows = [0.5, 1, 2, 3, 5, 10].map(j => `        <tr><td>${j} 台斤</td><td class="num">${r2(cv("weight", j, "台斤", "公斤（kg）"), 3)}</td><td class="num">${r2(cv("weight", j, "台斤", "台兩"), 1)}</td></tr>`).join("\n");
+const qianRows = [1, 5, 10, 37.5].map(q => `        <tr><td>${q} 台錢</td><td class="num">${r2(cv("weight", q, "台錢", "公克（g）"), 3)}</td><td class="num">${r2(cv("weight", q, "台錢", "台兩"), 3)}</td></tr>`).join("\n");
+const lbRows = [1, 2, 5, 10, 50].map(l => `        <tr><td>${l} 磅</td><td class="num">${r2(cv("weight", l, "磅（lb）", "公斤（kg）"), 3)}</td></tr>`).join("\n");
+const chiRows = [[1, "台寸"], [1, "台尺"], [3, "台尺"], [6, "台尺"], [10, "台尺"]].map(([n, u]) => `        <tr><td>${n} ${u}</td><td class="num">${r2(cv("length", n, u, "公分（cm）"), 2)}</td></tr>`).join("\n");
+const inchRows = [13, 15.6, 24, 27, 32, 43, 55, 65, 75].map(i => `        <tr><td>${i} 吋</td><td class="num">${r2(cv("length", i, "英吋（in）", "公分（cm）"), 1)}</td><td class="num">${r2(i * 2.54 * 16 / Math.sqrt(337), 1)} × ${r2(i * 2.54 * 9 / Math.sqrt(337), 1)}</td></tr>`).join("\n");
+const volRows = [["1 公升", "公升（L）"], ["1 杯", "杯（240 ml）"], ["1 大匙", "大匙（湯匙）"], ["1 小匙", "小匙（茶匙）"], ["1 美制加侖", "美制加侖（gal）"], ["1 台斗", "台斗"]].map(([l, u]) => `        <tr><td>${l}</td><td class="num">${r2(cv("volume", 1, u, "cc"), 1)} cc</td></tr>`).join("\n");
+const diskRows = [["256 GB", 256, "GB", "GiB"], ["512 GB", 512, "GB", "GiB"], ["1 TB", 1, "TB", "GiB"], ["2 TB", 2, "TB", "GiB"], ["4 TB", 4, "TB", "TiB"]].map(([l, n, a, b]) => `        <tr><td>${l}</td><td class="num">${r2(cv("data", n, a, b), 1)} ${b}</td></tr>`).join("\n");
 const qb = (label, v) => `<button type="button" class="copy" data-unit="${v}" style="padding:8px 12px">${label}</button>`;
 const unitFaq = [
   ["1 坪等於幾平方公尺？", "1 坪 ＝ 400/121 平方公尺，約 3.3058 平方公尺；1 平方公尺約 0.3025 坪。換算時用「平方公尺 × 0.3025」就能快速得到坪數。"],
-  ["1 台斤是幾公斤？", "1 台斤 ＝ 600 公克 ＝ 0.6 公斤，1 台斤 ＝ 16 兩，1 兩 ＝ 37.5 公克。傳統市場、菜市場常用台斤計價。"],
-  ["電視 55 吋是多大？", "電視、螢幕的吋數指的是螢幕對角線長度。1 吋 ＝ 2.54 公分，55 吋約 139.7 公分；16:9 的 55 吋電視，畫面寬約 121.8 公分、高約 68.5 公分。"],
-  ["權狀坪數和室內坪數一樣嗎？", "不一樣。權狀坪數包含主建物、附屬建物（陽台等）和公共設施的持分，實際室內使用的坪數會比較小。看房時要問清楚公設比。"],
-  ["攝氏和華氏怎麼換算？", "°F ＝ °C × 9/5 ＋ 32，°C ＝（°F − 32）× 5/9。例如體溫 37°C 約 98.6°F，美國天氣預報的 77°F 是 25°C。"],
+  ["1 甲幾坪？1 分地幾坪？", "1 甲 ＝ 2,934 坪，約 9,699.17 平方公尺（0.97 公頃）；1 分 ＝ 1/10 甲 ＝ 293.4 坪，約 969.92 平方公尺。農地買賣常用甲、分，但地政登記使用平方公尺。"],
+  ["1 台斤是幾公斤？", "1 台斤 ＝ 600 公克 ＝ 0.6 公斤，1 台斤 ＝ 16 台兩，1 台兩 ＝ 37.5 公克。中國大陸的「斤」是 500 公克，和台斤不同。"],
+  ["1 台錢是幾公克？", "1 台錢 ＝ 3.75 公克，10 台錢 ＝ 1 台兩 ＝ 37.5 公克。銀樓買賣黃金常用台錢計價。"],
+  ["1 台尺是幾公分？", "1 台尺 ＝ 10/33 公尺，約 30.30 公分；1 台寸 ＝ 1/10 台尺，約 3.03 公分。裝潢、木工、系統櫃常用台尺報價。"],
+  ["1 公升是幾 cc？", "1 公升 ＝ 1,000 毫升 ＝ 1,000 cc，cc（立方公分）和毫升是一樣的。料理常用的 1 大匙 ＝ 15 cc、1 小匙 ＝ 5 cc。"],
+  ["1 磅是幾公斤？", "1 磅 ＝ 453.59237 公克，約 0.4536 公斤；1 公斤約 2.2046 磅。1 盎司 ＝ 1/16 磅，約 28.35 公克。"],
+  ["1 TB 硬碟為什麼電腦只顯示 931 GB？", "硬碟廠商用 1,000 進位，1 TB ＝ 1,000,000,000,000 Byte；Windows 用 1,024 進位計算，卻仍標成 GB，其實是 GiB。1 TB ÷ 1,024³ ≈ 931 GiB，容量沒有變少，只是算法不同。"],
+  ["電視 55 吋是多大？", "電視、螢幕的吋數是螢幕可視區域的對角線長度，不包含邊框。1 吋 ＝ 2.54 公分，55 吋約 139.7 公分；16:9 的 55 吋電視，畫面寬約 121.8 公分、高約 68.5 公分，機身還要再加上邊框。"],
+  ["攝氏、華氏、克氏怎麼換算？", "°F ＝ °C × 9/5 ＋ 32，°C ＝（°F − 32）× 5/9，K ＝ °C ＋ 273.15。例如體溫 37°C 約 98.6°F，美國天氣預報的 77°F 是 25°C。"],
 ];
 const unitPage = page({
-  path: "/tools/unit/", crumb: "單位換算", updated: NEW,
-  title: "單位換算｜坪、平方公尺、台斤、公斤、吋、公分換算（台灣常用單位）",
-  h1: "單位換算<br>坪、台斤、吋換算一次搞定",
-  desc: "台灣常用單位換算：坪與平方公尺、台斤與公斤、兩、吋與公分、英尺、加侖、攝氏華氏一鍵換算，附坪數對照表、台斤對照表、電視吋數對照表與 Excel 公式。",
-  faq: unitFaq, app: "單位換算",
+  path: "/tools/unit/", crumb: "單位換算", updated: "2026-11-04",
+  title: "單位換算器｜坪數、台斤、台尺、吋、公分、公斤、容量、溫度快速換算",
+  h1: "單位換算<br>坪數、台斤、台尺、吋、容量快速換算",
+  desc: "免費線上單位換算工具，支援坪數、平方公尺、甲、台斤、台錢、公斤、台尺、吋、公分、cc、公升、溫度與資料容量（GB、GiB）換算。輸入數值即可同時看到所有單位，適合買房、買菜、裝潢與日常生活使用。",
+  faq: unitFaq, app: "單位換算器",
   body: `
-  <div class="answer"><b>1 坪 ≈ 3.3058 平方公尺</b>（1 平方公尺 ≈ 0.3025 坪）；<b>1 台斤 ＝ 600 公克</b> ＝ 16 兩；<b>1 吋 ＝ 2.54 公分</b>。選擇類別、輸入數值，就會換算成所有常用單位。</div>
+  <div class="answer"><b>1 坪 ≈ 3.3058 平方公尺</b>（1 平方公尺 ≈ 0.3025 坪）；<b>1 台斤 ＝ 600 公克</b> ＝ 16 台兩；<b>1 台尺 ≈ 30.30 公分</b>；<b>1 吋 ＝ 2.54 公分</b>；<b>1 公升 ＝ 1,000 cc</b>。選擇類別、輸入數值，就會同時換算成所有常用單位。</div>
 
   <section>
     <h2>單位換算</h2>
-    <form class="tool" data-tool="unit" autocomplete="off">
+    <form class="tool" data-tool="unit" autocomplete="off" novalidate>
       <div class="fields">
-        <label class="field">類別<select name="cat">${Object.entries(U).map(([k, v]) => `<option value="${k}">${v.label}</option>`).join("")}<option value="temp">溫度</option></select></label>
+        <label class="field">類別<select name="cat">${Object.entries(U).map(([k, v]) => `<option value="${k}">${v.label}</option>`).join("")}</select></label>
         <label class="field">數值<input name="v" inputmode="decimal" value="30"></label>
-      </div>
-      <div class="fields" id="unitPair">
         <label class="field">從<select name="from"></select></label>
         <label class="field">換成<select name="to"></select></label>
+        <label class="field">顯示位數<select name="prec"><option value="auto">自動</option><option value="2">小數點後 2 位</option><option value="4">小數點後 4 位</option><option value="6">小數點後 6 位</option></select></label>
       </div>
       <div style="display:flex;gap:8px;flex-wrap:wrap">
         <button type="button" class="copy" id="unitSwap" style="padding:8px 12px">⇄ 對調單位</button>
-        ${qb("坪 → 平方公尺", "area|坪|平方公尺|30")}
-        ${qb("台斤 → 公斤", "weight|台斤|公斤|1")}
-        ${qb("吋 → 公分", "length|吋|公分|55")}
-        ${qb("攝氏 ⇄ 華氏", "temp|||37")}
+        <button type="button" class="copy" id="unitClear" style="padding:8px 12px">清除數值</button>
       </div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center" id="unitHist"></div>
       <div class="result" id="unitOut" aria-live="polite"></div>
     </form>
+    <p class="note" style="margin-top:8px">「顯示位數」只影響畫面顯示，計算時一律使用完整精度，不會先四捨五入再換算。</p>
+  </section>
+
+  <section>
+    <h2>常用換算快速入口</h2>
+    <div style="display:flex;gap:8px;flex-wrap:wrap">
+      ${qb("30 坪等於幾平方公尺？", `area|坪|${M2}|30`)}
+      ${qb("100 平方公尺等於幾坪？", `area|${M2}|坪|100`)}
+      ${qb("1 甲等於幾坪？", "area|甲|坪|1")}
+      ${qb("1 台斤等於幾公斤？", "weight|台斤|公斤（kg）|1")}
+      ${qb("1 台錢等於幾公克？", "weight|台錢|公克（g）|1")}
+      ${qb("1 台尺等於幾公分？", "length|台尺|公分（cm）|1")}
+      ${qb("55 吋等於幾公分？", "length|英吋（in）|公分（cm）|55")}
+      ${qb("1 公升等於幾 cc？", "volume|公升（L）|cc|1")}
+      ${qb("1 磅等於幾公斤？", "weight|磅（lb）|公斤（kg）|1")}
+      ${qb("1 TB 等於幾 GiB？", "data|TB|GiB|1")}
+      ${qb("37°C 等於幾 °F？", "temp|攝氏（°C）|華氏（°F）|37")}
+    </div>
   </section>
 
   <div class="ad">廣告版位 336×280</div>
 
   <section>
-    <h2>坪數換算對照表</h2>
+    <h2>坪數換算：1 坪幾平方公尺？</h2>
     <div class="tbl"><table>
       <thead><tr><th>坪</th><th>平方公尺</th></tr></thead>
       <tbody>
@@ -1751,46 +1778,123 @@ ${pingRows}
 ${sqmRows}
       </tbody>
     </table></div>
-    <p style="margin-top:12px">1 坪是邊長 6 台尺的正方形，1 台尺 ＝ 10/33 公尺，所以 1 坪 ＝（60/33）² ＝ 400/121 平方公尺。土地常用的 1 甲 ＝ 2,934 坪，約 0.97 公頃。</p>
+    <p style="margin-top:12px">1 坪是邊長 6 台尺的正方形，1 台尺 ＝ 10/33 公尺，所以 1 坪 ＝（60/33）² ＝ 400/121 平方公尺。買房看的權狀坪數包含主建物、附屬建物和公共設施持分，室內實際使用的坪數會比較小。</p>
   </section>
 
   <section>
-    <h2>台斤、兩、公斤對照表</h2>
+    <h2>土地面積：1 甲幾坪？</h2>
     <div class="tbl"><table>
-      <thead><tr><th>台斤</th><th>公斤</th><th>兩</th></tr></thead>
+      <thead><tr><th>單位</th><th>坪</th><th>平方公尺</th></tr></thead>
+      <tbody>
+${landRows}
+      </tbody>
+    </table></div>
+    <p class="note" style="margin-top:8px">1 甲 ＝ 10 分 ＝ 2,934 坪。農地買賣常用甲、分，地政登記則使用平方公尺。</p>
+  </section>
+
+  <section>
+    <h2>重量：台斤、台兩、台錢、公斤、磅</h2>
+    <div class="tbl"><table>
+      <thead><tr><th>台斤</th><th>公斤</th><th>台兩</th></tr></thead>
       <tbody>
 ${jinRows}
       </tbody>
     </table></div>
-    <p style="margin-top:12px">1 台斤 ＝ 16 兩 ＝ 600 公克，1 兩 ＝ 10 錢 ＝ 37.5 公克。中國大陸的「斤」是 500 公克，和台斤不同。</p>
+    <p style="margin-top:12px">1 台斤 ＝ 16 台兩 ＝ 600 公克，1 台兩 ＝ 10 台錢 ＝ 37.5 公克。中國大陸的「斤」是 500 公克，和台斤不同。</p>
+    <h3 style="margin:16px 0 8px">黃金常用的台錢</h3>
+    <div class="tbl"><table>
+      <thead><tr><th>台錢</th><th>公克</th><th>台兩</th></tr></thead>
+      <tbody>
+${qianRows}
+      </tbody>
+    </table></div>
+    <h3 style="margin:16px 0 8px">國外商品常用的磅</h3>
+    <div class="tbl"><table>
+      <thead><tr><th>磅</th><th>公斤</th></tr></thead>
+      <tbody>
+${lbRows}
+      </tbody>
+    </table></div>
+  </section>
+
+  <section>
+    <h2>長度：台尺、台寸、公分</h2>
+    <div class="tbl"><table>
+      <thead><tr><th>台尺／台寸</th><th>公分</th></tr></thead>
+      <tbody>
+${chiRows}
+      </tbody>
+    </table></div>
+    <p style="margin-top:12px">1 台尺 ＝ 10 台寸 ＝ 10/33 公尺，約 30.30 公分。裝潢、木工和系統櫃常用台尺報價，例如「衣櫃寬 6 尺」約 181.8 公分。</p>
   </section>
 
   <section>
     <h2>螢幕吋數換算公分</h2>
     <div class="tbl"><table>
-      <thead><tr><th>吋數（對角線）</th><th>公分</th></tr></thead>
+      <thead><tr><th>吋數（對角線）</th><th>公分</th><th>16:9 畫面寬 × 高（公分）</th></tr></thead>
       <tbody>
 ${inchRows}
       </tbody>
     </table></div>
-    <p class="note" style="margin-top:8px">螢幕吋數是對角線長度；16:9 螢幕的寬約為對角線 × 0.87、高約為 × 0.49。</p>
+    <p class="note" style="margin-top:8px">螢幕吋數是可視畫面的對角線長度，<b>不包含邊框</b>，實際機身會比表中的寬、高再大一些，買電視櫃前請看產品規格的機身尺寸。</p>
+  </section>
+
+  <section>
+    <h2>容量：公升、cc、大匙、小匙</h2>
+    <div class="tbl"><table>
+      <thead><tr><th>單位</th><th>cc（毫升）</th></tr></thead>
+      <tbody>
+${volRows}
+      </tbody>
+    </table></div>
+    <p class="note" style="margin-top:8px">1 cc ＝ 1 毫升。量杯的「1 杯」各地定義不同，台灣食譜常用 240 毫升，美制量杯約 236.6 毫升；台斗、台升是傳統容量單位，1 台升 ＝ 2401/1331 公升（約 1.804 公升）。</p>
+  </section>
+
+  <section>
+    <h2>資料容量：GB 和 GiB 差在哪？</h2>
+    <div class="tbl"><table>
+      <thead><tr><th>十進位（硬碟廠商）</th><th>二進位（作業系統）</th></tr></thead>
+      <tbody>
+        <tr><td>1 KB ＝ 1,000 Byte</td><td>1 KiB ＝ 1,024 Byte</td></tr>
+        <tr><td>1 MB ＝ 1,000 KB</td><td>1 MiB ＝ 1,024 KiB</td></tr>
+        <tr><td>1 GB ＝ 1,000 MB</td><td>1 GiB ＝ 1,024 MiB</td></tr>
+        <tr><td>1 TB ＝ 1,000 GB</td><td>1 TiB ＝ 1,024 GiB</td></tr>
+      </tbody>
+    </table></div>
+    <div class="tbl" style="margin-top:12px"><table>
+      <thead><tr><th>標示容量</th><th>電腦上大約顯示</th></tr></thead>
+      <tbody>
+${diskRows}
+      </tbody>
+    </table></div>
+    <p style="margin-top:12px">硬碟、隨身碟廠商用 1,000 進位標示容量；Windows 用 1,024 進位計算，卻仍寫成「GB」，所以 1 TB 硬碟在電腦上看起來只有約 931 GB。容量其實沒有變少，只是計算方式不同。</p>
   </section>
 
   <section>
     <h2>用 Excel 換算單位</h2>
     <p>平方公尺在 A2，換成坪：</p>
-    ${formula("pingFormula", "=ROUND(A2*121/400,2)")}
-    <p style="margin-top:12px">台斤在 A2，換成公斤：<code>=A2*0.6</code>。英制單位可以用 Excel 內建的 CONVERT，例如吋換公分：</p>
+    ${formula("pingFormula", "=A2*121/400")}
+    <p style="margin-top:12px">台斤在 A2，換成公斤：<code>=A2*0.6</code>；公斤換台斤：<code>=A2/0.6</code>；台錢換公克：<code>=A2*3.75</code>。英制單位可以用 Excel 內建的 CONVERT，例如吋換公分、磅換公斤：</p>
     ${formula("convFormula", "=CONVERT(A2,\"in\",\"cm\")")}
+    ${formula("lbFormula", "=CONVERT(A2,\"lbm\",\"kg\")")}
+    <p style="margin-top:12px">溫度：攝氏換華氏 <code>=A2*9/5+32</code>，或 <code>=CONVERT(A2,"C","F")</code>；攝氏換克氏 <code>=A2+273.15</code>。資料容量：TB 換 GiB <code>=A2*10^12/1024^3</code>。</p>
+    <p class="note">要顯示固定小數位時，在最後一步再加 ROUND，例如 <code>=ROUND(A2*121/400,2)</code>。</p>
   </section>
 
   <section>
-    <h2>換算依據與更新紀錄</h2>
-    <p>1 坪 ＝ 400/121 平方公尺、1 台斤 ＝ 600 公克、1 甲 ＝ 2,934 坪；英制單位依國際定義（1 吋 ＝ 2.54 公分、1 磅 ＝ 453.59237 公克、1 美制加侖 ＝ 3.785411784 公升）。</p>
+    <h2>換算依據、資料來源與更新紀錄</h2>
+    <p>1 坪 ＝ 400/121 平方公尺、1 甲 ＝ 2,934 坪、1 台尺 ＝ 10/33 公尺、1 台斤 ＝ 600 公克、1 台兩 ＝ 37.5 公克、1 台錢 ＝ 3.75 公克；英制單位依國際定義（1 吋 ＝ 2.54 公分、1 磅 ＝ 453.59237 公克、1 美制加侖 ＝ 3.785411784 公升）；資料容量依 IEC 二進位字首（KiB、MiB…）。</p>
+    <p><b>法定單位和民間慣用單位</b>：依<a href="https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=J0170001" rel="noopener">度量衡法</a>第 10 條，法定度量衡單位以國際單位制（SI）為準；第 13 條規定交易或證明使用度量衡單位時，應使用法定度量衡單位。台斤、台兩、台錢、坪、甲、台尺等是民間慣用單位，本頁提供換算方便日常參考，正式交易、契約和登記請以公克、平方公尺等法定單位為準。</p>
+    <ul>
+      <li><a href="https://www.bsmi.gov.tw/" rel="noopener">經濟部標準檢驗局</a>：度量衡及法定計量單位</li>
+      <li><a href="https://www.bipm.org/en/measurement-units" rel="noopener">國際度量衡局（BIPM）</a>：國際單位制（SI）</li>
+      <li><a href="https://www.nist.gov/pml/special-publication-811" rel="noopener">美國國家標準與技術研究院（NIST）SP 811</a>：英制與 SI 換算係數</li>
+    </ul>
     <div class="tbl"><table>
       <thead><tr><th>更新日期</th><th>內容</th></tr></thead>
       <tbody>
         <tr><td>2026/11/03</td><td>上線：面積、重量、長度、容量、溫度換算</td></tr>
+        <tr><td>2026/11/04</td><td>新增台寸、公噸、英畝、cc、台升、台斗、大匙、小匙、克氏溫度與資料容量（KB／KiB 等）；換算結果顯示算式並同時列出所有單位；新增顯示位數、清除、複製、最近換算紀錄與常用換算入口；補充土地、台錢、台尺、容量、資料容量對照表、螢幕不含邊框說明、法定單位說明與官方資料來源</td></tr>
       </tbody>
     </table></div>
   </section>`,

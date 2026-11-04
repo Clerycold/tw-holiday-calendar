@@ -771,41 +771,81 @@
   // ---- 單位換算 ----
   const un = $('form[data-tool="unit"]');
   if(un){
-    const f = un.elements, out = $("#unitOut");
-    const fmt = v => { const a = Math.abs(v); return v.toLocaleString("zh-TW", {maximumFractionDigits: a >= 1000 ? 2 : a >= 1 ? 4 : 6}); };
+    const f = un.elements, out = $("#unitOut"), histEl = $("#unitHist");
+    const SUP = {"-":"⁻","0":"⁰","1":"¹","2":"²","3":"³","4":"⁴","5":"⁵","6":"⁶","7":"⁷","8":"⁸","9":"⁹"};
+    // 只在顯示時處理位數，計算全程用原始數值
+    function fmt(v){
+      if(!isFinite(v)) return "—";
+      const a = Math.abs(v), p = f.prec.value;
+      if(a !== 0 && (a < 1e-6 || a >= 1e15)){ const [m, e] = v.toExponential(p === "auto" ? 4 : +p).split("e"); return `${+m} × 10${String(+e).split("").map(c => SUP[c]).join("")}`; }
+      const d = p === "auto" ? (a >= 1000 ? 2 : a >= 1 ? 4 : 6) : +p;
+      return v.toLocaleString("zh-TW", {maximumFractionDigits: d});
+    }
+    const ratioTxt = r => { if(r < 1e-6 || r >= 1e12){ const [m, e] = r.toExponential(6).split("e"); return `${+m} × 10${String(+e).split("").map(c => SUP[c]).join("")}`; } return (+r.toPrecision(10)).toLocaleString("zh-TW", {maximumFractionDigits: 10}); };
     function fill(from, to){
       const names = Object.keys(C.UNITS[f.cat.value].u);
-      [f.from, f.to].forEach((sel, j) => { const want = j ? to : from; sel.innerHTML = names.map(n => `<option>${n}</option>`).join(""); sel.value = names.includes(want) ? want : names[j]; });
+      [f.from, f.to].forEach((sel, j) => { const want = j ? to : from; sel.innerHTML = names.map(n => `<option>${n}</option>`).join(""); sel.value = names.includes(want) ? want : names[j ? 1 : 0]; });
+    }
+    let hist = load("unitHist") || [], histTimer = null;
+    function drawHist(){
+      histEl.innerHTML = hist.length ? `<span class="note">最近換算：</span>${hist.map((h, j) => `<button type="button" class="copy" data-h="${j}" style="padding:6px 10px">${h[3]} ${h[1]} → ${h[2]}</button>`).join("")}` : "";
+    }
+    function remember(){
+      const v = f.v.value.trim(); if(!v || isNaN(+v.replace(/,/g,""))) return;
+      const h = [f.cat.value, f.from.value, f.to.value, v];
+      hist = [h].concat(hist.filter(x => x.join("|") !== h.join("|"))).slice(0, 6);
+      save("unitHist", hist); drawHist();
     }
     function run(){
-      const cat = f.cat.value;
-      save("unitForm", [cat, f.from.value, f.to.value, f.v.value]);
-      $("#unitPair").hidden = cat === "temp";
-      const v = parseFloat(String(f.v.value).replace(/,/g,""));
-      if(isNaN(v)){ out.innerHTML = `<div class="note">輸入數值就會換算。</div>`; return; }
-      if(cat === "temp"){
-        out.innerHTML = `<dl class="kv"><dt>${fmt(v)} °C</dt><dd>${fmt(C.cToF(v))} °F</dd><dt>${fmt(v)} °F</dt><dd>${fmt(C.fToC(v))} °C</dd></dl>
-          <div class="note">°F ＝ °C × 9/5 ＋ 32；°C ＝（°F − 32）× 5/9。</div>`; return;
-      }
-      const res = C.convertUnit(cat, v, f.from.value, f.to.value);
-      const all = Object.keys(C.UNITS[cat].u).filter(n => n !== f.from.value).map(n => `<dt>${n}</dt><dd>${fmt(C.convertUnit(cat, v, f.from.value, n))}</dd>`).join("");
-      const opened = (out.querySelector("details") || {open:true}).open;
+      const cat = f.cat.value, U = C.UNITS[cat];
+      save("unitForm", [cat, f.from.value, f.to.value, f.v.value, f.prec.value]);
+      const raw = String(f.v.value).replace(/[,\s]/g,""), v = raw === "" ? NaN : Number(raw);
+      if(isNaN(v)){ out.innerHTML = `<div class="note">${raw === "" ? "輸入數值就會換算。" : "請輸入數字，例如 30 或 1.5。"}</div>`; return; }
+      if(!U.temp && v < 0){ out.innerHTML = `<div class="warn">${U.label}不能是負數。</div>`; return; }
+      const from = f.from.value, to = f.to.value, res = C.convertUnit(cat, v, from, to);
+      if(U.temp && C.convertUnit(cat, v, from, "克氏（K）") < 0){ out.innerHTML = `<div class="warn">低於絕對零度（0 K ＝ −273.15 °C），請確認數值。</div>`; return; }
+      let formula;
+      if(U.temp){
+        const key = from + ">" + to;
+        const T = {"攝氏（°C）>華氏（°F）":`${fmt(v)} × 9/5 ＋ 32`, "華氏（°F）>攝氏（°C）":`(${fmt(v)} − 32) × 5/9`, "攝氏（°C）>克氏（K）":`${fmt(v)} ＋ 273.15`,
+          "克氏（K）>攝氏（°C）":`${fmt(v)} − 273.15`, "華氏（°F）>克氏（K）":`(${fmt(v)} − 32) × 5/9 ＋ 273.15`, "克氏（K）>華氏（°F）":`(${fmt(v)} − 273.15) × 9/5 ＋ 32`};
+        formula = from === to ? `${fmt(v)}` : T[key];
+      } else formula = `${fmt(v)} × ${ratioTxt(U.u[from][0]/U.u[to][0])}`;
+      const defs = [from, to].filter((n, j, a) => a.indexOf(n) === j && U.u[n][U.temp ? 2 : 1] !== "基準").map(n => `1 ${n.replace(/（.*）/, "")} ＝ ${U.u[n][U.temp ? 2 : 1]}`);
+      if(U.temp) defs.length = 0;
+      const all = Object.keys(U.u).filter(n => n !== from).map(n => `<dt>${n}</dt><dd>${fmt(C.convertUnit(cat, v, from, n))}</dd>`).join("");
+      const tw = !U.temp && (U.u[from][2] || U.u[to][2]);
+      const dataNote = cat === "data" && (/i/.test(from) !== /i/.test(to)) && from !== "bit" && to !== "bit" && from !== "Byte（B）" && to !== "Byte（B）"
+        ? `<div class="note">KB、MB、GB、TB 是 1,000 進位，KiB、MiB、GiB、TiB 是 1,024 進位。硬碟廠商標示用 1,000 進位，Windows 顯示的「GB」其實是 GiB，所以 1 TB 硬碟在電腦上看起來約 931 GB。</div>` : "";
       out.innerHTML = `
-        <div>${fmt(v)} ${f.from.value} ＝</div>
-        <div class="big">${fmt(res)} <small>${f.to.value}</small></div>
-        <details${opened ? " open" : ""}><summary>${fmt(v)} ${f.from.value} 換算成其他單位</summary><dl class="kv">${all}</dl></details>`;
+        <div>${fmt(v)} ${from} ＝</div>
+        <div class="big">${fmt(res)} <small>${to}</small></div>
+        <div class="note">算式：${formula} ＝ ${fmt(res)} ${to}${defs.length ? `<br>${defs.join("；")}` : ""}</div>
+        ${tw ? `<div class="note">台斤、台兩、台錢、坪、甲、台尺等是民間慣用單位。依度量衡法，交易或證明要使用法定度量衡單位（公克、平方公尺、公分等）。</div>` : ""}
+        ${dataNote}
+        <h3 style="margin:6px 0 0;font-size:1rem">${fmt(v)} ${from} 換算成其他單位</h3>
+        <dl class="kv">${all}</dl>
+        <div style="display:flex;gap:8px;flex-wrap:wrap"><button type="button" class="copy" id="unitCopy" style="padding:8px 12px">複製換算結果</button></div>`;
+      $("#unitCopy").onclick = e => {
+        const text = `${fmt(v)} ${from} ＝ ${fmt(res)} ${to}\n算式：${formula} ＝ ${fmt(res)}\n${location.href}`;
+        const b = e.target; if(navigator.clipboard) navigator.clipboard.writeText(text).then(() => { b.textContent = "已複製"; setTimeout(() => b.textContent = "複製換算結果", 1500); }, () => {});
+      };
+      clearTimeout(histTimer); histTimer = setTimeout(remember, 1500);
     }
+    function apply(cat, from, to, v){ f.cat.value = cat; fill(from, to); f.v.value = v; clearTimeout(histTimer); run(); }
     const s = load("unitForm");
-    if(s && (C.UNITS[s[0]] || s[0] === "temp")) f.cat.value = s[0];
-    if(f.cat.value !== "temp") fill(s && s[0] === f.cat.value ? s[1] : null, s && s[0] === f.cat.value ? s[2] : null);
+    if(s && C.UNITS[s[0]]){ f.cat.value = s[0]; fill(s[1], s[2]); }
+    else { f.cat.value = "area"; fill("坪", "平方公尺（m²）"); }
     if(s && s[3] != null && s[3] !== "") f.v.value = s[3];
-    f.cat.addEventListener("change", () => { if(f.cat.value !== "temp") fill(); run(); });
+    if(s && s[4]) f.prec.value = s[4];
+    f.cat.addEventListener("change", () => { fill(); run(); });
     $("#unitSwap").addEventListener("click", () => { const a = f.from.value; f.from.value = f.to.value; f.to.value = a; run(); });
+    $("#unitClear").addEventListener("click", () => { f.v.value = ""; f.v.focus(); run(); });
     un.addEventListener("input", e => { if(e.target !== f.cat) run(); }); un.addEventListener("submit", e => { e.preventDefault(); run(); });
+    histEl.addEventListener("click", e => { const b = e.target.closest("[data-h]"); if(b){ const h = hist[+b.dataset.h]; if(h && C.UNITS[h[0]]) apply(...h); } });
     document.querySelectorAll("[data-unit]").forEach(b => b.addEventListener("click", () => {
-      const [cat, from, to, v] = b.dataset.unit.split("|"); f.cat.value = cat; if(cat !== "temp") fill(from, to); f.v.value = v; run();
-      un.scrollIntoView({behavior:"smooth", block:"start"});
+      apply(...b.dataset.unit.split("|")); un.scrollIntoView({behavior:"smooth", block:"start"});
     }));
-    run();
+    drawHist(); run();
   }
 })();
