@@ -9,7 +9,7 @@ const UPDATED = "2026-11-01";
 const NAV = `<nav><a href="/#planner">請假計算器</a><a href="/tools/">試算工具</a><a href="/concert/">演唱會住宿</a><a href="/#calendar">全年行事曆</a></nav>`;
 const esc = s => s.replace(/"/g, "&quot;");
 
-function page({ path, title, h1, desc, crumb, faq = [], body, scripts = true, app, updated = UPDATED }) {
+function page({ path, title, h1, desc, crumb, faq = [], body, scripts = true, app, updated = UPDATED, disclaimer }) {
   const url = SITE + path;
   const graph = [
     { "@type": "WebPage", name: title, url, inLanguage: "zh-Hant-TW", dateModified: updated,
@@ -64,9 +64,9 @@ ${body}${faqHtml}
 ${path === "/tools/" ? "" : related(path)}
 </main>
 
-<footer><a href="/about/">關於我們</a> · <a href="/privacy/">隱私權政策</a> · <a href="/disclosure/">聯盟連結揭露</a><br>本站試算結果僅供參考，實際金額以主管機關規定、公司制度及官方系統計算為準。</footer>
-${scripts ? `<script src="/assets/tools/calc.js?v=8"></script>
-<script src="/assets/tools/ui.js?v=12"></script>` : ""}
+<footer><a href="/about/">關於我們</a> · <a href="/privacy/">隱私權政策</a> · <a href="/disclosure/">聯盟連結揭露</a><br>${disclaimer || "本站試算結果僅供參考，實際金額以主管機關規定、公司制度及官方系統計算為準。"}</footer>
+${scripts ? `<script src="/assets/tools/calc.js?v=10"></script>
+<script src="/assets/tools/ui.js?v=14"></script>` : ""}
 </body>
 </html>
 `;
@@ -1242,37 +1242,80 @@ const NEW = "2026-11-03";
 const lnEx = INS.loan({ amount: 10e6, rate: 2.2, years: 30 });
 const lnExP = INS.loan({ amount: 10e6, rate: 2.2, years: 30, method: "principal" });
 const lnExG = INS.loan({ amount: 10e6, rate: 2.2, years: 30, grace: 3 });
-const lnRows = [300, 500, 800, 1000, 1500, 2000].map(w => `        <tr><td>${w.toLocaleString()} 萬</td>${[20, 30, 40].map(y => `<td class="num">${Math.round(INS.loan({ amount: w * 1e4, rate: 2.2, years: y }).firstPay).toLocaleString()}</td>`).join("")}</tr>`).join("\n");
-const capRows = [40000, 60000, 80000, 100000, 150000].map(inc => `        <tr><td>${inc.toLocaleString()}</td><td class="num">${Math.round(inc / 3).toLocaleString()}</td><td class="num">約 ${Math.round(INS.loanCap(inc / 3, 2.2, 30) / 1e4).toLocaleString()} 萬</td></tr>`).join("\n");
+const lnChg = INS.loan({ amount: 10e6, rate: 2.2, years: 30, changes: [{ from: 13, rate: 2.5 }, { from: 25, rate: 2.8 }] });
+const lnRed = INS.loan({ amount: 10e6, rate: 2.2, years: 30, prepay: { month: 60, amount: 1e6, mode: "reduce" } });
+const lnSh = INS.loan({ amount: 10e6, rate: 2.2, years: 30, prepay: { month: 60, amount: 1e6, mode: "shorten" } });
+const yms = m => `${Math.floor(m / 12)} 年${m % 12 ? ` ${m % 12} 個月` : ""}`;
+const n0 = v => Math.round(v).toLocaleString();
+const lnRows = [300, 500, 800, 1000, 1500, 2000].map(w => `        <tr><td>${w.toLocaleString()} 萬</td>${[20, 30, 40].map(y => `<td class="num">${n0(INS.loan({ amount: w * 1e4, rate: 2.2, years: y }).firstPay)}</td>`).join("")}</tr>`).join("\n");
+const capRows = [40000, 60000, 80000, 100000, 150000].map(inc => `        <tr><td>${inc.toLocaleString()}</td><td class="num">${n0(inc / 3)}</td><td class="num">約 ${n0(INS.loanCap(inc / 3, 2.2, 30) / 1e4)} 萬</td></tr>`).join("\n");
+const aprOf = (rate, fee, y) => { const x = INS.loan({ amount: 6e5, rate, years: y }); return { apr: INS.loanApr({ amount: 6e5, rows: x.rows, upfront: fee }), total: x.total + fee }; };
+const aprRows = [2, 3, 5, 7].map(y => { const a = aprOf(3, 3000, y), b = aprOf(2.5, 9000, y), win = a.total < b.total ? "A" : "B";
+  return `        <tr><td>${y} 年</td><td class="num">${a.apr.toFixed(2)}%<br><small>${n0(a.total)}</small></td><td class="num">${b.apr.toFixed(2)}%<br><small>${n0(b.total)}</small></td><td>${win} 銀行</td></tr>`; }).join("\n");
 const loanFaq = [
   ["本息平均攤還和本金平均攤還哪個比較划算？", "本金平均攤還的總利息比較少，因為本金還得比較快；但前期每月要繳的錢比較多。本息平均攤還每月金額固定、前期壓力小，是多數人選的方式。總利息相差多少，可以在上方工具切換比較。"],
-  ["寬限期要不要用？", "寬限期內只繳利息、本金不會減少，寬限期結束後要用比較短的時間還完本金，月付金會明顯變高，總利息也比較多。除非前幾年確實有資金壓力，否則不建議為了月付金低而使用。"],
-  ["房貸月付金占收入多少比較安全？", "常見的參考是每月房貸不超過家庭月收入的三分之一，銀行審核時也會看負債比。這只是參考，還要考慮其他貸款、生活費和緊急預備金。"],
-  ["信貸也可以用這個工具算嗎？", "可以。信用貸款大多是本息平均攤還、沒有寬限期，輸入貸款金額、年利率和年限就能算出月付金。信貸常有開辦費等費用，比較方案時要看總費用年百分率。"],
-  ["利率調整後月付金會變嗎？", "會。房貸多是機動利率，跟著銀行指數利率調整，月付金會依剩餘本金和剩餘期數重新計算。本工具假設利率全期不變，利率變動時可以用剩餘本金和剩餘年限重新試算。"],
+  ["貸款 30 年、寬限期 3 年，是總共還幾年？", "總共 30 年。貸款年限包含寬限期，前 3 年只繳利息，後 27 年攤還本金和利息，所以寬限期結束後的月付金會比沒有寬限期時高。"],
+  ["寬限期要不要用？", "寬限期內只繳利息、本金不會減少，之後要用比較短的時間還完本金，月付金會明顯變高，總利息也比較多。除非前幾年確實有資金壓力，否則不建議為了月付金低而使用。另外，依央行選擇性信用管制，名下已有房屋者的購屋貸款（含第 2 戶以上）、高價住宅貸款、公司法人購屋貸款等不得有寬限期，能不能申請要先問銀行。"],
+  ["提前還款要選縮短年限還是降低月付金？", "縮短年限（月付金不變）省下的利息比較多；降低月付金（年限不變）每月負擔比較輕。以貸款 1,000 萬、2.2%、30 年，第 5 年底提前還 100 萬為例，縮短年限約省 " + n0(lnEx.totalInt - lnSh.totalInt) + " 元利息，降低月付金約省 " + n0(lnEx.totalInt - lnRed.totalInt) + " 元。提前還款前要先確認有沒有違約金。"],
+  ["房貸月付金占收入多少比較安全？", "一般可以先把房貸月付金控制在家庭月收入的三分之一以內，但這只是初步參考，不是銀行核貸標準，也不代表符合比例就一定貸得到。實際負擔能力還要考慮其他貸款、生活支出、扶養費用和緊急預備金。"],
+  ["信貸怎麼比較哪一家比較便宜？", "不要只看名目利率。信貸常有開辦費、帳戶管理費等費用，各家銀行收取方式也不同，比較時要看總費用年百分率和總還款金額。費用越高、貸款期間越短，利率低的方案越可能反而比較貴。上方工具填入費用，就會算出總費用年百分率。"],
+  ["利率調整後月付金會變嗎？", "會。房貸多是機動利率，跟著銀行指數利率調整，月付金會依當時的剩餘本金和剩餘期數重新計算。上方工具的「利率變動」可以填入最多 3 次調整，看月付金和總利息會增加多少。"],
 ];
 const loanPage = page({
   path: "/tools/loan/", crumb: "貸款試算", updated: NEW,
-  title: "房貸計算機｜貸款每月還多少、總利息多少（本息、本金攤還、寬限期）",
+  title: "房貸計算機｜每月還多少、總利息、寬限期、提前還款試算（本息、本金攤還）",
   h1: "房貸、信貸試算<br>每月要還多少？總利息多少？",
-  desc: "房貸、信貸計算機：輸入貸款金額、年利率、年限與寬限期，算出本息平均攤還或本金平均攤還的每月還款、總利息與逐年還款明細，附 Excel PMT 公式。",
+  desc: "房貸、信貸計算機：輸入貸款金額、年利率、年限與寬限期，算出本息或本金平均攤還的每月還款、總利息；可試算利率變動、提前還款（縮短年限或降低月付金），並計算信貸總費用年百分率，附逐月明細與 CSV 下載。",
   faq: loanFaq, app: "貸款計算機",
+  disclaimer: "本工具試算結果僅供財務規劃參考，實際貸款利率、還款金額、相關費用及還款方式，應以金融機構核貸條件與正式貸款契約為準。本工具不考慮逾期費用及其他未輸入的費用。",
   body: `
-  <div class="answer">貸款 1,000 萬、年利率 2.2%、30 年，本息平均攤還每月約 <b>${Math.round(lnEx.firstPay).toLocaleString()} 元</b>，30 年總利息約 <b>${Math.round(lnEx.totalInt / 1e4).toLocaleString()} 萬元</b>。改用本金平均攤還，總利息約 ${Math.round(lnExP.totalInt / 1e4).toLocaleString()} 萬元，但第 1 個月要繳 ${Math.round(lnExP.firstPay).toLocaleString()} 元。</div>
+  <div class="answer">貸款 1,000 萬、年利率 2.2%、30 年，本息平均攤還每月約 <b>${n0(lnEx.firstPay)} 元</b>，30 年總利息約 <b>${n0(lnEx.totalInt / 1e4)} 萬元</b>。改用本金平均攤還，總利息約 ${n0(lnExP.totalInt / 1e4)} 萬元，但第 1 個月要繳 ${n0(lnExP.firstPay)} 元。</div>
 
   <section>
     <h2>貸款試算</h2>
-    <form class="tool" data-tool="loan" autocomplete="off">
+    <form class="tool" data-tool="loan" autocomplete="off" novalidate>
       <div class="fields">
         <label class="field">貸款金額（萬元）<input name="amount" inputmode="decimal" placeholder="例如 1000"></label>
         <label class="field">年利率（%）<input name="rate" inputmode="decimal" placeholder="例如 2.2"></label>
-        <label class="field">貸款年限（年）<input name="years" inputmode="numeric" value="30"></label>
-        <label class="field">寬限期（年，沒有填 0）<input name="grace" inputmode="numeric" value="0"></label>
+        <label class="field">貸款總年限（年，含寬限期）<input name="years" inputmode="decimal" value="30"></label>
+        <label class="field">寬限期（年，沒有填 0）<input name="grace" inputmode="decimal" value="0"></label>
         <label class="field">還款方式<select name="method"><option value="pmt">本息平均攤還（每月金額固定）</option><option value="principal">本金平均攤還（每月本金固定）</option></select></label>
       </div>
+      <p class="note" style="margin:0">貸款總年限包含寬限期。例如貸款 30 年、寬限期 3 年，代表前 3 年只繳利息，後 27 年攤還本金及利息。</p>
+      <details>
+        <summary>利率變動（選填）</summary>
+        <p class="note">從第幾個月（期）起改用新利率，最多 3 次。例如第 13 個月起 2.5%、第 25 個月起 2.8%。</p>
+        <div class="fields">
+          <label class="field">第幾個月起<input name="c1m" inputmode="numeric" placeholder="例如 13"></label>
+          <label class="field">新年利率（%）<input name="c1r" inputmode="decimal" placeholder="例如 2.5"></label>
+          <label class="field">第幾個月起<input name="c2m" inputmode="numeric"></label>
+          <label class="field">新年利率（%）<input name="c2r" inputmode="decimal"></label>
+          <label class="field">第幾個月起<input name="c3m" inputmode="numeric"></label>
+          <label class="field">新年利率（%）<input name="c3r" inputmode="decimal"></label>
+        </div>
+      </details>
+      <details>
+        <summary>提前還款（選填）</summary>
+        <p class="note">繳完第幾期後提前還一筆本金，會同時比較「縮短年限」和「降低月付金」兩種方式。</p>
+        <div class="fields">
+          <label class="field">繳完第幾期後<input name="pm" inputmode="numeric" placeholder="例如 60"></label>
+          <label class="field">提前還款金額（萬元）<input name="pa" inputmode="decimal" placeholder="例如 100"></label>
+          <label class="field">違約金（提前還款金額的 %，沒有填 0）<input name="pen" inputmode="decimal" placeholder="例如 1"></label>
+        </div>
+      </details>
+      <details>
+        <summary>貸款費用（選填，算總費用年百分率）</summary>
+        <p class="note">撥款時一次收取的費用，以及每月另外收取的費用。</p>
+        <div class="fields">
+          <label class="field">開辦費（元）<input name="fee1" inputmode="numeric" placeholder="例如 5000"></label>
+          <label class="field">帳戶管理費（元）<input name="fee2" inputmode="numeric"></label>
+          <label class="field">其他一次性費用（元）<input name="fee3" inputmode="numeric"></label>
+          <label class="field">每月費用（元）<input name="feeM" inputmode="numeric"></label>
+        </div>
+      </details>
       <div class="result" id="loanOut" aria-live="polite"></div>
     </form>
-    <p class="note" style="margin-top:8px">利率請填銀行核貸的年利率；以月利率＝年利率 ÷ 12 計算。計算都在你的瀏覽器裡完成。</p>
+    <p class="note" style="margin-top:8px">利率請填銀行核貸的年利率，以月利率＝年利率 ÷ 12 計算；年限以月為單位，例如 2.5 年 ＝ 30 期。零利率會直接以本金 ÷ 期數計算。計算都在你的瀏覽器裡完成。</p>
   </section>
 
   <div class="ad">廣告版位 336×280</div>
@@ -1297,52 +1340,99 @@ ${lnRows}
         <tr><td>每月還款</td><td>每月固定</td><td>第 1 個月最高，之後逐月減少</td></tr>
         <tr><td>前期壓力</td><td>較小</td><td>較大</td></tr>
         <tr><td>總利息</td><td>較多</td><td>較少</td></tr>
-        <tr><td>1,000 萬・2.2%・30 年</td><td>每月 ${Math.round(lnEx.firstPay).toLocaleString()}，總利息 ${Math.round(lnEx.totalInt / 1e4).toLocaleString()} 萬</td><td>首月 ${Math.round(lnExP.firstPay).toLocaleString()}、末月 ${Math.round(lnExP.lastPay).toLocaleString()}，總利息 ${Math.round(lnExP.totalInt / 1e4).toLocaleString()} 萬</td></tr>
+        <tr><td>1,000 萬・2.2%・30 年</td><td>每月 ${n0(lnEx.firstPay)}，總利息 ${n0(lnEx.totalInt / 1e4)} 萬</td><td>首月 ${n0(lnExP.firstPay)}、末月 ${n0(lnExP.lastPay)}，總利息 ${n0(lnExP.totalInt / 1e4)} 萬</td></tr>
       </tbody>
     </table></div>
-    <p style="margin-top:12px">本息平均攤還前期繳的錢大多是利息，本金減少得慢；本金平均攤還每月固定還一樣多的本金，本金減少得快，所以總利息比較少。</p>
+    <p style="margin-top:12px">本息平均攤還前期繳的錢大多是利息，本金減少得慢。以上面的例子，第 1 期繳 ${n0(lnEx.firstPay)} 元，其中利息 ${n0(lnEx.rows[0].int)} 元、本金只有 ${n0(lnEx.rows[0].prin)} 元。本金平均攤還每月固定還一樣多的本金，本金減少得快，所以總利息比較少。</p>
   </section>
 
   <section>
     <h2>寬限期是什麼？用了會多付多少？</h2>
-    <p>寬限期內每月只繳利息、不還本金。以 1,000 萬、2.2%、30 年、寬限期 3 年為例：</p>
+    <p>寬限期內每月只繳利息、不還本金。<b>貸款總年限包含寬限期</b>：貸款 30 年、寬限期 3 年，是前 3 年只繳利息，後 27 年攤還本金和利息，不是寬限期結束後再還 30 年。以 1,000 萬、2.2% 為例：</p>
     <dl class="kv" style="max-width:520px">
-      <dt>前 3 年每月（只繳利息）</dt><dd>${Math.round(lnExG.gracePay).toLocaleString()} 元</dd>
-      <dt>第 4 年起每月</dt><dd>${Math.round(lnExG.firstPay).toLocaleString()} 元</dd>
-      <dt>總利息</dt><dd>${Math.round(lnExG.totalInt).toLocaleString()} 元</dd>
-      <dt>不用寬限期的總利息</dt><dd>${Math.round(lnEx.totalInt).toLocaleString()} 元</dd>
+      <dt>前 3 年每月（只繳利息）</dt><dd>${n0(lnExG.gracePay)} 元</dd>
+      <dt>第 4 年起每月（27 年攤還）</dt><dd>${n0(lnExG.firstPay)} 元</dd>
+      <dt>總利息</dt><dd>${n0(lnExG.totalInt)} 元</dd>
+      <dt>不用寬限期：每月</dt><dd>${n0(lnEx.firstPay)} 元</dd>
+      <dt>不用寬限期：總利息</dt><dd>${n0(lnEx.totalInt)} 元</dd>
     </dl>
-    <p style="margin-top:12px">寬限期結束後，月付金從 ${Math.round(lnExG.gracePay).toLocaleString()} 元跳到 ${Math.round(lnExG.firstPay).toLocaleString()} 元，比不用寬限期還高。申請前要先確認寬限期後的月付金負擔得起。</p>
+    <p style="margin-top:12px">寬限期結束後，月付金從 ${n0(lnExG.gracePay)} 元跳到 ${n0(lnExG.firstPay)} 元，比不用寬限期還高，總利息也多了 ${n0(lnExG.totalInt - lnEx.totalInt)} 元。申請前要先確認寬限期後的月付金負擔得起。</p>
+    <p class="note">不是所有房貸都能申請寬限期。依<a href="https://www.law.cbc.gov.tw/Law/ShowAll?LawID=LA03B026002&amp;LawDataType=1" rel="noopener">中央銀行對金融機構辦理不動產抵押貸款業務規定</a>（選擇性信用管制），名下已有房屋者的購屋貸款（含第 2 戶以上）、高價住宅貸款和公司法人購屋貸款，都不得有寬限期；有換屋需求、承諾在撥款後一定期間內出售原有房屋的人，可以向銀行申請例外。規定可能調整，能不能申請請以銀行說明為準。</p>
+  </section>
+
+  <section>
+    <h2>利率變動，月付金會增加多少？</h2>
+    <p>房貸多是機動利率，利率調整時，銀行會用當時的剩餘本金和剩餘期數重新計算月付金。以 1,000 萬、30 年、本息平均攤還為例：</p>
+    <div class="tbl"><table>
+      <thead><tr><th>期間</th><th>年利率</th><th>每月還款</th></tr></thead>
+      <tbody>
+        <tr><td>第 1～12 個月</td><td class="num">2.2%</td><td class="num">${n0(lnChg.rows[0].pay)}</td></tr>
+        <tr><td>第 13～24 個月</td><td class="num">2.5%</td><td class="num">${n0(lnChg.rows[12].pay)}</td></tr>
+        <tr><td>第 25 個月起</td><td class="num">2.8%</td><td class="num">${n0(lnChg.rows[24].pay)}</td></tr>
+      </tbody>
+    </table></div>
+    <p style="margin-top:12px">利率從 2.2% 升到 2.8%，每月多繳約 ${n0(lnChg.rows[24].pay - lnChg.rows[0].pay)} 元，30 年總利息從 ${n0(lnEx.totalInt / 1e4)} 萬增加到約 ${n0(lnChg.totalInt / 1e4)} 萬。打開上方工具的「利率變動」就能用自己的條件試算。</p>
+  </section>
+
+  <section>
+    <h2>提前還款：縮短年限還是降低月付金？</h2>
+    <p>貸款 1,000 萬、2.2%、30 年，繳完第 60 期（第 5 年底）後提前還 100 萬：</p>
+    <div class="tbl"><table>
+      <thead><tr><th></th><th>不提前還</th><th>縮短年限<br><small>月付金不變</small></th><th>降低月付金<br><small>年限不變</small></th></tr></thead>
+      <tbody>
+        <tr><td>第 61 期起每月</td><td class="num">${n0(lnEx.firstPay)}</td><td class="num">${n0(lnSh.rows[60].pay)}</td><td class="num">${n0(lnRed.rows[60].pay)}</td></tr>
+        <tr><td>還清時間</td><td class="num">30 年</td><td class="num">${yms(lnSh.months)}</td><td class="num">30 年</td></tr>
+        <tr><td>總利息</td><td class="num">${n0(lnEx.totalInt)}</td><td class="num">${n0(lnSh.totalInt)}</td><td class="num">${n0(lnRed.totalInt)}</td></tr>
+        <tr><td>省下利息</td><td class="num">－</td><td class="num"><b>${n0(lnEx.totalInt - lnSh.totalInt)}</b></td><td class="num"><b>${n0(lnEx.totalInt - lnRed.totalInt)}</b></td></tr>
+      </tbody>
+    </table></div>
+    <p style="margin-top:12px"><b>縮短年限</b>省下的利息比較多，提早約 ${yms(360 - lnSh.months)} 還完；<b>降低月付金</b>每月少繳約 ${n0(lnEx.firstPay - lnRed.rows[60].pay)} 元，適合想保留每月現金流的人。</p>
+    <p class="note">部分房貸、信貸在綁約期間內提前清償要付違約金，常見依提前還款金額的一定比例計算。提前還款前請先看貸款契約，並向銀行確認可以選哪一種方式。</p>
+  </section>
+
+  <section>
+    <h2>信貸怎麼比較？看總費用年百分率</h2>
+    <p>名目利率不等於實際借款成本。信貸常有開辦費、帳戶管理費等費用，各家銀行的收取方式也不同。例如同樣借 60 萬：</p>
+    <div class="tbl"><table>
+      <thead><tr><th>貸款年限</th><th>A 銀行<br><small>利率 3%・開辦費 3,000</small></th><th>B 銀行<br><small>利率 2.5%・開辦費 9,000</small></th><th>總還款較少</th></tr></thead>
+      <tbody>
+${aprRows}
+      </tbody>
+    </table></div>
+    <p class="note" style="margin-top:8px">上排是總費用年百分率，下排是總還款金額（本金＋利息＋費用）。</p>
+    <p style="margin-top:12px">B 銀行利率比較低，但開辦費多 6,000 元。借的時間短，利息差距不夠抵銷費用，A 銀行反而比較便宜；借得越久，低利率的效果越明顯。所以比較貸款方案時，要同時看<b>總費用年百分率</b>和<b>總還款金額</b>。</p>
+    <p>總費用年百分率不是把費用直接加到利率上，而是用實際拿到的錢（貸款金額扣掉前期費用）和每期還款的現金流，算出相當於多少年利率，計算方式可參考<a href="https://www.cpc.ey.gov.tw/" rel="noopener">行政院消費者保護會</a>的說明。上方工具在「貸款費用」填入金額就會自動計算。</p>
   </section>
 
   <section>
     <h2>月收入多少可以貸多少？</h2>
-    <p>常見的參考是房貸月付金不超過家庭月收入的三分之一。以這個比例、年利率 2.2%、30 年本息平均攤還推算：</p>
+    <p>一般可以先把房貸月付金控制在家庭月收入的三分之一以內。以這個比例、年利率 2.2%、30 年本息平均攤還推算：</p>
     <div class="tbl"><table>
-      <thead><tr><th>家庭月收入</th><th>月付金上限（1/3）</th><th>約可貸金額</th></tr></thead>
+      <thead><tr><th>家庭月收入</th><th>月付金（1/3）</th><th>約可貸金額</th></tr></thead>
       <tbody>
 ${capRows}
       </tbody>
     </table></div>
-    <p class="note" style="margin-top:8px">實際可貸金額還要看房屋鑑價、貸款成數、信用紀錄和其他負債，以銀行核貸為準。</p>
+    <p class="note" style="margin-top:8px">三分之一只是初步參考，不是銀行核貸標準，也不代表符合比例就一定能取得貸款。實際負擔能力還要考慮其他貸款、家庭生活支出、扶養費用和緊急預備金；可貸金額則要看房屋鑑價、貸款成數、信用紀錄和負債比，以銀行核貸為準。</p>
   </section>
 
   <section>
     <h2>用 Excel 算月付金</h2>
-    <p>貸款金額在 B1、年利率在 B2（填 2.2%）、年限在 B3，本息平均攤還每月還款：</p>
+    <p>上方試算結果可以按「下載逐月明細 CSV」，用 Excel 開啟就有每一期的本金、利息和剩餘本金。自己用公式算的話，貸款金額在 B1、年利率在 B2（填 2.2%）、年限在 B3，本息平均攤還每月還款：</p>
     ${formula("pmtFormula", "=PMT(B2/12,B3*12,-B1)")}
     <p style="margin-top:12px">全期總利息（本息平均攤還）：</p>
     ${formula("ipmtFormula", "=PMT(B2/12,B3*12,-B1)*B3*12-B1")}
-    <p style="margin-top:12px">第 n 個月的利息和本金可以用 <code>IPMT</code>、<code>PPMT</code>，例如第 1 個月利息 <code>=IPMT(B2/12,1,B3*12,-B1)</code>。</p>
+    <p style="margin-top:12px">第 n 個月的利息和本金可以用 <code>IPMT</code>、<code>PPMT</code>，例如第 1 個月利息 <code>=IPMT(B2/12,1,B3*12,-B1)</code>。年利率填 0 時 PMT 會直接用本金 ÷ 期數。</p>
   </section>
 
   <section>
     <h2>計算依據與更新紀錄</h2>
-    <p>本息平均攤還依年金現值公式：月付金 ＝ 貸款金額 × 月利率 ÷ [1 −（1 ＋ 月利率）^−期數]，與 Excel PMT 函數相同；本金平均攤還每月本金 ＝ 貸款金額 ÷ 期數，利息依剩餘本金計算。</p>
+    <p>本息平均攤還依年金現值公式：月付金 ＝ 剩餘本金 × 月利率 ÷ [1 −（1 ＋ 月利率）^−剩餘期數]，與 Excel PMT 函數相同；本金平均攤還每月本金 ＝ 剩餘本金 ÷ 剩餘期數，利息依剩餘本金計算。利率變動或提前還款（降低月付金）時，以當時的剩餘本金和剩餘期數重新計算；縮短年限則維持原月付金，重新計算還款期數。總費用年百分率以撥款淨額與每期還款的內部報酬率換算成年利率。</p>
     <div class="tbl"><table>
       <thead><tr><th>更新日期</th><th>內容</th></tr></thead>
       <tbody>
         <tr><td>2026/11/03</td><td>上線：本息平均攤還、本金平均攤還、寬限期、逐年還款明細</td></tr>
+        <tr><td>2026/11/03</td><td>新增利率變動、提前還款（縮短年限／降低月付金）、貸款費用與總費用年百分率、逐月明細、本金利息比例圖、剩餘本金走勢圖、CSV 下載與複製結果；補充寬限期年限說明、央行寬限期限制與輸入檢查</td></tr>
       </tbody>
     </table></div>
   </section>`,
@@ -1352,22 +1442,27 @@ ${capRows}
 const dpEx = INS.deposit({ amount: 1e6, rate: 1.7, months: 12 });
 const dpExP = INS.deposit({ amount: 1e6, rate: 1.7, months: 12, mode: "payout" });
 const dpExM = INS.deposit({ amount: 10000, rate: 1.7, months: 12, mode: "monthly" });
+const dpExME = INS.deposit({ amount: 10000, rate: 1.7, months: 12, mode: "monthly", timing: "end" });
+const nhiRows = [19999, 20000, 30000, 50000].map(v => `        <tr><td class="num">${v.toLocaleString()}</td><td class="num">${(v >= INS.DEP.nhiMin ? Math.round(v * INS.DEP.nhi) : 0).toLocaleString()}</td></tr>`).join("\n");
 const dpRows = [100000, 500000, 1000000, 3000000].map(a => `        <tr><td>${(a / 1e4).toLocaleString()} 萬</td>${[1, 1.5, 2].map(r => `<td class="num">${INS.deposit({ amount: a, rate: r, months: 12 }).interest.toLocaleString()}</td>`).join("")}</tr>`).join("\n");
 const depFaq = [
   ["定存利息怎麼算？", "整存整付按月複利：本利和 ＝ 本金 ×（1 ＋ 年利率 ÷ 12）^月數。存本取息每月領息、本金不變：每月利息 ＝ 本金 × 年利率 ÷ 12。100 萬元、年利率 1.7%、存 1 年，整存整付利息約 " + dpEx.interest.toLocaleString() + " 元，存本取息每月約 " + dpExP.monthlyPay.toLocaleString() + " 元。"],
-  ["存款利息要繳稅嗎？", "要併入綜合所得申報，但每戶有 27 萬元的儲蓄投資特別扣除額，全家存款利息（加上其他適用的利息）在 27 萬元以內，就不用為利息繳稅。"],
-  ["定存利息會被扣二代健保嗎？", "單次給付的利息達 2 萬元，銀行會扣 2.11% 的二代健保補充保費；未達 2 萬元不扣。存本取息每月領息，每次金額較小，比較不容易達到門檻。"],
+  ["存款利息要繳稅嗎？", "要併入綜合所得申報。納稅義務人、合併申報的配偶及受扶養親屬，符合規定的存款利息等所得，全年合計最高可扣除 27 萬元（儲蓄投資特別扣除額）；這是全戶合計的額度，不是每個帳戶各有 27 萬，超過部分仍要依規定計稅。"],
+  ["定存利息會被扣二代健保嗎？", "單次給付的利息達 2 萬元，銀行會以這次利息的全額扣 2.11% 補充保費，例如 2 萬元扣 422 元；未達 2 萬元不扣。27 萬元儲蓄投資特別扣除額是所得稅的規定，不代表二代健保也有 27 萬元免扣額度。存本取息每月領息，每次金額較小，比較不容易達到門檻。"],
+  ["定存利息超過 2 萬元一定會被扣 10% 稅嗎？", "境內居住個人的一般銀行存款利息，原則上每次給付超過 2 萬元時，按給付總額扣繳 10% 所得稅；辦理儲蓄免扣證並向銀行登記的人，在登記額度內可以免扣繳。扣繳只是預繳，實際稅負以綜合所得稅申報結果為準。"],
   ["機動利率和固定利率怎麼選？", "固定利率在存款期間不變；機動利率會跟著銀行牌告利率調整。預期利率會上升時選機動比較有利，預期會下降時選固定可以鎖住利率。"],
-  ["定存提前解約會怎樣？", "提前解約通常會依實際存款期間的利率打八折計算利息，未滿 1 個月不給息，各銀行規定可能不同，請以銀行說明為準。"],
+  ["定存提前解約會怎樣？", "定期存款提前解約時，通常依銀行約定的提前解約規則，以實際存款期間適用的利率及一定比例計算利息；未滿一個月是否計息、如何計算，依各銀行契約為準。"],
+  ["零存整付月初存和月底存差多少？", "月初存入的每一筆都從當月開始計息，月底存入則少算一個月利息。每月存 1 萬元、年利率 1.7%、存 1 年，月初存入利息約 " + dpExM.interest.toLocaleString() + " 元，月底存入約 " + dpExME.interest.toLocaleString() + " 元。"],
 ];
 const depositPage = page({
-  path: "/tools/interest/", crumb: "利息計算", updated: NEW,
+  path: "/tools/interest/", crumb: "利息計算", updated: "2026-11-04",
   title: "定存利息計算機｜整存整付、存本取息、零存整付利息怎麼算",
   h1: "存款利息計算<br>定存一年可以拿多少利息？",
   desc: "定存利息計算機：輸入存款金額、年利率與期間，算出整存整付、存本取息、零存整付的利息與本利和，並提醒二代健保補充保費、利息扣繳與 27 萬儲蓄投資特別扣除額，附 Excel FV 公式。",
   faq: depFaq, app: "存款利息計算機",
+  disclaimer: "本工具試算結果僅供參考，實際利息、補充保費及扣繳稅額，應以金融機構計算及稅務、健保主管機關規定為準。",
   body: `
-  <div class="answer">100 萬元、年利率 1.7%、存 1 年：<b>整存整付</b>到期利息約 <b>${dpEx.interest.toLocaleString()} 元</b>；<b>存本取息</b>每月領約 <b>${dpExP.monthlyPay.toLocaleString()} 元</b>。每月存 1 萬元<b>零存整付</b> 1 年，利息約 ${dpExM.interest.toLocaleString()} 元。</div>
+  <div class="answer">100 萬元、年利率 1.7%、存 1 年：<b>整存整付</b>到期利息約 <b>${dpEx.interest.toLocaleString()} 元</b>；<b>存本取息</b>每月領約 <b>${dpExP.monthlyPay.toLocaleString()} 元</b>。每月月初存 1 萬元<b>零存整付</b> 1 年，利息約 ${dpExM.interest.toLocaleString()} 元。</div>
 
   <section>
     <h2>存款利息試算</h2>
@@ -1377,10 +1472,11 @@ const depositPage = page({
         <label class="field" id="depAmtLabel">存款金額（元）<input name="amount" inputmode="numeric" placeholder="例如 1000000"></label>
         <label class="field">年利率（%）<input name="rate" inputmode="decimal" placeholder="例如 1.7"></label>
         <label class="field">存款期間（月）<input name="months" inputmode="numeric" value="12"></label>
+        <span id="depTiming" hidden><label class="field">每月存入時間<select name="timing"><option value="begin">每月月初存入</option><option value="end">每月月底存入</option></select></label></span>
       </div>
       <div class="result" id="depOut" aria-live="polite"></div>
     </form>
-    <p class="note" style="margin-top:8px">年利率請填銀行牌告的定存或活存利率。計算都在你的瀏覽器裡完成。</p>
+    <p class="note" style="margin-top:8px">年利率請填銀行牌告的定存或活存利率。本工具採月利率（年利率 ÷ 12）估算，整存整付、零存整付按月複利；實際銀行利息可能因計息天數、存入日期、利率調整及金額進位規則而不同。計算都在你的瀏覽器裡完成。</p>
   </section>
 
   <div class="ad">廣告版位 336×280</div>
@@ -1404,7 +1500,7 @@ ${dpRows}
       <tbody>
         <tr><td>整存整付</td><td>一次存入</td><td>利息每月滾入本金（複利），到期一次領</td><td>短期用不到的錢，想多賺一點複利</td></tr>
         <tr><td>存本取息</td><td>一次存入</td><td>每月領利息，本金到期領回</td><td>退休族、想每月有固定收入</td></tr>
-        <tr><td>零存整付</td><td>每月存固定金額</td><td>按月複利，到期一次領</td><td>小資族強迫儲蓄</td></tr>
+        <tr><td>零存整付</td><td>每月存固定金額</td><td>按月複利，到期一次領；月初存入比月底存入多一個月利息</td><td>小資族強迫儲蓄</td></tr>
       </tbody>
     </table></div>
     <p style="margin-top:12px">同樣金額、利率和期間，整存整付因為利息會再生利息，總利息比存本取息多一點。</p>
@@ -1412,27 +1508,41 @@ ${dpRows}
 
   <section>
     <h2>利息的稅和二代健保</h2>
-    <p><b>27 萬元免稅額度</b>：存款利息要併入綜合所得，但每戶可以減除最多 27 萬元的儲蓄投資特別扣除額。以年利率 1.7% 估算，全家存款大約 1,500 多萬元，利息才會超過 27 萬。報稅時可以用<a href="/tools/income-tax/">所得稅試算</a>估算稅額。</p>
-    <p><b>二代健保補充保費</b>：單次給付的利息達 2 萬元，銀行會先扣 2.11%。例如定存到期一次領 3 萬元利息，會扣 633 元。</p>
-    <p><b>扣繳所得稅</b>：單次給付的利息超過 2 萬元，銀行會先預扣 10% 所得稅，報稅時再多退少補。</p>
+    <p>利息會碰到三種不同的制度：報稅時的扣除額、領息時的二代健保補充保費，以及領息時的扣繳所得稅。三者門檻和算法都不一樣，不能互相抵用。</p>
+    <h3 style="margin:16px 0 8px">1. 儲蓄投資特別扣除額 27 萬元（報稅時）</h3>
+    <p>存款利息要併入綜合所得。納稅義務人、合併申報的配偶及受扶養親屬，符合規定的存款利息等所得，<b>全年合計</b>最高可扣除 27 萬元；不是每個銀行帳戶各有 27 萬，也不是所有利息都適用，超過部分仍要依個人所得稅規定計算。以年利率 1.7% 估算，全戶存款大約 1,500 多萬元，利息才會超過 27 萬。郵局存簿儲金本金 100 萬元以內的利息依法免稅，不用計入。報稅時可以用<a href="/tools/income-tax/">所得稅試算</a>估算稅額。</p>
+    <h3 style="margin:16px 0 8px">2. 二代健保補充保費 2.11%（領息時）</h3>
+    <p>單次給付的利息達 2 萬元，銀行會以<b>這次利息的全額</b>扣 2.11%，不是只算超過 2 萬元的部分：</p>
+    <div class="tbl"><table>
+      <thead><tr><th>單次利息（元）</th><th>補充保費（元）</th></tr></thead>
+      <tbody>
+${nhiRows}
+      </tbody>
+    </table></div>
+    <p style="margin-top:12px">27 萬元儲蓄投資特別扣除額是所得稅的規定，<b>不代表二代健保也有 27 萬元免扣額度</b>，兩者是不同制度。</p>
+    <h3 style="margin:16px 0 8px">3. 扣繳所得稅 10%（領息時）</h3>
+    <p>境內居住個人的一般銀行存款利息，原則上每次給付超過 2 萬元時，按給付總額扣繳 10% 所得稅。符合條件、向國稅局申請<a href="https://www.etax.nat.gov.tw/etwmain/tax-info/understanding/tax-q-and-a/national/individual-income-tax/other-and-consolidation/koV3Vg9" rel="noopener">儲蓄免扣證</a>並向銀行登記的人，在登記額度內可以免扣繳。扣繳只是預繳，實際年度稅負仍以綜合所得稅申報結果為準，扣多了會在報稅時退回。</p>
   </section>
 
   <section>
     <h2>用 Excel 算利息</h2>
     <p>本金在 B1、年利率在 B2（填 1.7%）、月數在 B3，整存整付到期利息：</p>
     ${formula("fvFormula", "=ROUND(FV(B2/12,B3,0,-B1)-B1,0)")}
-    <p style="margin-top:12px">零存整付（B1 改填每月存入金額），到期本利和：</p>
+    <p style="margin-top:12px">零存整付（B1 改填每月存入金額），每月<b>月初</b>存入的到期本利和（最後的 1 代表期初存入）：</p>
     ${formula("fvmFormula", "=ROUND(FV(B2/12,B3,-B1,0,1),0)")}
+    <p style="margin-top:12px">每月<b>月底</b>存入，最後一個參數改成 0：</p>
+    ${formula("fvmeFormula", "=ROUND(FV(B2/12,B3,-B1,0,0),0)")}
     <p style="margin-top:12px">存本取息每月利息：<code>=ROUND(B1*B2/12,0)</code>。</p>
   </section>
 
   <section>
     <h2>計算依據與更新紀錄</h2>
-    <p>以月利率＝年利率 ÷ 12 計算。整存整付與零存整付按月複利，存本取息每月以本金計息。二代健保補充保費費率 2.11%、單次給付 2 萬元起扣，依<a href="https://www.nhi.gov.tw/" rel="noopener">衛福部中央健康保險署</a>規定；儲蓄投資特別扣除額 27 萬元依所得稅法第 17 條。</p>
+    <p>以月利率＝年利率 ÷ 12 計算。整存整付與零存整付按月複利（零存整付可選月初或月底存入），存本取息每月以本金計息。二代健保補充保費費率 2.11%、單次給付達 2 萬元以全額計收，依<a href="https://www.nhi.gov.tw/" rel="noopener">衛福部中央健康保險署</a>規定；儲蓄投資特別扣除額 27 萬元依所得稅法第 17 條；利息扣繳 10% 依各類所得扣繳率標準，儲蓄免扣證依<a href="https://www.etax.nat.gov.tw/etwmain/tax-info/understanding/tax-q-and-a/national/individual-income-tax/other-and-consolidation/koV3Vg9" rel="noopener">財政部稅務入口網</a>說明。</p>
     <div class="tbl"><table>
       <thead><tr><th>更新日期</th><th>內容</th></tr></thead>
       <tbody>
         <tr><td>2026/11/03</td><td>上線：整存整付、存本取息、零存整付；二代健保補充保費與扣繳提醒</td></tr>
+        <tr><td>2026/11/04</td><td>零存整付新增月初／月底存入選項與對應 Excel 公式；補充二代健保全額計收對照表、儲蓄免扣證、27 萬元扣除額適用範圍、計息假設與提前解約說明</td></tr>
       </tbody>
     </table></div>
   </section>`,

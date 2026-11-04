@@ -318,32 +318,59 @@
   const weekdayHolidays = () => Object.keys(TW_HOL).filter(k => !isWeekend(new Date(k+"T00:00")));
 
   // ---- 貸款（房貸、信貸）----
-  // method: "pmt" 本息平均攤還、"principal" 本金平均攤還；grace 寬限期年數（只繳利息）。
-  function loan({amount, rate, years, grace = 0, method = "pmt"}){
-    const n = Math.round(years*12), g = Math.min(Math.round(grace*12), Math.max(0, n-1)), m = n - g, i = rate/100/12;
-    const pmt = P => i ? P*i/(1 - Math.pow(1+i, -m)) : P/m;
-    const rows = []; let bal = amount, totalInt = 0;
-    for(let k = 1; k <= n; k++){
+  // method: "pmt" 本息平均攤還、"principal" 本金平均攤還；grace 寬限期年數（只繳利息，包含在 years 內）。
+  // changes: [{from: 第幾個月起, rate}] 利率變動，依剩餘本金與剩餘期數重算；
+  // prepay: {month, amount, mode} 第 month 期繳款後提前還款，mode "reduce" 年限不變降低月付金、"shorten" 月付金不變縮短年限。
+  function loan({amount, rate, years, grace = 0, method = "pmt", changes = [], prepay = null}){
+    const n = Math.round(years*12), g = Math.min(Math.round(grace*12), Math.max(0, n-1));
+    const ch = changes.filter(c => c.from > 1 && c.from <= n).sort((a, b) => a.from - b.from);
+    const rateAt = k => { let r = rate; for(const c of ch) if(k >= c.from) r = c.rate; return r; };
+    const pmt = (P, i, m) => i ? P*i/(1 - Math.pow(1+i, -m)) : P/m;
+    const rows = [];
+    let bal = amount, end = n, pay = 0, prinFix = 0, last = null, recalc = true, totalInt = 0, prepaid = 0;
+    for(let k = 1; k <= end && bal > 1e-6; k++){
+      const r = rateAt(k), i = r/1200;
+      if(r !== last){ recalc = true; last = r; }
+      if(k === g+1) recalc = true;
       const int = bal*i; let prin = 0;
-      if(k > g) prin = method === "principal" ? amount/m : (k === n ? bal : pmt(amount) - int);
-      if(k === n) prin = bal;
-      bal = Math.max(0, bal - prin); totalInt += int;
-      rows.push({k, pay:int+prin, int, prin, bal});
+      if(k > g){
+        if(recalc){ pay = pmt(bal, i, end-k+1); prinFix = bal/(end-k+1); recalc = false; }
+        prin = k === end ? bal : Math.min(bal, method === "principal" ? prinFix : pay - int);
+      }
+      bal -= prin; totalInt += int;
+      let extra = 0;
+      if(prepay && k === prepay.month && bal > 1e-6){
+        extra = Math.min(prepay.amount, bal); bal -= extra; prepaid = extra;
+        if(bal > 1e-6 && k > g && prepay.mode === "shorten"){
+          const left = method === "principal" ? bal/prinFix
+            : i ? -Math.log(1 - bal*i/pay)/Math.log(1+i) : bal/pay;
+          end = k + Math.ceil(left - 1e-9);
+        } else recalc = true;
+      }
+      rows.push({k, rate:r, pay:int+prin, int, prin, extra, bal:Math.max(0, bal)});
     }
     const first = rows[g] || rows[0];
-    return {n, g, m, rows, totalInt, total:amount+totalInt,
-      gracePay: g ? rows[0].pay : 0, firstPay:first.pay, lastPay:rows[n-1].pay};
+    return {n, g, m:n-g, rows, months:rows.length, totalInt, total:amount+totalInt, prepaid,
+      gracePay: g ? rows[0].pay : 0, firstPay:first.pay, lastPay:rows[rows.length-1].pay};
+  }
+  // 總費用年百分率：撥款金額扣掉前期費用後，與每月還款（含每月費用）的內部報酬率 × 12
+  function loanApr({amount, rows, upfront = 0, monthlyFee = 0}){
+    const npv = x => rows.reduce((s, r, j) => s - (r.pay + r.extra + monthlyFee)/Math.pow(1+x, j+1), amount - upfront);
+    let lo = -0.5/12, hi = 1;
+    if(npv(lo) > 0) return 0;
+    for(let t = 0; t < 200; t++){ const mid = (lo+hi)/2; if(npv(mid) > 0) hi = mid; else lo = mid; }
+    return (lo+hi)/2*12*100;
   }
   // 依每月可負擔金額反推可貸額度（本息平均攤還、無寬限期）
   const loanCap = (monthly, rate, years) => { const i = rate/100/12, n = years*12; return i ? monthly*(1 - Math.pow(1+i, -n))/i : monthly*n; };
 
   // ---- 存款利息 ----
-  // mode: "payout" 存本取息（每月領息、單利）、"compound" 整存整付（按月複利）、"monthly" 零存整付（每月存入、按月複利）
+  // mode: "payout" 存本取息（每月領息、單利）、"compound" 整存整付（按月複利）、"monthly" 零存整付（每月存入、按月複利；timing "begin" 月初存入、"end" 月底存入）
   const DEP = {nhi:.0211, nhiMin:20000, saving:270000, withhold:.10, withholdMin:20000};
-  function deposit({amount, rate, months, mode = "compound"}){
+  function deposit({amount, rate, months, mode = "compound", timing = "begin"}){
     const i = rate/100/12; let interest, principal;
     if(mode === "payout"){ principal = amount; interest = Math.round(amount*i)*months; }
-    else if(mode === "monthly"){ principal = amount*months; interest = i ? Math.round(amount*(1+i)*(Math.pow(1+i, months) - 1)/i) - principal : 0; }
+    else if(mode === "monthly"){ principal = amount*months; interest = i ? Math.round(amount*(timing === "end" ? 1 : 1+i)*(Math.pow(1+i, months) - 1)/i) - principal : 0; }
     else { principal = amount; interest = Math.round(amount*Math.pow(1+i, months) - amount); }
     const monthlyPay = mode === "payout" ? Math.round(amount*i) : 0;
     // 二代健保補充保費、扣繳以「單次給付」判斷：存本取息每月給付一次，其餘到期一次給付
@@ -363,6 +390,6 @@
   const convertUnit = (cat, v, from, to) => v*UNITS[cat].u[from]/UNITS[cat].u[to];
   const cToF = c => c*9/5 + 32, fToC = f => (f - 32)*5/9;
 
-  const api = {TAX115, INS115, PAY115, SEV115, LOA, legalAge, laborOldAge, laborIns, netPay, severance, monthsBetween, PEN, pension, annuityFactor, penLife, taxOf, rateOf, incomeTax, annualLeave, calendarYearLeave, leaveDaysForYears, overtime, TW_HOL, workdays, addWorkdays, weekdayHolidays, key, loan, loanCap, DEP, deposit, UNITS, convertUnit, cToF, fToC};
+  const api = {TAX115, INS115, PAY115, SEV115, LOA, legalAge, laborOldAge, laborIns, netPay, severance, monthsBetween, PEN, pension, annuityFactor, penLife, taxOf, rateOf, incomeTax, annualLeave, calendarYearLeave, leaveDaysForYears, overtime, TW_HOL, workdays, addWorkdays, weekdayHolidays, key, loan, loanApr, loanCap, DEP, deposit, UNITS, convertUnit, cToF, fToC};
   if(typeof module !== "undefined") module.exports = api; else root.Calc = api;
 })(this);

@@ -432,39 +432,157 @@
   const ln = $('form[data-tool="loan"]');
   if(ln){
     const f = ln.elements, out = $("#loanOut");
-    const ids = ["amount","rate","years","grace","method"];
-    const dec = el => Math.max(0, parseFloat(String(el.value).replace(/,/g,"")) || 0);
+    const ids = ["amount","rate","years","grace","method","c1m","c1r","c2m","c2r","c3m","c3r","pm","pa","pen","fee1","fee2","fee3","feeM"];
+    // 解析輸入：空白回傳 null，非數字回傳 NaN，可含千分位逗號
+    const val = el => { const t = String(el.value).replace(/[,\s]/g,""); return t === "" ? null : Number(t); };
+    const pct = v => `${Math.round(v*1000)/1000}%`;
+    const ym = m => m % 12 ? `${Math.floor(m/12) ? Math.floor(m/12)+" 年 " : ""}${m % 12} 個月` : `${m/12} 年`;
+    let last = null;
+    function bad(msg){ out.innerHTML = `<div class="warn">${msg}</div>`; last = null; }
+    function chart(series){
+      const W = 320, H = 140, max = series[0].pts[0], n = Math.max(...series.map(s => s.pts.length - 1));
+      const line = s => s.pts.map((v, j) => `${j ? "L" : "M"}${(j/n*W).toFixed(1)},${(H - v/max*H).toFixed(1)}`).join("");
+      return `<figure style="margin:0"><svg viewBox="-2 -4 ${W+4} ${H+8}" style="width:100%;height:auto;max-width:520px" role="img" aria-label="剩餘本金逐年變化">
+        <line x1="0" y1="${H}" x2="${W}" y2="${H}" stroke="var(--rule)"/>
+        ${series.map(s => `<path d="${line(s)}" fill="none" stroke="${s.color}" stroke-width="2.5"${s.dash ? ' stroke-dasharray="5 4"' : ""}/>`).join("")}
+      </svg><figcaption class="note">剩餘本金逐年變化（${n} 年）：${series.map(s => `<span style="color:${s.color}">━</span> ${s.name}`).join("　")}</figcaption></figure>`;
+    }
     function run(){
       save("loanForm", ids.map(k => f[k].value));
-      const amount = dec(f.amount)*10000, rate = dec(f.rate), years = Math.min(40, dec(f.years)), grace = dec(f.grace), method = f.method.value;
-      if(!amount || !years){ out.innerHTML = `<div class="note">輸入貸款金額、年利率和貸款年限，就會算出每月要繳多少。</div>`; return; }
-      if(grace >= years){ out.innerHTML = `<div class="warn">寬限期要比貸款年限短。</div>`; return; }
-      const r = C.loan({amount, rate, years, grace, method});
-      const other = C.loan({amount, rate, years, grace, method: method === "pmt" ? "principal" : "pmt"});
-      const yearRows = [];
-      for(let y = 1; (y-1)*12 < r.n; y++){
-        const part = r.rows.slice((y-1)*12, y*12);
-        yearRows.push(`<tr><td>第 ${y} 年</td><td class="num">${money(part.reduce((a,x)=>a+x.pay,0))}</td><td class="num">${money(part.reduce((a,x)=>a+x.prin,0))}</td><td class="num">${money(part.reduce((a,x)=>a+x.int,0))}</td><td class="num">${money(part[part.length-1].bal)}</td></tr>`);
+      const A = val(f.amount), R = val(f.rate), Y = val(f.years), G = val(f.grace) ?? 0, method = f.method.value;
+      if(A === null || R === null || Y === null){ out.innerHTML = `<div class="note">輸入貸款金額、年利率和貸款總年限，就會算出每月要繳多少。</div>`; last = null; return; }
+      if(isNaN(A) || A <= 0) return bad("貸款金額要填大於 0 的數字（單位：萬元）。");
+      if(isNaN(R)) return bad("年利率要填數字，例如 2.2。");
+      if(R < 0) return bad("年利率不能是負數；無息貸款請填 0。");
+      if(R > 30) return bad("年利率超過 30%，請確認是不是填錯了（例如 2.2% 請填 2.2）。");
+      if(isNaN(Y)) return bad("貸款總年限要填數字。");
+      if(Y <= 0) return bad("貸款總年限要大於 0。");
+      if(Y > 40) return bad("貸款總年限最長填 40 年。");
+      if(isNaN(G) || G < 0) return bad("寬限期不能是負數，沒有寬限期請填 0。");
+      if(G >= Y) return bad("寬限期要比貸款總年限短。貸款總年限包含寬限期，例如 30 年、寬限期 3 年。");
+      const amount = A*10000, n = Math.round(Y*12), g = Math.round(G*12);
+      if(n < 1) return bad("貸款總年限太短，至少要 1 個月。");
+      const notes = [];
+      if(n !== Y*12 || g !== G*12) notes.push(`年限以月為單位計算：${Y} 年換算成 ${n} 期${G ? `，寬限期 ${g} 期` : ""}（四捨五入到整月）。`);
+      // 利率變動
+      const changes = [];
+      [["c1m","c1r"],["c2m","c2r"],["c3m","c3r"]].forEach(([m, r], j) => {
+        const M = val(f[m]), Rr = val(f[r]);
+        if(M === null && Rr === null) return;
+        if(M === null || Rr === null || isNaN(M) || isNaN(Rr) || M < 2 || M > n || M % 1 || Rr < 0 || Rr > 30)
+          notes.push(`<span class="warn">利率變動第 ${j+1} 列沒有計入：月份要填 2～${n} 的整數，利率要填 0～30。</span>`);
+        else changes.push({from:M, rate:Rr});
+      });
+      // 提前還款
+      const PM = val(f.pm), PA = val(f.pa), PEN = val(f.pen) ?? 0;
+      let prepay = null;
+      if(PM !== null || PA !== null){
+        if(PM === null || PA === null || isNaN(PM) || isNaN(PA) || PM < 1 || PM >= n || PM % 1 || PA <= 0)
+          notes.push(`<span class="warn">提前還款沒有計入：月份要填 1～${n-1} 的整數，金額要大於 0。</span>`);
+        else prepay = {month:PM, amount:PA*10000};
       }
+      // 費用
+      const fee = k => { const v = val(f[k]); return v === null || isNaN(v) || v < 0 ? 0 : v; };
+      const upfront = fee("fee1") + fee("fee2") + fee("fee3"), monthlyFee = fee("feeM");
+
+      const r = C.loan({amount, rate:R, years:Y, grace:G, method, changes});
+      const other = C.loan({amount, rate:R, years:Y, grace:G, method: method === "pmt" ? "principal" : "pmt", changes});
+      const fees = upfront + monthlyFee*r.months;
+      const apr = C.loanApr({amount, rows:r.rows, upfront, monthlyFee});
+      const prin = amount, intr = r.totalInt, share = intr/(prin+intr)*100;
+      const yearBal = rows => [amount].concat(rows.filter((x, j) => (j+1) % 12 === 0 || j === rows.length-1).map(x => x.bal));
+
+      let prepayHtml = "", series = [{name:"原本", color:"var(--leave)", pts:yearBal(r.rows)}];
+      if(prepay){
+        const red = C.loan({amount, rate:R, years:Y, grace:G, method, changes, prepay:{...prepay, mode:"reduce"}});
+        const sh = C.loan({amount, rate:R, years:Y, grace:G, method, changes, prepay:{...prepay, mode:"shorten"}});
+        const penalty = Math.round(red.prepaid*PEN/100), inGrace = prepay.month <= g;
+        const after = x => x.rows[prepay.month] ? x.rows[prepay.month].pay : 0;
+        series.push({name:"提前還款・縮短年限", color:"var(--makeup)", pts:yearBal(sh.rows), dash:true});
+        prepayHtml = `
+        <h3 style="margin:8px 0 0">第 ${prepay.month} 期後提前還 ${money(red.prepaid)} 元</h3>
+        <div class="tbl"><table>
+          <thead><tr><th></th><th>縮短年限<br><small>月付金不變</small></th><th>降低月付金<br><small>年限不變</small></th></tr></thead>
+          <tbody>
+            <tr><td>之後每月</td><td class="num">${money(after(sh))}</td><td class="num">${money(after(red))}</td></tr>
+            <tr><td>還清時間</td><td class="num">${ym(sh.months)}<br><small>第 ${sh.months} 期</small></td><td class="num">${ym(red.months)}<br><small>第 ${red.months} 期</small></td></tr>
+            <tr><td>總利息</td><td class="num">${money(sh.totalInt)}</td><td class="num">${money(red.totalInt)}</td></tr>
+            <tr><td>省下利息</td><td class="num"><b>${money(r.totalInt - sh.totalInt)}</b></td><td class="num"><b>${money(r.totalInt - red.totalInt)}</b></td></tr>
+            ${penalty ? `<tr><td>扣掉違約金 ${money(penalty)} 後</td><td class="num">${money(r.totalInt - sh.totalInt - penalty)}</td><td class="num">${money(r.totalInt - red.totalInt - penalty)}</td></tr>` : ""}
+          </tbody></table></div>
+        <div class="note">${red.prepaid < prepay.amount ? "提前還款金額已超過剩餘本金，等於一次還清。" : inGrace ? "提前還款在寬限期內，寬限期結束後會用剩下的本金重新計算月付金，兩種方式結果相同。" : `<b>縮短年限</b>省下的利息比較多，提早 ${ym(red.months - sh.months)} 還完；<b>降低月付金</b>每月少繳 ${money(after(sh) - after(red))} 元，資金比較寬裕。`}要選哪一種、要不要另外申請，請先問銀行。${PEN ? "" : "部分貸款在綁約期內提前清償要付違約金，可以在上方填入違約金比例一起計算。"}</div>`;
+      }
+
+      const head = r.g ? "寬限期後每月還款" : method === "pmt" ? (changes.length ? "第 1 期每月還款" : "每月還款") : "第 1 個月還款";
+      const changeKv = changes.map(c => { const row = r.rows[c.from-1]; return row ? `<dt>第 ${c.from} 期起利率 ${pct(c.rate)}，每月</dt><dd>${money(row.pay)}</dd>` : ""; }).join("");
       const opened = [...out.querySelectorAll("details")].map(d => d.open);
       out.innerHTML = `
-        <div>${r.g ? "寬限期後每月還款" : method === "pmt" ? "每月還款" : "第 1 個月還款"}</div>
+        <div>${head}</div>
         <div class="big">${money(r.firstPay)} <small>元</small></div>
         <dl class="kv">
-          ${r.g ? `<dt>寬限期 ${grace} 年內（只繳利息）</dt><dd>${money(r.gracePay)}</dd>` : ""}
-          ${method === "principal" ? `<dt>最後 1 個月還款</dt><dd>${money(r.lastPay)}</dd>` : ""}
+          ${r.g ? `<dt>寬限期 ${ym(r.g)}（只繳利息）</dt><dd>${money(r.gracePay)}</dd>` : ""}
+          ${changeKv}
+          ${method === "principal" ? `<dt>最後 1 期還款</dt><dd>${money(r.lastPay)}</dd>` : ""}
+          <dt>還款期數</dt><dd>${r.months} 期（${ym(r.months)}）</dd>
           <dt>總利息</dt><dd>${money(r.totalInt)}</dd>
-          <dt class="sum">本金＋利息合計</dt><dd class="sum">${money(r.total)}</dd>
+          ${fees ? `<dt>貸款相關費用</dt><dd>${money(fees)}</dd>` : ""}
+          <dt class="sum">總還款金額</dt><dd class="sum">${money(r.total + fees)}</dd>
+          ${fees ? `<dt class="sum">總費用年百分率</dt><dd class="sum">${pct(Math.round(apr*100)/100)}</dd>` : ""}
         </dl>
-        <div class="note">改用「${method === "pmt" ? "本金平均攤還" : "本息平均攤還"}」：${method === "pmt" ? `第 1 個月 ${money(other.firstPay)} 元，總利息 ${money(other.totalInt)} 元（少 ${money(r.totalInt - other.totalInt)} 元）` : `每月 ${money(other.firstPay)} 元，總利息 ${money(other.totalInt)} 元（多 ${money(other.totalInt - r.totalInt)} 元）`}。</div>
-        ${r.g ? `<div class="note">寬限期內本金完全沒減少，之後要用比較短的時間還完，月付金會變高，總利息也比較多。不用寬限期的總利息是 ${money(C.loan({amount, rate, years, method}).totalInt)} 元。</div>` : ""}
-        <details><summary>逐年還款明細</summary><div class="tbl"><table>
-          <thead><tr><th>年度</th><th>當年繳款</th><th>本金</th><th>利息</th><th>剩餘本金</th></tr></thead>
-          <tbody>${yearRows.join("")}</tbody></table></div></details>
-        <div class="note">假設利率全期不變。實際月付金依銀行計算方式、利率調整與手續費而定。</div>`;
-      out.querySelectorAll("details").forEach((d, i) => { if(opened[i]) d.open = true; });
+        ${fees ? `<div class="note">名目利率 ${pct(R)}，加上 ${money(fees)} 元費用後，實際借款成本換算成年利率約 ${pct(Math.round(apr*100)/100)}。比較不同銀行時，請看總費用年百分率和總還款金額，不要只看利率。</div>` : `<div class="note">信貸常有開辦費、帳戶管理費，可以在「貸款費用」填入，算出總費用年百分率。</div>`}
+        <div style="display:flex;align-items:center;gap:14px;flex-wrap:wrap">
+          <div style="width:86px;height:86px;border-radius:50%;background:conic-gradient(var(--makeup) 0 ${share}%, var(--leave) 0);display:grid;place-items:center" aria-hidden="true"><div style="width:52px;height:52px;border-radius:50%;background:var(--sheet)"></div></div>
+          <div style="font-size:.9rem"><span style="color:var(--leave)">●</span> 本金 ${money(prin)}（${Math.round(100-share)}%）<br><span style="color:var(--makeup)">●</span> 利息 ${money(intr)}（${Math.round(share)}%）</div>
+        </div>
+        ${prepayHtml}
+        ${chart(series)}
+        <div class="note">改用「${method === "pmt" ? "本金平均攤還" : "本息平均攤還"}」：${method === "pmt" ? `第 1 期 ${money(other.firstPay)} 元，總利息 ${money(other.totalInt)} 元（少 ${money(r.totalInt - other.totalInt)} 元）` : `每月 ${money(other.firstPay)} 元，總利息 ${money(other.totalInt)} 元（多 ${money(other.totalInt - r.totalInt)} 元）`}。</div>
+        ${r.g ? `<div class="note">寬限期內本金完全沒減少，之後只剩 ${ym(r.m)} 可以攤還，月付金會變高，總利息也比較多。不用寬限期的總利息是 ${money(C.loan({amount, rate:R, years:Y, method, changes}).totalInt)} 元。</div>` : ""}
+        ${notes.map(t => `<div class="note">${t}</div>`).join("")}
+        <details data-k="y"><summary>逐年還款明細</summary><div class="tbl" data-body="y"></div></details>
+        <details data-k="m"><summary>逐月還款明細（${r.months} 期）</summary><div class="tbl" data-body="m"></div></details>
+        <div style="display:flex;gap:8px;flex-wrap:wrap">
+          <button type="button" class="copy" id="loanCopy" style="padding:8px 12px">複製試算結果</button>
+          <button type="button" class="copy" id="loanCsv" style="padding:8px 12px">下載逐月明細 CSV</button>
+        </div>
+        <div class="note">${changes.length ? "利率變動時，依當時的剩餘本金和剩餘期數重新計算月付金。" : "假設利率全期不變。"}金額以元為單位四捨五入顯示，實際月付金依銀行計算方式、利率調整與相關費用而定。</div>`;
+      last = {r, R, Y, G, method, fees, apr, amount};
+      out.querySelectorAll("details").forEach((d, i) => { d.addEventListener("toggle", () => fillTable(d)); if(opened[i]){ d.open = true; fillTable(d); } });
     }
-    const s = load("loanForm"); if(s){ ids.forEach((k,i) => { if(s[i] != null && s[i] !== "") f[k].value = s[i]; }); }
+    function fillTable(d){
+      if(!d.open || !last) return;
+      const body = d.querySelector("[data-body]"), rows = last.r.rows;
+      if(d.dataset.k === "m"){
+        body.innerHTML = `<table><thead><tr><th>期數</th><th>年利率</th><th>償還本金</th><th>償還利息</th><th>當期繳款</th><th>剩餘本金</th></tr></thead><tbody>${rows.map(x => `<tr><td>第 ${x.k} 期</td><td class="num">${pct(x.rate)}</td><td class="num">${money(x.prin)}</td><td class="num">${money(x.int)}</td><td class="num">${money(x.pay)}</td><td class="num">${money(x.bal)}</td></tr>`).join("")}</tbody></table>`;
+      } else {
+        const ys = [];
+        for(let y = 1; (y-1)*12 < rows.length; y++){
+          const part = rows.slice((y-1)*12, y*12);
+          ys.push(`<tr><td>第 ${y} 年</td><td class="num">${money(part.reduce((a,x)=>a+x.pay,0))}</td><td class="num">${money(part.reduce((a,x)=>a+x.prin,0))}</td><td class="num">${money(part.reduce((a,x)=>a+x.int,0))}</td><td class="num">${money(part[part.length-1].bal)}</td></tr>`);
+        }
+        body.innerHTML = `<table><thead><tr><th>年度</th><th>當年繳款</th><th>本金</th><th>利息</th><th>剩餘本金</th></tr></thead><tbody>${ys.join("")}</tbody></table>`;
+      }
+    }
+    out.addEventListener("click", e => {
+      if(!last) return;
+      const {r, R, Y, G, method, fees, apr, amount} = last;
+      if(e.target.id === "loanCopy"){
+        const text = [`貸款金額：${money(amount)} 元`, `年利率：${R}%`, `貸款總年限：${Y} 年${G ? `（含寬限期 ${G} 年）` : ""}`,
+          `還款方式：${method === "pmt" ? "本息平均攤還" : "本金平均攤還"}`, `${r.g ? "寬限期後" : "第 1 期"}每月還款：${money(r.firstPay)} 元`,
+          `總利息：${money(r.totalInt)} 元`, fees ? `貸款相關費用：${money(fees)} 元` : "", `總還款金額：${money(r.total + fees)} 元`,
+          fees ? `總費用年百分率：約 ${Math.round(apr*100)/100}%` : "", `試算來源：${location.href}`].filter(Boolean).join("\n");
+        const b = e.target, done = () => { b.textContent = "已複製"; setTimeout(() => b.textContent = "複製試算結果", 1500); };
+        if(navigator.clipboard) navigator.clipboard.writeText(text).then(done, () => {});
+      }
+      if(e.target.id === "loanCsv"){
+        const csv = "﻿期數,年利率(%),償還本金,償還利息,當期繳款,剩餘本金\n" + r.rows.map(x => [x.k, x.rate, Math.round(x.prin), Math.round(x.int), Math.round(x.pay), Math.round(x.bal)].join(",")).join("\n");
+        const a = document.createElement("a");
+        a.href = URL.createObjectURL(new Blob([csv], {type:"text/csv;charset=utf-8"}));
+        a.download = `貸款還款明細_${Math.round(amount/10000)}萬_${R}%_${Y}年.csv`;
+        document.body.appendChild(a); a.click(); setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 0);
+      }
+    });
+    const s = load("loanForm"); if(s){ ids.forEach((k,i) => { if(s[i] != null && s[i] !== "" && f[k]) f[k].value = s[i]; }); }
     ln.addEventListener("input", run); ln.addEventListener("change", run); ln.addEventListener("submit", e => { e.preventDefault(); run(); });
     run();
   }
@@ -473,14 +591,16 @@
   const dp = $('form[data-tool="deposit"]');
   if(dp){
     const f = dp.elements, out = $("#depOut");
-    const ids = ["amount","rate","months","mode"];
+    const ids = ["amount","rate","months","mode","timing"];
     const dec = el => Math.max(0, parseFloat(String(el.value).replace(/,/g,"")) || 0);
     function run(){
       save("depForm", ids.map(k => f[k].value));
       const mode = f.mode.value, amount = num(f.amount), rate = dec(f.rate), months = Math.min(600, Math.round(dec(f.months)));
       $("#depAmtLabel").firstChild.textContent = mode === "monthly" ? "每月存入金額（元）" : "存款金額（元）";
+      $("#depTiming").hidden = mode !== "monthly";
+      const timing = f.timing.value;
       if(!amount || !rate || !months){ out.innerHTML = `<div class="note">輸入存款金額、年利率和存款期間，就會算出利息。</div>`; return; }
-      const r = C.deposit({amount, rate, months, mode});
+      const r = C.deposit({amount, rate, months, mode, timing});
       out.innerHTML = `
         <div>${mode === "payout" ? "每月領到利息" : "到期利息"}</div>
         <div class="big">${money(mode === "payout" ? r.monthlyPay : r.interest)} <small>元</small></div>
@@ -489,10 +609,13 @@
           <dt>${months} 個月利息合計</dt><dd>${money(r.interest)}</dd>
           <dt class="sum">${mode === "payout" ? "到期領回本金" : "到期本利和"}</dt><dd class="sum">${money(mode === "payout" ? r.principal : r.total)}</dd>
         </dl>
-        ${r.nhi ? `<div class="warn">單次領到的利息達 2 萬元，銀行會先扣 2.11% 二代健保補充保費，約 ${money(r.nhi)} 元${mode === "payout" ? `（每月扣一次，${months} 個月約 ${money(r.nhiTotal)} 元）` : ""}${r.single > C.DEP.withholdMin ? `；超過 2 萬元還會預扣 10% 所得稅約 ${money(Math.round(r.single*C.DEP.withhold))} 元，報稅時再多退少補` : ""}。</div>`
-          : `<div class="note">單次領到的利息未達 2 萬元，不扣二代健保補充保費，也不用預先扣繳所得稅。</div>`}
-        <div class="note">存款利息要併入綜合所得報稅，但每戶有 27 萬元儲蓄投資特別扣除額${r.overSaving ? "；這筆利息已超過 27 萬，超過的部分要課稅" : "，全家利息加總在 27 萬以內就不用為利息繳稅"}。</div>
-        <div class="note">以月利率＝年利率 ÷ 12 計算，各銀行的計息天數與尾數處理略有不同，實際金額以銀行為準。</div>`;
+        ${mode === "monthly" ? `<div class="note">假設每月${timing === "end" ? "月底" : "月初"}存入，${timing === "end" ? "最後一筆存入當月不計息" : "每筆從存入當月就開始計息"}。改成${timing === "end" ? "月初" : "月底"}存入，利息約 ${money(C.deposit({amount, rate, months, mode, timing: timing === "end" ? "begin" : "end"}).interest)} 元。</div>` : ""}
+        ${r.nhi ? `<div class="warn">二代健保：單次領到的利息達 2 萬元，銀行會以<b>這次利息全額</b>扣 2.11% 補充保費，約 ${money(r.nhi)} 元${mode === "payout" ? `（每月扣一次，${months} 個月約 ${money(r.nhiTotal)} 元）` : ""}。</div>`
+          : `<div class="note">二代健保：單次領到的利息未達 2 萬元，不扣補充保費。</div>`}
+        ${r.single > C.DEP.withholdMin ? `<div class="warn">扣繳所得稅：單次給付超過 2 萬元，原則上按給付總額扣繳 10%，約 ${money(Math.round(r.single*C.DEP.withhold))} 元；如果已辦理儲蓄免扣證，在登記額度內可以免扣繳。扣繳只是預繳，實際稅負以綜合所得稅申報結果為準。</div>`
+          : `<div class="note">扣繳所得稅：單次給付未超過 2 萬元，不用預先扣繳。</div>`}
+        <div class="note">報稅：存款利息要併入綜合所得。納稅義務人、合併申報的配偶及受扶養親屬，符合規定的存款利息等所得，全年合計最高可扣除 27 萬元（儲蓄投資特別扣除額）${r.overSaving ? "；這筆利息已超過 27 萬，超過部分要依規定計稅" : ""}。這 27 萬和二代健保是不同制度，不能抵免補充保費。</div>
+        <div class="note">本工具採月利率（年利率 ÷ 12）估算，整存整付、零存整付按月複利；實際銀行利息可能因計息天數、存入日期、利率調整及金額進位規則而不同。</div>`;
     }
     const s = load("depForm"); if(s){ ids.forEach((k,i) => { if(s[i] != null && s[i] !== "") f[k].value = s[i]; }); }
     dp.addEventListener("input", run); dp.addEventListener("change", run); dp.addEventListener("submit", e => { e.preventDefault(); run(); });

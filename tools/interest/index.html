@@ -23,7 +23,7 @@
    "name": "定存利息計算機｜整存整付、存本取息、零存整付利息怎麼算",
    "url": "https://fangjiatw.com/tools/interest/",
    "inLanguage": "zh-Hant-TW",
-   "dateModified": "2026-11-03",
+   "dateModified": "2026-11-04",
    "publisher": {
     "@type": "Organization",
     "name": "放假日曆",
@@ -83,7 +83,7 @@
      "name": "存款利息要繳稅嗎？",
      "acceptedAnswer": {
       "@type": "Answer",
-      "text": "要併入綜合所得申報，但每戶有 27 萬元的儲蓄投資特別扣除額，全家存款利息（加上其他適用的利息）在 27 萬元以內，就不用為利息繳稅。"
+      "text": "要併入綜合所得申報。納稅義務人、合併申報的配偶及受扶養親屬，符合規定的存款利息等所得，全年合計最高可扣除 27 萬元（儲蓄投資特別扣除額）；這是全戶合計的額度，不是每個帳戶各有 27 萬，超過部分仍要依規定計稅。"
      }
     },
     {
@@ -91,7 +91,15 @@
      "name": "定存利息會被扣二代健保嗎？",
      "acceptedAnswer": {
       "@type": "Answer",
-      "text": "單次給付的利息達 2 萬元，銀行會扣 2.11% 的二代健保補充保費；未達 2 萬元不扣。存本取息每月領息，每次金額較小，比較不容易達到門檻。"
+      "text": "單次給付的利息達 2 萬元，銀行會以這次利息的全額扣 2.11% 補充保費，例如 2 萬元扣 422 元；未達 2 萬元不扣。27 萬元儲蓄投資特別扣除額是所得稅的規定，不代表二代健保也有 27 萬元免扣額度。存本取息每月領息，每次金額較小，比較不容易達到門檻。"
+     }
+    },
+    {
+     "@type": "Question",
+     "name": "定存利息超過 2 萬元一定會被扣 10% 稅嗎？",
+     "acceptedAnswer": {
+      "@type": "Answer",
+      "text": "境內居住個人的一般銀行存款利息，原則上每次給付超過 2 萬元時，按給付總額扣繳 10% 所得稅；辦理儲蓄免扣證並向銀行登記的人，在登記額度內可以免扣繳。扣繳只是預繳，實際稅負以綜合所得稅申報結果為準。"
      }
     },
     {
@@ -107,7 +115,15 @@
      "name": "定存提前解約會怎樣？",
      "acceptedAnswer": {
       "@type": "Answer",
-      "text": "提前解約通常會依實際存款期間的利率打八折計算利息，未滿 1 個月不給息，各銀行規定可能不同，請以銀行說明為準。"
+      "text": "定期存款提前解約時，通常依銀行約定的提前解約規則，以實際存款期間適用的利率及一定比例計算利息；未滿一個月是否計息、如何計算，依各銀行契約為準。"
+     }
+    },
+    {
+     "@type": "Question",
+     "name": "零存整付月初存和月底存差多少？",
+     "acceptedAnswer": {
+      "@type": "Answer",
+      "text": "月初存入的每一筆都從當月開始計息，月底存入則少算一個月利息。每月存 1 萬元、年利率 1.7%、存 1 年，月初存入利息約 1,111 元，月底存入約 939 元。"
      }
     }
    ]
@@ -126,10 +142,10 @@
   <div>
     <div class="crumb"><a href="/">放假日曆</a> › <a href="/tools/">試算工具</a> › 利息計算</div>
     <h1>存款利息計算<br>定存一年可以拿多少利息？</h1>
-    <div class="meta">更新日期：2026 年 11 月 3 日</div>
+    <div class="meta">更新日期：2026 年 11 月 4 日</div>
   </div>
 
-  <div class="answer">100 萬元、年利率 1.7%、存 1 年：<b>整存整付</b>到期利息約 <b>17,133 元</b>；<b>存本取息</b>每月領約 <b>1,417 元</b>。每月存 1 萬元<b>零存整付</b> 1 年，利息約 1,111 元。</div>
+  <div class="answer">100 萬元、年利率 1.7%、存 1 年：<b>整存整付</b>到期利息約 <b>17,133 元</b>；<b>存本取息</b>每月領約 <b>1,417 元</b>。每月月初存 1 萬元<b>零存整付</b> 1 年，利息約 1,111 元。</div>
 
   <section>
     <h2>存款利息試算</h2>
@@ -139,10 +155,11 @@
         <label class="field" id="depAmtLabel">存款金額（元）<input name="amount" inputmode="numeric" placeholder="例如 1000000"></label>
         <label class="field">年利率（%）<input name="rate" inputmode="decimal" placeholder="例如 1.7"></label>
         <label class="field">存款期間（月）<input name="months" inputmode="numeric" value="12"></label>
+        <span id="depTiming" hidden><label class="field">每月存入時間<select name="timing"><option value="begin">每月月初存入</option><option value="end">每月月底存入</option></select></label></span>
       </div>
       <div class="result" id="depOut" aria-live="polite"></div>
     </form>
-    <p class="note" style="margin-top:8px">年利率請填銀行牌告的定存或活存利率。計算都在你的瀏覽器裡完成。</p>
+    <p class="note" style="margin-top:8px">年利率請填銀行牌告的定存或活存利率。本工具採月利率（年利率 ÷ 12）估算，整存整付、零存整付按月複利；實際銀行利息可能因計息天數、存入日期、利率調整及金額進位規則而不同。計算都在你的瀏覽器裡完成。</p>
   </section>
 
   <div class="ad">廣告版位 336×280</div>
@@ -169,7 +186,7 @@
       <tbody>
         <tr><td>整存整付</td><td>一次存入</td><td>利息每月滾入本金（複利），到期一次領</td><td>短期用不到的錢，想多賺一點複利</td></tr>
         <tr><td>存本取息</td><td>一次存入</td><td>每月領利息，本金到期領回</td><td>退休族、想每月有固定收入</td></tr>
-        <tr><td>零存整付</td><td>每月存固定金額</td><td>按月複利，到期一次領</td><td>小資族強迫儲蓄</td></tr>
+        <tr><td>零存整付</td><td>每月存固定金額</td><td>按月複利，到期一次領；月初存入比月底存入多一個月利息</td><td>小資族強迫儲蓄</td></tr>
       </tbody>
     </table></div>
     <p style="margin-top:12px">同樣金額、利率和期間，整存整付因為利息會再生利息，總利息比存本取息多一點。</p>
@@ -177,37 +194,56 @@
 
   <section>
     <h2>利息的稅和二代健保</h2>
-    <p><b>27 萬元免稅額度</b>：存款利息要併入綜合所得，但每戶可以減除最多 27 萬元的儲蓄投資特別扣除額。以年利率 1.7% 估算，全家存款大約 1,500 多萬元，利息才會超過 27 萬。報稅時可以用<a href="/tools/income-tax/">所得稅試算</a>估算稅額。</p>
-    <p><b>二代健保補充保費</b>：單次給付的利息達 2 萬元，銀行會先扣 2.11%。例如定存到期一次領 3 萬元利息，會扣 633 元。</p>
-    <p><b>扣繳所得稅</b>：單次給付的利息超過 2 萬元，銀行會先預扣 10% 所得稅，報稅時再多退少補。</p>
+    <p>利息會碰到三種不同的制度：報稅時的扣除額、領息時的二代健保補充保費，以及領息時的扣繳所得稅。三者門檻和算法都不一樣，不能互相抵用。</p>
+    <h3 style="margin:16px 0 8px">1. 儲蓄投資特別扣除額 27 萬元（報稅時）</h3>
+    <p>存款利息要併入綜合所得。納稅義務人、合併申報的配偶及受扶養親屬，符合規定的存款利息等所得，<b>全年合計</b>最高可扣除 27 萬元；不是每個銀行帳戶各有 27 萬，也不是所有利息都適用，超過部分仍要依個人所得稅規定計算。以年利率 1.7% 估算，全戶存款大約 1,500 多萬元，利息才會超過 27 萬。郵局存簿儲金本金 100 萬元以內的利息依法免稅，不用計入。報稅時可以用<a href="/tools/income-tax/">所得稅試算</a>估算稅額。</p>
+    <h3 style="margin:16px 0 8px">2. 二代健保補充保費 2.11%（領息時）</h3>
+    <p>單次給付的利息達 2 萬元，銀行會以<b>這次利息的全額</b>扣 2.11%，不是只算超過 2 萬元的部分：</p>
+    <div class="tbl"><table>
+      <thead><tr><th>單次利息（元）</th><th>補充保費（元）</th></tr></thead>
+      <tbody>
+        <tr><td class="num">19,999</td><td class="num">0</td></tr>
+        <tr><td class="num">20,000</td><td class="num">422</td></tr>
+        <tr><td class="num">30,000</td><td class="num">633</td></tr>
+        <tr><td class="num">50,000</td><td class="num">1,055</td></tr>
+      </tbody>
+    </table></div>
+    <p style="margin-top:12px">27 萬元儲蓄投資特別扣除額是所得稅的規定，<b>不代表二代健保也有 27 萬元免扣額度</b>，兩者是不同制度。</p>
+    <h3 style="margin:16px 0 8px">3. 扣繳所得稅 10%（領息時）</h3>
+    <p>境內居住個人的一般銀行存款利息，原則上每次給付超過 2 萬元時，按給付總額扣繳 10% 所得稅。符合條件、向國稅局申請<a href="https://www.etax.nat.gov.tw/etwmain/tax-info/understanding/tax-q-and-a/national/individual-income-tax/other-and-consolidation/koV3Vg9" rel="noopener">儲蓄免扣證</a>並向銀行登記的人，在登記額度內可以免扣繳。扣繳只是預繳，實際年度稅負仍以綜合所得稅申報結果為準，扣多了會在報稅時退回。</p>
   </section>
 
   <section>
     <h2>用 Excel 算利息</h2>
     <p>本金在 B1、年利率在 B2（填 1.7%）、月數在 B3，整存整付到期利息：</p>
     <div class="formula"><code id="fvFormula">=ROUND(FV(B2/12,B3,0,-B1)-B1,0)</code><button type="button" class="copy" data-copy="fvFormula">複製</button></div>
-    <p style="margin-top:12px">零存整付（B1 改填每月存入金額），到期本利和：</p>
+    <p style="margin-top:12px">零存整付（B1 改填每月存入金額），每月<b>月初</b>存入的到期本利和（最後的 1 代表期初存入）：</p>
     <div class="formula"><code id="fvmFormula">=ROUND(FV(B2/12,B3,-B1,0,1),0)</code><button type="button" class="copy" data-copy="fvmFormula">複製</button></div>
+    <p style="margin-top:12px">每月<b>月底</b>存入，最後一個參數改成 0：</p>
+    <div class="formula"><code id="fvmeFormula">=ROUND(FV(B2/12,B3,-B1,0,0),0)</code><button type="button" class="copy" data-copy="fvmeFormula">複製</button></div>
     <p style="margin-top:12px">存本取息每月利息：<code>=ROUND(B1*B2/12,0)</code>。</p>
   </section>
 
   <section>
     <h2>計算依據與更新紀錄</h2>
-    <p>以月利率＝年利率 ÷ 12 計算。整存整付與零存整付按月複利，存本取息每月以本金計息。二代健保補充保費費率 2.11%、單次給付 2 萬元起扣，依<a href="https://www.nhi.gov.tw/" rel="noopener">衛福部中央健康保險署</a>規定；儲蓄投資特別扣除額 27 萬元依所得稅法第 17 條。</p>
+    <p>以月利率＝年利率 ÷ 12 計算。整存整付與零存整付按月複利（零存整付可選月初或月底存入），存本取息每月以本金計息。二代健保補充保費費率 2.11%、單次給付達 2 萬元以全額計收，依<a href="https://www.nhi.gov.tw/" rel="noopener">衛福部中央健康保險署</a>規定；儲蓄投資特別扣除額 27 萬元依所得稅法第 17 條；利息扣繳 10% 依各類所得扣繳率標準，儲蓄免扣證依<a href="https://www.etax.nat.gov.tw/etwmain/tax-info/understanding/tax-q-and-a/national/individual-income-tax/other-and-consolidation/koV3Vg9" rel="noopener">財政部稅務入口網</a>說明。</p>
     <div class="tbl"><table>
       <thead><tr><th>更新日期</th><th>內容</th></tr></thead>
       <tbody>
         <tr><td>2026/11/03</td><td>上線：整存整付、存本取息、零存整付；二代健保補充保費與扣繳提醒</td></tr>
+        <tr><td>2026/11/04</td><td>零存整付新增月初／月底存入選項與對應 Excel 公式；補充二代健保全額計收對照表、儲蓄免扣證、27 萬元扣除額適用範圍、計息假設與提前解約說明</td></tr>
       </tbody>
     </table></div>
   </section>
   <section>
     <h2>常見問題</h2>
     <details><summary>定存利息怎麼算？</summary><p>整存整付按月複利：本利和 ＝ 本金 ×（1 ＋ 年利率 ÷ 12）^月數。存本取息每月領息、本金不變：每月利息 ＝ 本金 × 年利率 ÷ 12。100 萬元、年利率 1.7%、存 1 年，整存整付利息約 17,133 元，存本取息每月約 1,417 元。</p></details>
-    <details><summary>存款利息要繳稅嗎？</summary><p>要併入綜合所得申報，但每戶有 27 萬元的儲蓄投資特別扣除額，全家存款利息（加上其他適用的利息）在 27 萬元以內，就不用為利息繳稅。</p></details>
-    <details><summary>定存利息會被扣二代健保嗎？</summary><p>單次給付的利息達 2 萬元，銀行會扣 2.11% 的二代健保補充保費；未達 2 萬元不扣。存本取息每月領息，每次金額較小，比較不容易達到門檻。</p></details>
+    <details><summary>存款利息要繳稅嗎？</summary><p>要併入綜合所得申報。納稅義務人、合併申報的配偶及受扶養親屬，符合規定的存款利息等所得，全年合計最高可扣除 27 萬元（儲蓄投資特別扣除額）；這是全戶合計的額度，不是每個帳戶各有 27 萬，超過部分仍要依規定計稅。</p></details>
+    <details><summary>定存利息會被扣二代健保嗎？</summary><p>單次給付的利息達 2 萬元，銀行會以這次利息的全額扣 2.11% 補充保費，例如 2 萬元扣 422 元；未達 2 萬元不扣。27 萬元儲蓄投資特別扣除額是所得稅的規定，不代表二代健保也有 27 萬元免扣額度。存本取息每月領息，每次金額較小，比較不容易達到門檻。</p></details>
+    <details><summary>定存利息超過 2 萬元一定會被扣 10% 稅嗎？</summary><p>境內居住個人的一般銀行存款利息，原則上每次給付超過 2 萬元時，按給付總額扣繳 10% 所得稅；辦理儲蓄免扣證並向銀行登記的人，在登記額度內可以免扣繳。扣繳只是預繳，實際稅負以綜合所得稅申報結果為準。</p></details>
     <details><summary>機動利率和固定利率怎麼選？</summary><p>固定利率在存款期間不變；機動利率會跟著銀行牌告利率調整。預期利率會上升時選機動比較有利，預期會下降時選固定可以鎖住利率。</p></details>
-    <details><summary>定存提前解約會怎樣？</summary><p>提前解約通常會依實際存款期間的利率打八折計算利息，未滿 1 個月不給息，各銀行規定可能不同，請以銀行說明為準。</p></details>
+    <details><summary>定存提前解約會怎樣？</summary><p>定期存款提前解約時，通常依銀行約定的提前解約規則，以實際存款期間適用的利率及一定比例計算利息；未滿一個月是否計息、如何計算，依各銀行契約為準。</p></details>
+    <details><summary>零存整付月初存和月底存差多少？</summary><p>月初存入的每一筆都從當月開始計息，月底存入則少算一個月利息。每月存 1 萬元、年利率 1.7%、存 1 年，月初存入利息約 1,111 元，月底存入約 939 元。</p></details>
   </section>
 
   <section>
@@ -231,8 +267,8 @@
   </section>
 </main>
 
-<footer><a href="/about/">關於我們</a> · <a href="/privacy/">隱私權政策</a> · <a href="/disclosure/">聯盟連結揭露</a><br>本站試算結果僅供參考，實際金額以主管機關規定、公司制度及官方系統計算為準。</footer>
-<script src="/assets/tools/calc.js?v=8"></script>
-<script src="/assets/tools/ui.js?v=12"></script>
+<footer><a href="/about/">關於我們</a> · <a href="/privacy/">隱私權政策</a> · <a href="/disclosure/">聯盟連結揭露</a><br>本工具試算結果僅供參考，實際利息、補充保費及扣繳稅額，應以金融機構計算及稅務、健保主管機關規定為準。</footer>
+<script src="/assets/tools/calc.js?v=10"></script>
+<script src="/assets/tools/ui.js?v=14"></script>
 </body>
 </html>
