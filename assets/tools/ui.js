@@ -625,39 +625,147 @@
   // ---- 匯率 ----
   const fx = $('form[data-tool="fx"]');
   if(fx){
-    const f = fx.elements, out = $("#fxOut"), info = $("#fxInfo");
+    const f = fx.elements, out = $("#fxOut"), stat = $("#fxStatus");
+    const cmp = $('form[data-tool="fxcmp"]'), card = $('form[data-tool="fxcard"]');
     const NAMES = {USD:"美元",JPY:"日圓",KRW:"韓元",EUR:"歐元",CNY:"人民幣",HKD:"港幣",GBP:"英鎊",AUD:"澳幣",SGD:"新加坡幣",THB:"泰銖",VND:"越南盾",MYR:"馬來西亞令吉",PHP:"菲律賓披索",CAD:"加幣",NZD:"紐西蘭幣",CHF:"瑞士法郎",IDR:"印尼盾"};
-    let rates = null;
-    const fmt = (v, d) => v.toLocaleString("zh-TW", {maximumFractionDigits:d});
-    function setRate(){ const c = f.cur.value; if(rates && rates[c]) f.rate.value = +(1/rates[c]).toPrecision(5); run(); }
-    function run(){
-      save("fxForm", [f.cur.value, f.dir.value, f.amount.value]);
-      const c = f.cur.value, rate = parseFloat(f.rate.value) || 0, amt = Math.max(0, parseFloat(String(f.amount.value).replace(/,/g,"")) || 0);
-      $("#fxRateLabel").firstChild.textContent = `匯率（1 ${NAMES[c]} ＝ ? 新台幣）`;
-      if(!rate){ out.innerHTML = `<div class="note">${rates === null ? "正在取得參考匯率…" : "請在「匯率」欄填入銀行牌告匯率。"}</div>`; return; }
-      if(!amt){ out.innerHTML = `<div class="note">輸入金額就會換算。</div>`; return; }
-      const twd = f.dir.value === "to-twd";
-      const res = twd ? amt*rate : amt/rate;
-      const examples = (twd ? [1000, 5000, 10000, 50000] : [1000, 10000, 30000, 100000]).map(v =>
-        `<dt>${fmt(v,0)} ${twd ? NAMES[c] : "新台幣"}</dt><dd>${fmt(twd ? v*rate : v/rate, 2)} ${twd ? "新台幣" : NAMES[c]}</dd>`).join("");
-      out.innerHTML = `
-        <div>${fmt(amt,2)} ${twd ? NAMES[c] : "新台幣"} 約等於</div>
-        <div class="big">${fmt(res, res < 100 ? 2 : 0)} <small>${twd ? "新台幣" : NAMES[c]}</small></div>
-        <dl class="kv">${examples}</dl>
-        <div class="note">用 1 ${NAMES[c]} ＝ ${rate} 新台幣換算。到銀行實際換匯時，買外幣用銀行的「賣出」匯率、外幣換回台幣用「買入」匯率，現金匯率的價差又比即期匯率大，金額會和這裡不同。</div>`;
+    // 沒有輔幣（實務上不用小數）的幣別
+    const NODEC = new Set(["JPY","KRW","VND","IDR"]);
+    // 內部全程不四捨五入，只在顯示時依幣別格式化
+    const fmtC = (v, code) => v.toLocaleString("zh-TW", {maximumFractionDigits: code === "TWD" ? 2 : NODEC.has(code) ? 0 : 2});
+    const fmtR = v => (+v.toPrecision(6)).toLocaleString("zh-TW", {maximumFractionDigits: 6});
+    const dec = el => { const t = String(el.value).replace(/[,\s]/g,""); return t === "" ? null : Number(t); };
+    const tpe = u => new Date(u*1000).toLocaleString("zh-TW", {timeZone:"Asia/Taipei", year:"numeric", month:"numeric", day:"numeric", hour:"2-digit", minute:"2-digit", hour12:false});
+    const KIND = {market:"市場參考匯率", cash:"銀行現金", spot:"銀行即期"};
+    let data = load("fxRates"), state = data ? "cache" : "loading";
+    const bank = load("fxBank") || {};
+    const mid = c => data && data.rates && data.rates[c] ? 1/data.rates[c] : 0;
+
+    function status(){
+      if(!data){ stat.innerHTML = state === "loading" ? `<b>市場參考匯率</b>　正在取得資料…` : `<b>市場參考匯率</b>　<span class="warn">目前無法取得參考匯率</span><br>請把匯率類型改成「銀行現金」或「銀行即期」，自行輸入銀行牌告匯率。`; return; }
+      const age = Date.now()/1000 - data.t, stale = age > 48*3600;
+      const tag = stale ? `<span class="pill" style="background:var(--makeup);color:#fff">資料已超過 48 小時</span>`
+        : state === "fail" ? `<span class="pill" style="background:var(--makeup);color:#fff">暫時無法更新</span>`
+        : state === "cache" ? `<span class="pill">更新中…</span>` : `<span class="pill">資料正常</span>`;
+      stat.innerHTML = `<b>市場參考匯率</b>　${tag}<br>
+        匯率資料最後更新：${tpe(data.t)}（台灣時間）${data.next && !stale ? `　下次預計更新：${tpe(data.next)}` : ""}
+        ${stale ? `<br><span class="warn">這份匯率已經超過 48 小時沒有更新，只能當作大概參考，換匯前請查銀行牌告。</span>` : state === "fail" ? `<br><span class="warn">目前連不上資料來源，以上是上次成功取得的資料。</span>` : ""}
+        <br>資料來源：<a href="https://www.exchangerate-api.com" rel="noopener" target="_blank">Rates By Exchange Rate API</a> · 每日更新 · 非銀行即時牌告`;
     }
-    const s = load("fxForm"); if(s){ if(s[0] && NAMES[s[0]]) f.cur.value = s[0]; if(s[1]) f.dir.value = s[1]; if(s[2]) f.amount.value = s[2]; }
-    f.cur.addEventListener("change", setRate);
-    fx.addEventListener("input", e => { if(e.target !== f.cur) run(); }); fx.addEventListener("submit", e => { e.preventDefault(); run(); });
-    $("#fxReset").addEventListener("click", setRate);
-    run();
-    fetch("https://open.er-api.com/v6/latest/TWD").then(r => r.json()).then(d => {
-      if(d.result !== "success") throw 0;
-      rates = d.rates;
-      const t = new Date(d.time_last_update_unix*1000), p2 = x => String(x).padStart(2,"0");
-      info.innerHTML = `參考匯率更新時間：${t.getFullYear()}/${t.getMonth()+1}/${t.getDate()} ${p2(t.getHours())}:${p2(t.getMinutes())}，資料來源 <a href="https://www.exchangerate-api.com" rel="noopener" target="_blank">Rates By Exchange Rate API</a>（國際市場參考價，每天更新一次，不是銀行牌告匯率）。`;
-      setRate();
-    }).catch(() => { rates = {}; info.textContent = "暫時無法取得參考匯率，請自行填入銀行牌告匯率。"; run(); });
+    function rateLabel(){
+      const c = f.cur.value, k = f.kind.value, twd = f.dir.value === "to-twd";
+      const side = k === "market" ? "" : twd ? "買入" : "賣出";
+      return `${KIND[k]}${side}匯率（1 ${NAMES[c]} ＝ ? 新台幣）`;
+    }
+    const bankKey = () => `${f.cur.value}|${f.kind.value}|${f.dir.value}`;
+    function syncRate(){
+      const k = f.kind.value, m = mid(f.cur.value);
+      $("#fxRateLabel").firstChild.textContent = rateLabel();
+      f.rate.readOnly = k === "market";
+      if(k === "market") f.rate.value = m ? +m.toPrecision(6) : "";
+      else { f.rate.value = bank[bankKey()] || ""; f.rate.placeholder = m ? `市場參考約 ${fmtR(m)}，請填銀行牌告` : "請填銀行牌告匯率"; }
+      $("#fxKindNote").textContent = k === "market" ? "使用國際市場參考匯率（中間價），適合初步估算；銀行實際換匯會再加上買賣價差。"
+        : `請填銀行的「${k === "cash" ? "現金" : "即期"}${f.dir.value === "to-twd" ? "買入" : "賣出"}」匯率。${f.dir.value === "to-twd" ? "外幣換回台幣看銀行買入" : "用台幣買外幣看銀行賣出"}；${k === "cash" ? "現金是換實體鈔票，價差通常比即期大" : "即期用在外幣帳戶之間轉帳"}。`;
+    }
+    function run(){
+      save("fxForm", [f.cur.value, f.dir.value, f.amount.value, f.kind.value]);
+      const c = f.cur.value, k = f.kind.value, twd = f.dir.value === "to-twd";
+      if(k !== "market") { const v = dec(f.rate); if(v) bank[bankKey()] = f.rate.value; else delete bank[bankKey()]; save("fxBank", bank); }
+      const rate = dec(f.rate), amt = dec(f.amount), m = mid(c);
+      if(!rate || isNaN(rate) || rate <= 0){ out.innerHTML = `<div class="note">${k === "market" ? (state === "loading" ? "正在取得參考匯率…" : "目前沒有參考匯率，請改用銀行匯率並自行輸入。") : "請在上方填入銀行牌告匯率。"}</div>`; runAll(); return; }
+      if(amt === null || isNaN(amt) || amt <= 0){ out.innerHTML = `<div class="note">輸入${twd ? NAMES[c] : "新台幣"}金額就會換算。</div>`; runAll(); return; }
+      const res = twd ? amt*rate : amt/rate, from = twd ? c : "TWD", to = twd ? "TWD" : c;
+      const nm = x => x === "TWD" ? "新台幣" : NAMES[x];
+      const examples = (twd ? [100, 1000, 10000, 50000] : [1000, 10000, 30000, 100000]).map(v =>
+        `<dt>${fmtC(v, from)} ${nm(from)}</dt><dd>${fmtC(twd ? v*rate : v/rate, to)} ${nm(to)}</dd>`).join("");
+      let spread = "";
+      if(k !== "market" && m && Math.abs(rate - m)/m > 0.2) spread = `<div class="warn">你填的匯率和${NAMES[c]}的市場參考價（${fmtR(m)}）差超過 2 成，請確認幣別是不是選對了。</div>`;
+      else if(k !== "market" && m){
+        const cost = twd ? amt*m - res : amt - res*m, pctv = Math.abs(rate - m)/m*100;
+        spread = `<div class="note">和市場參考價（${fmtR(m)}）相比，這筆換匯的價差成本約 <b>${fmtC(Math.abs(cost), "TWD")} 元新台幣</b>（約 ${pctv.toFixed(2)}%）。${(twd ? rate > m : rate < m) ? `<span class="warn">你填的匯率比市場參考價還有利，請確認是不是填成另一邊的價格。</span>` : ""}</div>`;
+      }
+      out.innerHTML = `
+        <div>${fmtC(amt, from)} ${nm(from)} 約等於</div>
+        <div class="big">${fmtC(res, to)} <small>${nm(to)}</small></div>
+        <dl class="kv">${examples}</dl>
+        <div class="note">使用${KIND[k]}${k === "market" ? "" : twd ? "買入" : "賣出"}匯率 1 ${NAMES[c]} ＝ ${fmtR(rate)} 新台幣換算。${k === "market" ? "這是國際市場參考價，不是銀行牌告；到銀行實際換匯，買外幣會比較貴、賣外幣會拿比較少。" : ""}</div>
+        ${spread}
+        <div><button type="button" class="copy" id="fxCopy" style="padding:8px 12px">複製換算結果</button></div>`;
+      $("#fxCopy").onclick = e => {
+        const text = `${fmtC(amt, from)} ${nm(from)} ≈ ${fmtC(res, to)} ${nm(to)}\n匯率：1 ${NAMES[c]} ＝ ${fmtR(rate)} 新台幣（${KIND[k]}${k === "market" ? (data ? `，資料時間 ${tpe(data.t)}` : "") : twd ? "買入" : "賣出"}）\n${location.href}`;
+        const b = e.target; if(navigator.clipboard) navigator.clipboard.writeText(text).then(() => { b.textContent = "已複製"; setTimeout(() => b.textContent = "複製換算結果", 1500); }, () => {});
+      };
+      runAll();
+    }
+
+    // ---- 銀行換匯成本比較 ----
+    function runCmp(){
+      if(!cmp) return;
+      const g = cmp.elements, o = $("#fxCmpOut"), c = f.cur.value, buy = g.act.value === "buy", m = mid(c);
+      save("fxCmp", ["act","amt","n1","r1","f1","n2","r2","f2","n3","r3","f3"].map(x => g[x].value));
+      $("#fxCmpRateHead").textContent = `${buy ? "賣出" : "買入"}匯率`;
+      cmp.querySelectorAll("[data-cur]").forEach(el => el.textContent = NAMES[c]);
+      const amt = dec(g.amt);
+      const rows = [1,2,3].map(j => ({name: g["n"+j].value.trim() || `銀行 ${"ABC"[j-1]}`, rate: dec(g["r"+j]), fee: dec(g["f"+j]) || 0}))
+        .filter(x => x.rate && !isNaN(x.rate) && x.rate > 0);
+      if(!amt || isNaN(amt) || amt <= 0 || !rows.length){ o.innerHTML = `<div class="note">輸入要換的${NAMES[c]}金額，再填至少一家銀行的${buy ? "賣出" : "買入"}匯率，就會比較哪一家比較划算。</div>`; return; }
+      rows.forEach(x => { x.twd = buy ? amt*x.rate + x.fee : amt*x.rate - x.fee; x.cost = m ? (buy ? x.twd - amt*m : amt*m - x.twd) : null; });
+      const best = buy ? Math.min(...rows.map(x => x.twd)) : Math.max(...rows.map(x => x.twd));
+      const worst = buy ? Math.max(...rows.map(x => x.twd)) : Math.min(...rows.map(x => x.twd));
+      const bestRow = rows.find(x => x.twd === best);
+      o.innerHTML = `
+        <div class="tbl"><table>
+          <thead><tr><th>銀行</th><th>${buy ? "賣出" : "買入"}匯率</th><th>手續費</th><th>${buy ? "需付台幣" : "實收台幣"}</th>${m ? "<th>換匯成本</th>" : ""}</tr></thead>
+          <tbody>${rows.map(x => `<tr${x.twd === best && rows.length > 1 ? ' style="font-weight:700"' : ""}><td>${x.name}${x.twd === best && rows.length > 1 ? "（最划算）" : ""}</td><td class="num">${fmtR(x.rate)}</td><td class="num">${fmtC(x.fee, "TWD")}</td><td class="num">${fmtC(x.twd, "TWD")}</td>${m ? `<td class="num">${x.cost >= 0 ? fmtC(x.cost, "TWD") : "低於參考價"}</td>` : ""}</tr>`).join("")}</tbody>
+        </table></div>
+        ${rows.length > 1 && best !== worst ? `<div class="note">${buy ? `換 ${fmtC(amt, c)} ${NAMES[c]}` : `把 ${fmtC(amt, c)} ${NAMES[c]} 換回台幣`}，選<b>${bestRow.name}</b>比最貴的一家${buy ? "少付" : "多拿"} <b>${fmtC(Math.abs(best - worst), "TWD")} 元</b>。</div>` : ""}
+        ${m && rows.some(x => Math.abs(x.rate - m)/m > 0.2) ? `<div class="warn">有銀行的匯率和${NAMES[c]}的市場參考價（${fmtR(m)}）差超過 2 成，請確認幣別是不是選對了。</div>` : rows.some(x => x.cost < 0) ? `<div class="warn">有銀行的匯率比市場參考價還有利，請確認是不是填成另一邊（${buy ? "買入" : "賣出"}）的價格，或參考價已經過時。</div>` : ""}
+        ${m ? `<div class="note">換匯成本＝和市場參考價（1 ${NAMES[c]} ＝ ${fmtR(m)}）相比多付或少拿的台幣，包含價差和手續費。</div>` : ""}`;
+    }
+
+    // ---- 刷卡和換現金比較 ----
+    function runCard(){
+      if(!card) return;
+      const g = card.elements, o = $("#fxCardOut"), c = f.cur.value, m = mid(c);
+      save("fxCard", ["amt","crate","fee","back","cash"].map(x => g[x].value));
+      card.querySelectorAll("[data-cur]").forEach(el => el.textContent = NAMES[c]);
+      g.crate.placeholder = m ? `預設市場參考 ${fmtR(m)}` : "請填匯率";
+      const amt = dec(g.amt), fee = dec(g.fee) ?? 1.5, back = dec(g.back) ?? 0, cash = dec(g.cash), cr = dec(g.crate) || m;
+      if(!amt || isNaN(amt) || amt <= 0 || !cr){ o.innerHTML = `<div class="note">輸入消費金額就會比較刷卡和換現金的成本。</div>`; return; }
+      const base = amt*cr, cardFee = base*fee/100, cardBack = base*back/100, cardTotal = base + cardFee - cardBack;
+      const cashTotal = cash && cash > 0 ? amt*cash : null;
+      o.innerHTML = `
+        <dl class="kv">
+          <dt>刷卡：${fmtC(amt, c)} ${NAMES[c]} × ${fmtR(cr)}</dt><dd>${fmtC(base, "TWD")}</dd>
+          <dt>國外交易手續費 ${fee}%</dt><dd>＋${fmtC(cardFee, "TWD")}</dd>
+          ${back ? `<dt>回饋 ${back}%</dt><dd>－${fmtC(cardBack, "TWD")}</dd>` : ""}
+          <dt class="sum">刷卡實際成本</dt><dd class="sum">${fmtC(cardTotal, "TWD")}</dd>
+          ${cashTotal ? `<dt class="sum">換現金成本（現金賣出 ${fmtR(cash)}）</dt><dd class="sum">${fmtC(cashTotal, "TWD")}</dd>` : ""}
+        </dl>
+        ${cashTotal ? `<div class="note">${Math.abs(cardTotal - cashTotal) < 1 ? "兩種方式成本差不多。" : cardTotal < cashTotal ? `<b>刷卡</b>比換現金便宜約 ${fmtC(cashTotal - cardTotal, "TWD")} 元。` : `<b>換現金</b>比刷卡便宜約 ${fmtC(cardTotal - cashTotal, "TWD")} 元。`}</div>` : `<div class="note">填入銀行的現金賣出匯率，就能和換現金比較。</div>`}
+        <div class="note">刷卡匯率以發卡組織結算當天的匯率為準，入帳金額可能和這裡不同；如果店家問要不要用台幣結帳（DCC），選當地貨幣通常比較划算。</div>`;
+    }
+    function runAll(){ runCmp(); runCard(); }
+
+    const s = load("fxForm");
+    if(s){ if(s[0] && NAMES[s[0]]) f.cur.value = s[0]; if(s[1]) f.dir.value = s[1]; if(s[2]) f.amount.value = s[2]; if(s[3] && KIND[s[3]]) f.kind.value = s[3]; }
+    const restore = (form, key, names) => { const v = load(key); if(form && v) names.forEach((x, j) => { if(v[j] != null && v[j] !== "") form.elements[x].value = v[j]; }); };
+    restore(cmp, "fxCmp", ["act","amt","n1","r1","f1","n2","r2","f2","n3","r3","f3"]);
+    restore(card, "fxCard", ["amt","crate","fee","back","cash"]);
+    ["cur","dir","kind"].forEach(x => f[x].addEventListener("change", () => { syncRate(); run(); }));
+    fx.addEventListener("input", e => { if(!["cur","dir","kind"].includes(e.target.name)) run(); });
+    fx.addEventListener("submit", e => { e.preventDefault(); run(); });
+    [cmp, card].forEach(x => { if(x){ x.addEventListener("input", runAll); x.addEventListener("change", runAll); x.addEventListener("submit", e => { e.preventDefault(); runAll(); }); } });
+    status(); syncRate(); run();
+
+    const ctl = typeof AbortController !== "undefined" ? new AbortController() : null;
+    const timer = setTimeout(() => ctl && ctl.abort(), 8000);
+    fetch("https://open.er-api.com/v6/latest/TWD", ctl ? {signal: ctl.signal} : {}).then(r => r.json()).then(d => {
+      clearTimeout(timer);
+      if(d.result !== "success" || !d.rates) throw 0;
+      data = {t: d.time_last_update_unix, next: d.time_next_update_unix, rates: d.rates};
+      save("fxRates", data); state = "ok";
+    }).catch(() => { clearTimeout(timer); state = "fail"; })
+      .then(() => { status(); syncRate(); run(); });
   }
 
   // ---- 單位換算 ----
