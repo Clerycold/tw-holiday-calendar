@@ -1,5 +1,5 @@
 // 產生 /tools/ 試算工具頁。執行：node _src/build-tools.mjs（在 repo 根目錄）
-import { writeFileSync, mkdirSync } from "node:fs";
+import { writeFileSync, mkdirSync, readFileSync } from "node:fs";
 import { createRequire } from "node:module";
 const require_ = createRequire(import.meta.url);
 const { TW_HOL } = require_("../assets/tools/calc.js");
@@ -42,7 +42,7 @@ ${faq.map(([q, a]) => `    <details><summary>${q}</summary><p>${a}</p></details>
 <meta property="og:url" content="${url}">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@600;900&family=Noto+Sans+TC:wght@400;500;700&family=JetBrains+Mono:wght@500&display=swap">
-<link rel="stylesheet" href="/assets/site.css?v=3">
+<link rel="stylesheet" href="/assets/site.css?v=4">
 <link rel="stylesheet" href="/assets/tools/tools.css?v=3">
 <script type="application/ld+json">
 ${JSON.stringify({ "@context": "https://schema.org", "@graph": graph }, null, 1)}
@@ -50,7 +50,7 @@ ${JSON.stringify({ "@context": "https://schema.org", "@graph": graph }, null, 1)
 </head>
 <body>
 <header class="top">
-  <a class="logo" href="/">放假<span>日曆</span></a>
+  <a class="logo" href="/">放假<span>日曆</span><small>台灣生活資訊與免費試算工具</small></a>
   ${NAV}
 </header>
 
@@ -64,7 +64,7 @@ ${body}${faqHtml}
 ${path === "/tools/" ? "" : related(path)}
 </main>
 
-<footer><a href="/about/">關於我們</a> · <a href="/privacy/">隱私權政策</a> · <a href="/disclosure/">聯盟連結揭露</a><br>${disclaimer || "本站試算結果僅供參考，實際金額以主管機關規定、公司制度及官方系統計算為準。"}</footer>
+<footer><a href="/about/">關於我們</a> · <a href="/privacy/">隱私權政策</a> · <a href="/disclosure/">聯盟連結揭露</a><br>放假日曆｜台灣生活資訊與免費試算工具。<br>${disclaimer || "本站試算結果僅供參考，實際金額以主管機關規定、公司制度及官方系統計算為準。"}</footer>
 ${scripts ? `<script src="/assets/tools/calc.js?v=11"></script>
 <script src="/assets/tools/ui.js?v=16"></script>` : ""}
 </body>
@@ -109,9 +109,27 @@ const TOOLS = [
   { path: "/tools/unit/", name: "單位換算", sub: "坪、台斤、吋等台灣常用單位", pill: "生活",
     ask: "30 坪是幾平方公尺？", cta: "換算單位" },
 ];
+// 工具頁 → 相關文章（文章也要連回工具，見 2026/、2027/ 各頁的延伸閱讀）
+const ART = {
+  qingjia: ["/2027/qingjia/", "2027 全年請假攻略", "9 個連假、特休 3～14 天怎麼排"],
+  chunjie: ["/2027/chunjie/", "2027 春節連假攻略", "請 5 天休 16 天，勞工補假與加班費"],
+  landTax: ["/2026/land-value-tax/", "2026 地價稅試算與繳納", "公告地價、自用住宅 2‰、持分面積"],
+};
+const TOOL_ART = {
+  "/tools/annual-leave/": ["qingjia", "chunjie"], "/tools/overtime/": ["chunjie", "qingjia"], "/tools/workdays/": ["qingjia"],
+  "/tools/income-tax/": ["landTax"], "/tools/take-home-pay/": ["landTax"], "/tools/loan/": ["landTax"], "/tools/unit/": ["landTax"],
+  "/tools/currency/": ["qingjia", "chunjie"],
+};
 function related(path) {
   const others = TOOLS.filter(t => t.path !== path).map(t => `      <a href="${t.path}">${t.name}<small>${t.sub}</small></a>`);
-  return `
+  const arts = (TOOL_ART[path] || []).map(k => ART[k]);
+  return (arts.length ? `
+  <section>
+    <h2>相關文章</h2>
+    <div class="related">
+${arts.map(([u, n, d]) => `      <a href="${u}">${n}<small>${d}</small></a>`).join("\n")}
+    </div>
+  </section>` : "") + `
   <section>
     <h2>其他試算工具</h2>
     <div class="related">
@@ -233,7 +251,6 @@ const tax = page({
     <p class="note" style="margin-top:8px">本試算未包含股利、儲蓄投資、教育學費、最低稅負制等項目。<b>基本生活費 115 年度金額尚未公告</b>，暫以 114 年度每人 21.3 萬元計算，只會影響扶養人數多、扣除額少的家庭（詳見下方說明）。計算都在你的瀏覽器裡完成，輸入的數字不會傳到本站。</p>
   </section>
 
-  <div class="ad">廣告版位 336×280</div>
 
   <section>
     <h2>115 年度免稅額、扣除額一覽</h2>
@@ -341,7 +358,6 @@ const leave = page({
     <p>特休請在連假旁邊最划算。2027 年請 5 天特休，春節就能連休 16 天。用<a href="/#planner">請假計算器</a>輸入你的特休天數，自動排出全年最長的連假。</p>
   </section>
 
-  <div class="ad">廣告版位 336×280</div>
 
   <section>
     <h2>勞基法特休天數表</h2>
@@ -440,7 +456,6 @@ const overtime = page({
     <p class="note" style="margin-top:8px">國定假日的 1,200 元是月薪以外「另外加發」的金額；那天原本的薪水已經包含在月薪裡。</p>
   </section>
 
-  <div class="ad">廣告版位 336×280</div>
 
   <section>
     <h2>時薪要用哪些薪水來算？</h2>
@@ -553,7 +568,6 @@ ${Object.entries(TW_HOL).sort().map(([k, n]) => { const d = new Date(k + "T00:00
     <p class="note" style="margin-top:8px">落在週末的假日也列出來供參考；計算工作天數時，週末本來就會扣掉。想看月曆形式，請到 <a href="/#calendar">2027 全年行事曆</a>。</p>
   </section>
 
-  <div class="ad">廣告版位 336×280</div>
 
   <section>
     <h2>用 Excel 算工作天數（扣台灣國定假日）</h2>
@@ -612,7 +626,6 @@ const insurance = page({
     <p class="note" style="margin-top:8px">依勞保局、健保署公告的 115 年 1 月 1 日起投保級距計算，適用一般全職受僱勞工。職災保險費由公司全額負擔，未列入。計算都在你的瀏覽器裡完成。</p>
   </section>
 
-  <div class="ad">廣告版位 336×280</div>
 
   <section>
     <h2>常見月薪的勞健保自付額</h2>
@@ -719,7 +732,6 @@ const takeHome = page({
     <p class="note" style="margin-top:8px">依 115 年勞健保級距、財政部薪資扣繳規定計算，適用一般全職受僱勞工。計算都在你的瀏覽器裡完成。</p>
   </section>
 
-  <div class="ad">廣告版位 336×280</div>
 
   <section>
     <h2>常見月薪實領對照表</h2>
@@ -815,7 +827,6 @@ const severancePage = page({
     <p class="note" style="margin-top:8px">依勞動基準法第 16、17 條及勞工退休金條例第 11、12 條計算，年資算到離職日當天。計算都在你的瀏覽器裡完成。</p>
   </section>
 
-  <div class="ad">廣告版位 336×280</div>
 
   <section>
     <h2>新制和舊制差在哪？</h2>
@@ -952,7 +963,6 @@ const pensionPage = page({
     <p style="margin-top:12px">勞退之外，勞保老年年金是另一筆終身的退休收入。用<a href="/tools/labor-insurance-pension/">勞保老年年金試算</a>，可以把兩筆加起來，看退休後每月大約有多少收入。</p>
   </section>
 
-  <div class="ad">廣告版位 336×280</div>
 
   <section>
     <h2>65 歲退休，勞退專戶大約有多少？</h2>
@@ -1113,7 +1123,6 @@ const laborInsPensionPage = page({
     <p class="note" style="margin-top:8px">依勞工保險條例第 58～59 條計算，投保薪資依 115 年勞保投保薪資分級表（最高 45,800 元）。結果是依公式計算的估算值，不含日後物價調整，實際金額以勞保局核定為準。計算都在你的瀏覽器裡完成。</p>
   </section>
 
-  <div class="ad">廣告版位 336×280</div>
 
   <section>
     <h2>勞保老年年金幾歲可以領？</h2>
@@ -1318,7 +1327,6 @@ const loanPage = page({
     <p class="note" style="margin-top:8px">利率請填銀行核貸的年利率，以月利率＝年利率 ÷ 12 計算；年限以月為單位，例如 2.5 年 ＝ 30 期。零利率會直接以本金 ÷ 期數計算。計算都在你的瀏覽器裡完成。</p>
   </section>
 
-  <div class="ad">廣告版位 336×280</div>
 
   <section>
     <h2>房貸每月還多少？金額對照表</h2>
@@ -1479,7 +1487,6 @@ const depositPage = page({
     <p class="note" style="margin-top:8px">年利率請填銀行牌告的定存或活存利率。本工具採月利率（年利率 ÷ 12）估算，整存整付、零存整付按月複利；實際銀行利息可能因計息天數、存入日期、利率調整及金額進位規則而不同。計算都在你的瀏覽器裡完成。</p>
   </section>
 
-  <div class="ad">廣告版位 336×280</div>
 
   <section>
     <h2>定存 1 年利息對照表</h2>
@@ -1586,7 +1593,6 @@ const fxPage = page({
     <p class="note" style="margin-top:8px">頁面只會向匯率資料來源下載公開匯率，你輸入的金額和銀行匯率只存在你的瀏覽器裡，不會傳出去。</p>
   </section>
 
-  <div class="ad">廣告版位 336×280</div>
 
   <section>
     <h2>銀行換匯成本比較</h2>
@@ -1762,7 +1768,6 @@ const unitPage = page({
     </div>
   </section>
 
-  <div class="ad">廣告版位 336×280</div>
 
   <section>
     <h2>坪數換算：1 坪幾平方公尺？</h2>
@@ -1905,4 +1910,33 @@ for (const [f, html] of Object.entries(out)) {
   mkdirSync(f.replace(/\/[^/]+$/, ""), { recursive: true });
   writeFileSync(f, html);
   console.log("wrote", f);
+}
+
+// 首頁「生活試算工具」區塊：依 TOOLS 產生，寫進 index.html 的 tools:start／tools:end 之間
+const GROUPS = [
+  ["薪資與勞工", ["/tools/take-home-pay/", "/tools/insurance/", "/tools/overtime/", "/tools/annual-leave/", "/tools/severance/"]],
+  ["報稅與工作日", ["/tools/income-tax/", "/tools/workdays/"]],
+  ["退休規劃", ["/tools/pension/", "/tools/labor-insurance-pension/"]],
+  ["貸款與存款", ["/tools/loan/", "/tools/interest/"]],
+  ["旅遊與生活", ["/tools/currency/", "/tools/unit/"]],
+];
+{
+  const byPath = Object.fromEntries(TOOLS.map(t => [t.path, t]));
+  const missing = TOOLS.filter(t => !GROUPS.some(([, ps]) => ps.includes(t.path)));
+  if (missing.length) throw new Error("首頁工具分類缺少：" + missing.map(t => t.path).join(", "));
+  const block = `  <!-- tools:start -->
+  <section id="tools">
+    <div class="eyebrow">LIFE TOOLS</div>
+    <h2>生活試算工具</h2>
+    <p style="margin:8px 0 0">報稅、薪水、退休、貸款這些要算錢的事，輸入數字就能算出結果，每頁都附計算依據和 Excel 公式。<a href="/tools/">看全部工具 →</a></p>
+    <div class="tg">
+${GROUPS.map(([g, ps]) => `      <div><h3>${g}</h3>${ps.map(p => `<a href="${p}">${byPath[p].name}<small>${byPath[p].sub}</small></a>`).join("")}</div>`).join("\n")}
+    </div>
+  </section>
+  <!-- tools:end -->`;
+  const home = readFileSync("index.html", "utf8");
+  const next = home.replace(/  <!-- tools:start -->[\s\S]*?<!-- tools:end -->/, block);
+  if (next === home && !home.includes(block)) throw new Error("index.html 找不到 tools:start／tools:end 標記");
+  writeFileSync("index.html", next);
+  console.log("wrote index.html (tools block)");
 }

@@ -170,7 +170,7 @@ const head = (title, desc, path, ld) => `<!doctype html>
 <meta property="og:url" content="${SITE}${path}">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@600;900&family=Noto+Sans+TC:wght@400;500;700&family=JetBrains+Mono:wght@500&display=swap">
-<link rel="stylesheet" href="/assets/site.css?v=2">
+<link rel="stylesheet" href="/assets/site.css?v=4">
 <link rel="stylesheet" href="/assets/concert.css?v=2">
 <script type="application/ld+json">
 ${JSON.stringify(ld, null, 1)}
@@ -178,7 +178,7 @@ ${JSON.stringify(ld, null, 1)}
 </head>
 <body>
 <header class="top">
-  <a class="logo" href="/">放假<span>日曆</span></a>
+  <a class="logo" href="/">放假<span>日曆</span><small>台灣生活資訊與免費試算工具</small></a>
   <nav><a href="/#planner">請假計算器</a><a href="/tools/">試算工具</a><a href="/concert/">演唱會住宿</a><a href="/#calendar">全年行事曆</a></nav>
 </header>
 `;
@@ -191,7 +191,7 @@ const STEPS = `<p>演唱會熱門場次一公布，周邊飯店往往很快就�
       <div class="step"><div class="when">4. 演唱會當天</div><h3>輕裝出門</h3><p>如果飯店提供入住前行李寄放服務，可以先寄放行李，再輕鬆前往演唱會現場。</p></div>
     </div>`;
 
-const foot = `<footer><a href="/about/">關於我們</a> · <a href="/privacy/">隱私權政策</a> · <a href="/disclosure/">聯盟連結揭露</a><br>場館資料查證日期：${TODAY_ZH}。交通與容納人數依場館及主辦單位公告為準；步行時間為一般速度估算，散場人潮時會更久。住宿房價等級為一般情況參考，演唱會期間可能大幅上漲。</footer>
+const foot = `<footer><a href="/about/">關於我們</a> · <a href="/privacy/">隱私權政策</a> · <a href="/disclosure/">聯盟連結揭露</a><br>放假日曆｜台灣生活資訊與免費試算工具。<br>場館資料查證日期：${TODAY_ZH}。交通與容納人數依場館及主辦單位公告為準；步行時間為一般速度估算，散場人潮時會更久。住宿房價等級為一般情況參考，演唱會期間可能大幅上漲。</footer>
 <script src="/assets/concert.js"></script>
 </body>
 </html>
@@ -245,7 +245,6 @@ ${v.zones.map(z=>`        <tr><td>${z.name}</td><td>${z.walk||"搭捷運"}</td><
     <div class="tip">${p.exit.map(t=>`<p>${t}</p>`).join("")}</div>
   </section>
 
-  <div class="ad">廣告版位 336×280</div>
 
   <section id="zones">
     <h2>${S(v.short)}周邊住宿區域推薦</h2>
@@ -325,7 +324,6 @@ ${soon.map(v=>`      <div class="venue soon"><span class="badge">即將推出</s
     </div>` : ""}
   </section>
 
-  <div class="ad">廣告版位 336×280</div>
 
   <section>
     <h2>住宿區域怎麼選？</h2>
