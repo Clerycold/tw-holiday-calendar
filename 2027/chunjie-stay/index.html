@@ -29,6 +29,29 @@
 .area .who{color:var(--muted);font-size:.88rem}
 .area .warn{font-size:.9rem}
 .check{padding-left:1.2em}
+h2[id]{scroll-margin-top:16px}
+.toc{border:1px solid var(--rule);border-radius:6px;background:var(--sheet);padding:12px 16px}
+.toc b{font-size:.95rem}
+.toc ol{margin:6px 0 0;padding-left:1.4em;columns:2;column-gap:28px}
+.toc li{margin:3px 0;break-inside:avoid}
+.cta-box{border:1px solid var(--rule);border-left:4px solid var(--leave);border-radius:0 6px 6px 0;background:var(--leave-soft);padding:16px 18px;display:grid;gap:10px}
+.cta-box p{margin:0}
+.cta{display:flex;flex-wrap:wrap;gap:10px}
+.cta a{display:inline-block;padding:11px 18px;border-radius:999px;background:var(--red);color:#fff;text-decoration:none;font-weight:700}
+.cta a:hover{filter:brightness(1.08)}
+.cta a.alt{background:var(--sheet);color:var(--ink);border:1px solid var(--rule)}
+@media (max-width:600px){
+  .toc ol{columns:1}
+  .stack{overflow:visible}
+  .stack table,.stack tbody,.stack tr,.stack td{display:block;width:100%}
+  .stack thead{display:none}
+  .stack tr{border-bottom:1px solid var(--rule);padding:8px 2px}
+  .stack tr:last-child{border-bottom:0}
+  .stack td{border:0;padding:3px 12px;white-space:normal;display:grid;grid-template-columns:5.6em 1fr;gap:8px}
+  .stack td,.stack td::before{font-family:var(--f-body)}
+  .stack td::before{content:attr(data-label);color:var(--muted);font-size:.8rem;padding-top:2px}
+  .stack td:first-child{font-weight:700}
+}
 .check li{margin:4px 0}
 </style>
 <script type="application/ld+json">
@@ -57,6 +80,7 @@
       "@type":"FAQPage",
       "mainEntity":[
         {"@type":"Question","name":"2027 春節哪幾天住宿最難訂？","acceptedAnswer":{"@type":"Answer","text":"初一到初三，也就是 2/6（六）～2/8（一）。觀光署 2026 年春節統計，各縣市訂房率多集中在初一到初三；想好訂又不想付最高價，可以改住小年夜、除夕前，或初四之後。"}},
+        {"@type":"Question","name":"2027 春節怎麼請假可以連休 11 天？","acceptedAnswer":{"@type":"Answer","text":"請 2/11（四）、2/12（五）兩天特休，接上春節 2/4～2/10 和 2/13～2/14 的週末，就能從 2/4 連休到 2/14，共 11 天。以週休二日的一般上班族計算，排班制請依自己的班表重算。"}},
         {"@type":"Question","name":"2027 春節國內住宿要多早訂？","acceptedAnswer":{"@type":"Answer","text":"想住初一到初三的熱門區域，建議越早越好，看到合適的房先訂可免費取消的方案。錯開初一到初三的日子，通常選擇會多很多。"}},
         {"@type":"Question","name":"2027 春節國道有高乘載管制嗎？","acceptedAnswer":{"@type":"Answer","text":"2027 年的措施要等交通部高速公路局在春節前公布。以 2026 年為例，高乘載只管制北向：國 5 北向初二到初五、國 1 和國 3 北向初三到初四，另外初一到初六每天 0～5 時暫停收費。"}},
         {"@type":"Question","name":"2027 春節台鐵、高鐵票什麼時候開賣？","acceptedAnswer":{"@type":"Answer","text":"以台鐵、高鐵公告為準。以 2026 年為例，台鐵東部幹線 1/13、西部幹線 1/14 開放訂票，高鐵 1/16 開賣，大約是疏運開始前一個月。"}},
@@ -93,24 +117,39 @@
       <div><b>2/4～2/10</b><small>春節連假 7 天，2/11 開工</small></div>
       <div><b>2/6～2/8</b><small>初一到初三，住宿最難訂</small></div>
       <div><b>除夕前／初四後</b><small>錯峰出遊，房間選擇多</small></div>
+      <div><b>請 2 休 11</b><small>請 2/11、2/12，連休 2/4～2/14</small></div>
       <div><b>春節前公布</b><small>國道疏導、台鐵高鐵訂票日</small></div>
     </div>
   </section>
 
+    <nav class="toc" aria-label="文章目錄">
+    <b>文章目錄</b>
+    <ol>
+      <li><a href="#when">哪幾天最難訂房、最塞車</a></li>
+      <li><a href="#leave">請假組合：請 2 休 11、請 5 休 16</a></li>
+      <li><a href="#areas">熱門住宿區域比較表</a></li>
+      <li><a href="#area-detail">8 個區域各適合哪種人</a></li>
+      <li><a href="#plans">3 種錯峰住宿方案</a></li>
+      <li><a href="#checklist">訂房前 6 項檢查</a></li>
+      <li><a href="#traffic">國道、台鐵、高鐵資訊</a></li>
+      <li><a href="#faq">常見問題</a></li>
+    </ol>
+  </nav>
+
   <section>
-    <h2>2027 春節哪幾天最難訂房、最塞車？</h2>
+    <h2 id="when">2027 春節哪幾天最難訂房、最塞車？</h2>
     <p>交通部觀光署統計 2026 年春節的訂房狀況，<a href="https://www.peoplenews.tw/?p=16409" target="_blank" rel="noopener">各縣市訂房率多集中在大年初一到初三</a>，大家還是習慣過完除夕就出門走春。套用到 2027 年的日期，大概是這樣：</p>
-    <div class="tbl">
+    <div class="tbl stack">
       <table>
         <thead><tr><th>日期</th><th>農曆</th><th>住宿</th><th>交通</th></tr></thead>
         <tbody>
-          <tr><td class="num">2/4（四）</td><td>小年夜</td><td>相對好訂</td><td>返鄉車潮開始</td></tr>
-          <tr><td class="num">2/5（五）</td><td>除夕</td><td>相對好訂，多數人回家圍爐</td><td>白天返鄉車潮</td></tr>
-          <tr><td class="num">2/6（六）</td><td>初一</td><td><b>最難訂</b></td><td>走春、拜廟人潮</td></tr>
-          <tr><td class="num">2/7（日）</td><td>初二</td><td><b>最難訂</b></td><td>回娘家車潮</td></tr>
-          <tr><td class="num">2/8（一）</td><td>初三</td><td><b>最難訂</b></td><td>出遊高峰，雙向車流大</td></tr>
-          <tr><td class="num">2/9（二）</td><td>初四（補假）</td><td>開始變好訂</td><td>北返車潮</td></tr>
-          <tr><td class="num">2/10（三）</td><td>初五（補假）</td><td>開始變好訂</td><td>收假北返車潮</td></tr>
+          <tr><td data-label="日期" class="num">2/4（四）</td><td data-label="農曆">小年夜</td><td data-label="住宿">相對好訂</td><td data-label="交通">返鄉車潮開始</td></tr>
+          <tr><td data-label="日期" class="num">2/5（五）</td><td data-label="農曆">除夕</td><td data-label="住宿">相對好訂，多數人回家圍爐</td><td data-label="交通">白天返鄉車潮</td></tr>
+          <tr><td data-label="日期" class="num">2/6（六）</td><td data-label="農曆">初一</td><td data-label="住宿"><b>最難訂</b></td><td data-label="交通">走春、拜廟人潮</td></tr>
+          <tr><td data-label="日期" class="num">2/7（日）</td><td data-label="農曆">初二</td><td data-label="住宿"><b>最難訂</b></td><td data-label="交通">回娘家車潮</td></tr>
+          <tr><td data-label="日期" class="num">2/8（一）</td><td data-label="農曆">初三</td><td data-label="住宿"><b>最難訂</b></td><td data-label="交通">出遊高峰，雙向車流大</td></tr>
+          <tr><td data-label="日期" class="num">2/9（二）</td><td data-label="農曆">初四（補假）</td><td data-label="住宿">開始變好訂</td><td data-label="交通">北返車潮</td></tr>
+          <tr><td data-label="日期" class="num">2/10（三）</td><td data-label="農曆">初五（補假）</td><td data-label="住宿">開始變好訂</td><td data-label="交通">收假北返車潮</td></tr>
         </tbody>
       </table>
     </div>
@@ -118,27 +157,48 @@
   </section>
 
   <section>
-    <h2>2027 春節國內熱門住宿區域比較</h2>
+    <h2 id="leave">想多玩幾天？2027 春節請假組合</h2>
+    <p>春節 7 天是 2/4（四）～2/10（三），前面接 1/30～1/31 週末、後面接 2/13～2/14 週末，中間只隔幾個上班日。請幾天特休把它們接起來，就能錯開初一到初三，還多出好訂房的平日。</p>
+    <div class="tbl stack">
+      <table>
+        <thead><tr><th>請假天數</th><th>請假日期</th><th>連休期間</th><th>連休</th><th>每請 1 天換</th></tr></thead>
+        <tbody>
+          <tr><td data-label="請假天數" class="num"><b>請 2 天</b></td><td data-label="請假日期" class="num">2/11（四）、2/12（五）</td><td data-label="連休期間" class="num">2/4～2/14</td><td data-label="連休" class="num"><b>11 天</b></td><td data-label="每請 1 天換" class="num">5.5 天</td></tr>
+          <tr><td data-label="請假天數" class="num">請 3 天</td><td data-label="請假日期" class="num">2/1（一）～2/3（三）</td><td data-label="連休期間" class="num">1/30～2/10</td><td data-label="連休" class="num">12 天</td><td data-label="每請 1 天換" class="num">4 天</td></tr>
+          <tr><td data-label="請假天數" class="num">請 5 天</td><td data-label="請假日期" class="num">2/1～2/3、2/11～2/12</td><td data-label="連休期間" class="num">1/30～2/14</td><td data-label="連休" class="num">16 天</td><td data-label="每請 1 天換" class="num">3.2 天</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="note" style="margin-top:8px">以週一到週五上班、週休二日的一般上班族，搭配政府機關春節日期計算；「每請 1 天換」＝ 連休天數 ÷ 請假天數。排班制、部分工時，或公司補假日期和政府不同的人，請依自己的班表重新算。</p>
+    <p><b>最推薦「請 2 休 11」</b>：初一到初三在家拜年，初四（2/9）出發，一路玩到 2/14（日）。2/11、2/12 是平日、又已經過了春節高峰，住宿通常比初一到初三好訂。想去花東、墾丁這種要多留交通時間的地方，這個組合最從容。</p>
+    <div class="cta-box">
+      <p>還有其他特休想一起排？用請假計算器輸入天數，馬上看全年哪個連假最划算。</p>
+      <div class="cta"><a href="/#planner">用請假計算器排日期 →</a><a class="alt" href="/2027/chunjie/">看 2027 春節連假攻略</a></div>
+    </div>
+  </section>
+
+  <section>
+    <h2 id="areas">2027 春節國內熱門住宿區域比較</h2>
     <p>2026 年春節，觀光署統計訂房率前段班是<b>台中市、嘉義市、雲林縣</b>，南投的日月潭、清境農場、杉林溪平均訂房率也有八、九成。返鄉加走春的需求很明顯，不是只有傳統的度假景點會滿。</p>
-    <div class="tbl">
+    <div class="tbl stack">
       <table>
         <thead><tr><th>區域</th><th>適合</th><th>交通</th><th>春節要注意</th></tr></thead>
         <tbody>
-          <tr><td>台中市區</td><td>返鄉、逛街、走春</td><td>高鐵台中站</td><td>2026 春節訂房率全國前段</td></tr>
-          <tr><td>嘉義市</td><td>美食、去阿里山前住一晚</td><td>高鐵嘉義站、台鐵嘉義站</td><td>2026 春節訂房率全國前段</td></tr>
-          <tr><td>雲林北港、斗六</td><td>拜廟走春</td><td>開車為主</td><td>2026 初一、初三訂房率全國最高</td></tr>
-          <tr><td>日月潭、清境</td><td>賞櫻、山景</td><td>開車或客運</td><td>山路易塞，高山可能降雪管制</td></tr>
-          <tr><td>宜蘭礁溪、羅東</td><td>泡溫泉、北部出發近</td><td>國 5、台鐵</td><td>國 5 北向收假車潮</td></tr>
-          <tr><td>台南市區</td><td>古蹟、小吃</td><td>高鐵台南站、台鐵台南站</td><td>熱門小吃排隊久</td></tr>
-          <tr><td>墾丁、恆春</td><td>想找溫暖的地方</td><td>開車為主</td><td>台 1、台 26 線車多</td></tr>
-          <tr><td>花蓮、台東</td><td>慢遊、山海景</td><td>台鐵東部幹線</td><td>春節車票很搶，提早開賣</td></tr>
+          <tr><td data-label="區域">台中市區</td><td data-label="適合">返鄉、逛街、走春</td><td data-label="交通">高鐵台中站</td><td data-label="春節要注意">2026 春節訂房率全國前段</td></tr>
+          <tr><td data-label="區域">嘉義市</td><td data-label="適合">美食、去阿里山前住一晚</td><td data-label="交通">高鐵嘉義站、台鐵嘉義站</td><td data-label="春節要注意">2026 春節訂房率全國前段</td></tr>
+          <tr><td data-label="區域">雲林北港、斗六</td><td data-label="適合">拜廟走春</td><td data-label="交通">開車為主</td><td data-label="春節要注意">2026 初一、初三訂房率全國最高</td></tr>
+          <tr><td data-label="區域">日月潭、清境</td><td data-label="適合">賞櫻、山景</td><td data-label="交通">開車或客運</td><td data-label="春節要注意">山路易塞，高山可能降雪管制</td></tr>
+          <tr><td data-label="區域">宜蘭礁溪、羅東</td><td data-label="適合">泡溫泉、北部出發近</td><td data-label="交通">國 5、台鐵</td><td data-label="春節要注意">國 5 北向收假車潮</td></tr>
+          <tr><td data-label="區域">台南市區</td><td data-label="適合">古蹟、小吃</td><td data-label="交通">高鐵台南站、台鐵台南站</td><td data-label="春節要注意">熱門小吃排隊久</td></tr>
+          <tr><td data-label="區域">墾丁、恆春</td><td data-label="適合">想找溫暖的地方</td><td data-label="交通">開車為主</td><td data-label="春節要注意">台 1、台 26 線車多</td></tr>
+          <tr><td data-label="區域">花蓮、台東</td><td data-label="適合">慢遊、山海景</td><td data-label="交通">台鐵東部幹線</td><td data-label="春節要注意">春節車票很搶，提早開賣</td></tr>
         </tbody>
       </table>
     </div>
   </section>
 
   <section>
-    <h2>8 個熱門住宿區域，各適合哪種人？</h2>
+    <h2 id="area-detail">8 個熱門住宿區域，各適合哪種人？</h2>
 
     <article class="area">
       <h3>台中市區（西屯、逢甲、七期）</h3>
@@ -196,13 +256,13 @@
   </section>
 
   <section>
-    <h2>不想跟人擠？3 種錯峰住宿方案</h2>
+    <h2 id="plans">不想跟人擠？3 種錯峰住宿方案</h2>
     <h3 style="margin:16px 0 8px">方案一：年前先出遊（2/4～2/5）</h3>
     <p>小年夜、除夕前住一晚，再回家圍爐。這兩天多數人忙著返鄉、準備年夜飯，旅館相對好訂，景點也比較不擠。</p>
     <p>適合：住得離老家近，或年夜飯不用從早忙到晚的人。</p>
 
     <h3 style="margin:16px 0 8px">方案二：初四之後再出門（2/9～2/10，可再接請假）</h3>
-    <p>初一到初三拜年、回娘家，初四、初五再出遊，避開最擠的三天。如果再請 2/11（四）、2/12（五）兩天特休，可以一路玩到 2/14（日），從小年夜開始算連休 11 天。</p>
+    <p>初一到初三拜年、回娘家，初四、初五再出遊，避開最擠的三天。如果再請 2/11（四）、2/12（五）兩天特休，就是<b>請 2 休 11</b>：從小年夜 2/4 連休到 2/14（日），初四出發還有 6 天可以玩（2/9～2/14）。</p>
     <p>適合：初一到初三有家族行程，又想好好出去玩幾天的人。</p>
     <p class="note">以上請假天數以一般週休二日、政府機關連假日期計算；排班制或公司補假日期不同時，請依實際班表重新算。</p>
 
@@ -212,7 +272,7 @@
   </section>
 
   <section>
-    <h2>春節訂房前，先檢查這 6 件事</h2>
+    <h2 id="checklist">春節訂房前，先檢查這 6 件事</h2>
     <ul class="check">
       <li><b>取消規定</b>：春節常有不可取消或限期取消的房價，下單前看清楚最晚可取消的日期。</li>
       <li><b>連住限制</b>：部分旅宿春節會要求連住 2 晚以上，或單晚加價，訂之前先確認。</li>
@@ -224,15 +284,16 @@
   </section>
 
   <section>
-    <h2>春節交通：國道、台鐵、高鐵什麼時候公布？</h2>
+    <h2 id="traffic">春節交通：國道、台鐵、高鐵什麼時候公布？</h2>
     <p><b>國道疏導措施</b>：交通部高速公路局每年會在春節前公布高乘載管制、匝道封閉和收費方式。以 2026 年為例，<a href="https://www.nownews.com/news/6785248" target="_blank" rel="noopener">高乘載只管制北向</a>：國 5 北向初二到初五，國 1、國 3 北向初三到初四；初一到初六每天 0～5 時暫停收費。2027 年的措施請以高公局公告為準。</p>
     <p><b>台鐵、高鐵訂票</b>：春節疏運車票通常有專門的開賣日。以 2026 年為例，<a href="https://www.peoplenews.tw/?p=11401" target="_blank" rel="noopener">台鐵東部幹線 1/13、西部幹線 1/14 開放訂票，高鐵 1/16 開賣</a>，大約在疏運開始前一個月。2027 年春節比 2026 年早，開賣日也可能提早，記得留意台鐵、高鐵公告。</p>
     <p><b>山區道路</b>：往合歡山、清境的路段冬季可能因降雪管制，出發前到公路局查即時路況。</p>
   </section>
 
   <section>
-    <h2>常見問題</h2>
+    <h2 id="faq">常見問題</h2>
     <details><summary>2027 春節哪幾天住宿最難訂？</summary><p>初一到初三，也就是 2/6（六）～2/8（一）。觀光署 2026 年春節統計，各縣市訂房率多集中在初一到初三；想好訂又不想付最高價，可以改住小年夜、除夕前，或初四之後。</p></details>
+    <details><summary>2027 春節怎麼請假可以連休 11 天？</summary><p>請 2/11（四）、2/12（五）兩天特休，接上春節 2/4～2/10 和 2/13～2/14 的週末，就能從 2/4 連休到 2/14，共 11 天。以週休二日的一般上班族計算，排班制請依自己的班表重算。</p></details>
     <details><summary>2027 春節國內住宿要多早訂？</summary><p>想住初一到初三的熱門區域，建議越早越好，看到合適的房先訂可免費取消的方案。錯開初一到初三的日子，通常選擇會多很多。</p></details>
     <details><summary>2027 春節國道有高乘載管制嗎？</summary><p>2027 年的措施要等交通部高速公路局在春節前公布。以 2026 年為例，高乘載只管制北向：國 5 北向初二到初五、國 1 和國 3 北向初三到初四，另外初一到初六每天 0～5 時暫停收費。</p></details>
     <details><summary>2027 春節台鐵、高鐵票什麼時候開賣？</summary><p>以台鐵、高鐵公告為準。以 2026 年為例，台鐵東部幹線 1/13、西部幹線 1/14 開放訂票，高鐵 1/16 開賣，大約是疏運開始前一個月。</p></details>
@@ -242,7 +303,10 @@
 
   <section>
     <h2>開始規劃你的春節住宿</h2>
-    <p>先決定哪幾天出門，再挑區域訂房，會比先看房再湊日期順很多。還沒確定要不要請假延長假期？用本站的<a href="/#planner">請假計算器</a>，搭配 <a href="/#calendar">2027 全年行事曆</a>排好日期，再回來挑住宿區域。完整的春節放假日期和請假方案，請看 <a href="/2027/chunjie/">2027 春節連假攻略</a>。</p>
+    <div class="cta-box">
+      <p>先決定哪幾天出門，再挑區域訂房，會比先看房再湊日期順很多。請 2 天就能休 11 天，先把日期排好，再回來挑住宿區域。</p>
+      <div class="cta"><a href="/#planner">用請假計算器排日期 →</a><a class="alt" href="/2027/chunjie/">看 2027 春節連假攻略</a><a class="alt" href="/#calendar">2027 全年行事曆</a></div>
+    </div>
   </section>
 
   <section>
@@ -263,6 +327,7 @@
       <thead><tr><th>日期</th><th>內容</th></tr></thead>
       <tbody>
         <tr><td>2026/11/07</td><td>發布：熱門住宿區域比較、錯峰方案、訂房檢查清單；交通資訊以 2026 年為例，2027 年公告後更新</td></tr>
+        <tr><td>2026/11/07</td><td>新增請假組合（請 2 休 11、請 3 休 12、請 5 休 16）、文章目錄；手機版表格改為卡片式排列</td></tr>
       </tbody>
     </table></div>
   </section>
