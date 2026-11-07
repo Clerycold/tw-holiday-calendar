@@ -4,7 +4,43 @@ import fs from "node:fs";
 
 const SITE = "https://fangjiatw.com";
 const TODAY = "2026-11-01";
+const UPDATED = "2026-11-07";
+const UPDATED_ZH = "2026 年 11 月 7 日";
 const TODAY_ZH = "2026 年 11 月 1 日";
+
+// 各住宿區的代表飯店（2026-11-07 查證：飯店官網、訂房平台與媒體報導）。只列查得到地址或交通資訊的飯店；
+// 步行時間為一般速度估算。不是業配，之後若放聯盟連結，連結本身要在頁面標示。
+const H = {
+  "國父紀念館、光復南路":[
+    {n:"誠品行旅", loc:"松山文創園區內（菸廠路 98 號），步行約 5 分到大巨蛋", why:"離場館最近的飯店之一，散場直接走回房間"},
+    {n:"國聯大飯店", loc:"光復南路 200 號，步行約 10 分到國父紀念館", why:"老字號飯店，2024 年完成第一階段客房與餐廳翻新"}],
+  "信義計畫區":[
+    {n:"台北 W 飯店", loc:"忠孝東路五段 10 號，捷運市政府站旁", why:"散場往市政府站走就是回飯店的路，順便避開國父紀念館站人潮"}],
+  "台北車站周邊":[
+    {n:"君品酒店", loc:"與台北轉運站、京站共構，捷運台北車站 Y5 出口", why:"高鐵、台鐵、機場捷運、客運都在樓下，隔天回家最省事"}],
+  "南京復興、遼寧夜市":[
+    {n:"兄弟大飯店", loc:"南京東路三段 255 號，南京復興站 6、7 號出口", why:"出捷運就到，往小巨蛋走一站路約 10 分"},
+    {n:"柯達大飯店 台北南京館", loc:"步行約 3 分到南京復興站", why:"商務旅館，價位比南京東路上的大飯店親民"}],
+  "南京三民、松山":[
+    {n:"小公館人文旅舍", loc:"捷運南京三民站附近", why:"平價選擇，房價含早餐"}],
+  "巨蛋商圈":[
+    {n:"巨蛋旅店", loc:"文忠路 1 號，巨蛋站 2 號出口步行約 1 分", why:"自助報到，到高雄巨蛋、瑞豐夜市都約 5 分鐘"},
+    {n:"帕可麗酒店", loc:"文信路 192 號，巨蛋站步行約 5 分", why:"巨蛋商圈內，散場走回飯店不用搭車"}],
+  "凹子底、美術館":[
+    {n:"高雄萬豪酒店", loc:"鼓山區龍德新路 222 號，凹子底站步行約 7 分", why:"大型國際飯店，鄰近漢神巨蛋、瑞豐夜市"}],
+  "高鐵左營站周邊":[
+    {n:"水木商旅 高鐵左營館", loc:"高鐵左營站步行約 5 分", why:"隔天搭高鐵最方便，評價穩定的商務旅館"}],
+  "巨蛋、北高雄":[
+    {n:"巨蛋旅店", loc:"文忠路 1 號，巨蛋站 2 號出口步行約 1 分", why:"捷運紅線巨蛋站到世運站 2 站，晚上還能逛瑞豐夜市"}],
+  "南港車站周邊":[
+    {n:"台北六福萬怡酒店", loc:"南港車站共構大樓 7～30 樓", why:"樓下就是高鐵、台鐵、捷運，還有 CITYLINK、環球購物中心"},
+    {n:"洛碁大飯店 南港館", loc:"捷運南港站 2 號出口步行約 5～8 分", why:"南港車站周邊的另一個選擇，房價通常比共構飯店低"}],
+  "信義區、市政府":[
+    {n:"台北 W 飯店", loc:"忠孝東路五段 10 號，捷運市政府站旁", why:"板南線往昆陽 3 站，看完回信義區吃宵夜"}],
+  "新莊副都心":[
+    {n:"新北新莊凱悅嘉軒酒店", loc:"宏匯廣場附近，步行約 5 分到 Zepp New Taipei", why:"離場館最近的國際連鎖飯店，有健身房和季節性戶外泳池"}],
+};
+const mapUrl = n => "https://www.google.com/maps/search/?api=1&query=" + encodeURIComponent(n);
 
 const VENUES = [
   { slug:"taipei-dome", city:"台北", district:"台北信義區", name:"臺北大巨蛋", short:"大巨蛋", cap:"固定席約 4 萬，演唱會最多約 6 萬人",
@@ -27,10 +63,10 @@ const VENUES = [
       ]
     },
     zones:[
-      {name:"信義計畫區", sub:"市政府站周邊", walk:"步行 10～15 分", mrt:"板南線 1 站", price:"偏高", text:"百貨、餐廳最多，散場後還能吃宵夜。房價偏高，熱門場次要很早訂。", who:"適合：想看完逛街吃飯、預算較寬的人"},
-      {name:"國父紀念館、光復南路", sub:"場館正對面一帶", walk:"步行 3～8 分", mrt:"不用搭車", price:"中等", text:"離場館最近，走路就到。房源少，以商務旅館和小型旅店為主。", who:"適合：只想看完馬上回房休息的人"},
+      {name:"信義計畫區", hotels:H["信義計畫區"], sub:"市政府站周邊", walk:"步行 10～15 分", mrt:"板南線 1 站", price:"偏高", text:"百貨、餐廳最多，散場後還能吃宵夜。房價偏高，熱門場次要很早訂。", who:"適合：想看完逛街吃飯、預算較寬的人"},
+      {name:"國父紀念館、光復南路", hotels:H["國父紀念館、光復南路"], sub:"場館正對面一帶", walk:"步行 3～8 分", mrt:"不用搭車", price:"中等", text:"離場館最近，走路就到。房源少，以商務旅館和小型旅店為主。", who:"適合：只想看完馬上回房休息的人"},
       {name:"忠孝復興、東區", sub:"板南線往西 2 站", walk:"步行 20 分以上", mrt:"板南線 2 站", price:"中等", text:"選擇多、價位跨度大，避開國父紀念館站的散場人潮，搭兩站就到。", who:"適合：想兼顧預算和方便的人"},
-      {name:"台北車站周邊", sub:"高鐵、台鐵轉乘點", walk:"", mrt:"板南線 5 站", price:"平價～中等", text:"隔天要搭高鐵回家最順，平價旅館多，同樣價錢房間通常比信義區大。", who:"適合：外縣市來、隔天一早要搭車的人"}
+      {name:"台北車站周邊", hotels:H["台北車站周邊"], sub:"高鐵、台鐵轉乘點", walk:"", mrt:"板南線 5 站", price:"平價～中等", text:"隔天要搭高鐵回家最順，平價旅館多，同樣價錢房間通常比信義區大。", who:"適合：外縣市來、隔天一早要搭車的人"}
     ]},
   { slug:"kaohsiung-stadium", city:"高雄", district:"高雄左營區", name:"高雄國家體育場（世運主場館）", short:"世運", cap:"約 5.5 萬席，全台最大戶外體育場",
     addr:"高雄市左營區世運大道 100 號",
@@ -54,8 +90,8 @@ const VENUES = [
       ]
     },
     zones:[
-      {name:"高鐵左營站周邊", sub:"高鐵、台鐵、捷運轉乘點", walk:"步行約 25 分", mrt:"紅線 1 站", price:"中等", text:"隔天搭高鐵最方便，但大型演唱會時房價會跟著跳漲，要提早訂。", who:"適合：從北部或中部來的人"},
-      {name:"巨蛋、北高雄", sub:"博愛路一帶", walk:"", mrt:"紅線 3 站", price:"中等", text:"飯店選擇多，餐廳也多，可避開世運站周邊的房價高峰。", who:"適合：想要飯店選擇多一點的人"},
+      {name:"高鐵左營站周邊", hotels:H["高鐵左營站周邊"], sub:"高鐵、台鐵、捷運轉乘點", walk:"步行約 25 分", mrt:"紅線 1 站", price:"中等", text:"隔天搭高鐵最方便，但大型演唱會時房價會跟著跳漲，要提早訂。", who:"適合：從北部或中部來的人"},
+      {name:"巨蛋、北高雄", hotels:H["巨蛋、北高雄"], sub:"博愛路一帶", walk:"", mrt:"紅線 3 站", price:"中等", text:"飯店選擇多，餐廳也多，可避開世運站周邊的房價高峰。", who:"適合：想要飯店選擇多一點的人"},
       {name:"美麗島、新堀江", sub:"市中心", walk:"", mrt:"紅線 7 站", price:"平價～中等", text:"離場館比較遠，但房價相對穩定，順便逛六合夜市、駁二。", who:"適合：想順便玩高雄、預算有限的人"}
     ]},
   { slug:"taipei-arena", city:"台北", district:"台北松山區", name:"臺北小巨蛋", short:"小巨蛋", cap:"約 1.1～1.5 萬人（依舞台配置）",
@@ -78,8 +114,8 @@ const VENUES = [
       ]
     },
     zones:[
-      {name:"南京復興、遼寧夜市", sub:"往西一站", walk:"步行約 10 分", mrt:"綠線 1 站", price:"中等", text:"商務旅館集中，散場後走去遼寧街夜市吃宵夜剛好。", who:"適合：想吃宵夜、預算中等的人"},
-      {name:"南京三民、松山", sub:"往東 1～2 站", walk:"步行 10～20 分", mrt:"綠線 1～2 站", price:"平價～中等", text:"價格比小巨蛋周邊低一些，靠近松山車站，隔天轉台鐵方便。", who:"適合：預算有限、隔天搭台鐵的人"},
+      {name:"南京復興、遼寧夜市", hotels:H["南京復興、遼寧夜市"], sub:"往西一站", walk:"步行約 10 分", mrt:"綠線 1 站", price:"中等", text:"商務旅館集中，散場後走去遼寧街夜市吃宵夜剛好。", who:"適合：想吃宵夜、預算中等的人"},
+      {name:"南京三民、松山", hotels:H["南京三民、松山"], sub:"往東 1～2 站", walk:"步行 10～20 分", mrt:"綠線 1～2 站", price:"平價～中等", text:"價格比小巨蛋周邊低一些，靠近松山車站，隔天轉台鐵方便。", who:"適合：預算有限、隔天搭台鐵的人"},
       {name:"中山、南京西路", sub:"往西三站", walk:"", mrt:"綠線 3 站", price:"中等", text:"老牌住宿區，選擇多，周邊咖啡店和小吃很多，方便安排隔天行程。", who:"適合：想順便在台北玩一天的人"}
     ]},
   { slug:"kaohsiung-arena", city:"高雄", district:"高雄左營區", name:"高雄巨蛋", short:"高雄巨蛋", cap:"約 1.5 萬人",
@@ -102,9 +138,9 @@ const VENUES = [
       ]
     },
     zones:[
-      {name:"巨蛋商圈", sub:"場館周邊", walk:"步行 5～10 分", mrt:"不用搭車", price:"中等", text:"走路就到，附近有瑞豐夜市，散場直接去吃宵夜（夜市有公休日，出發前先確認）。", who:"適合：想走路回房、順便逛夜市的人"},
-      {name:"凹子底、美術館", sub:"往南一站", walk:"步行約 15 分", mrt:"紅線 1 站", price:"中等", text:"環境比較安靜，散場往這邊走剛好避開巨蛋站人潮。", who:"適合：重視休息品質的人"},
-      {name:"高鐵左營站周邊", sub:"往北兩站", walk:"", mrt:"紅線 2 站", price:"中等", text:"外縣市來的人首選，隔天搭高鐵不用轉車。", who:"適合：從北部或中部來的人"}
+      {name:"巨蛋商圈", hotels:H["巨蛋商圈"], sub:"場館周邊", walk:"步行 5～10 分", mrt:"不用搭車", price:"中等", text:"走路就到，附近有瑞豐夜市，散場直接去吃宵夜（夜市有公休日，出發前先確認）。", who:"適合：想走路回房、順便逛夜市的人"},
+      {name:"凹子底、美術館", hotels:H["凹子底、美術館"], sub:"往南一站", walk:"步行約 15 分", mrt:"紅線 1 站", price:"中等", text:"環境比較安靜，散場往這邊走剛好避開巨蛋站人潮。", who:"適合：重視休息品質的人"},
+      {name:"高鐵左營站周邊", hotels:H["高鐵左營站周邊"], sub:"往北兩站", walk:"", mrt:"紅線 2 站", price:"中等", text:"外縣市來的人首選，隔天搭高鐵不用轉車。", who:"適合：從北部或中部來的人"}
     ]},
   { slug:"taipei-music-center", city:"台北", district:"台北南港區", name:"台北流行音樂中心", short:"北流", cap:"約 3 千～5 千人（依座位或站位配置）",
     addr:"台北市南港區市民大道八段 99 號",
@@ -126,9 +162,9 @@ const VENUES = [
       ]
     },
     zones:[
-      {name:"南港車站周邊", sub:"高鐵、台鐵、捷運三鐵共構", walk:"步行約 11 分", mrt:"不用搭車", price:"中等", text:"近幾年新開不少飯店，離場館近，隔天搭高鐵直接在樓下。", who:"適合：外縣市來、要搭高鐵的人"},
+      {name:"南港車站周邊", hotels:H["南港車站周邊"], sub:"高鐵、台鐵、捷運三鐵共構", walk:"步行約 11 分", mrt:"不用搭車", price:"中等", text:"近幾年新開不少飯店，離場館近，隔天搭高鐵直接在樓下。", who:"適合：外縣市來、要搭高鐵的人"},
       {name:"南港展覽館、軟體園區", sub:"南港站往東一站", walk:"步行 20 分以上", mrt:"板南線 1 站", price:"中等～偏高", text:"商務飯店為主，平日房價較高，週末反而有機會撿到便宜。", who:"適合：週末場次、想住新一點的飯店"},
-      {name:"信義區、市政府", sub:"昆陽站往西三站", walk:"", mrt:"板南線 3 站", price:"偏高", text:"百貨、餐廳多，看完還能去吃宵夜，隔天順便逛街。", who:"適合：想順便在台北玩、預算較寬的人"}
+      {name:"信義區、市政府", hotels:H["信義區、市政府"], sub:"昆陽站往西三站", walk:"", mrt:"板南線 3 站", price:"偏高", text:"百貨、餐廳多，看完還能去吃宵夜，隔天順便逛街。", who:"適合：想順便在台北玩、預算較寬的人"}
     ]},
   { slug:"zepp-new-taipei", city:"新北", district:"新北新莊區", name:"Zepp New Taipei", short:"Zepp New Taipei", cap:"約 2 千人（1 樓站位）",
     addr:"新北市新莊區新北大道四段 3 號（宏匯廣場內）",
@@ -150,8 +186,8 @@ const VENUES = [
       ]
     },
     zones:[
-      {name:"新莊副都心", sub:"場館所在商圈", walk:"步行 5～10 分", mrt:"不用搭車", price:"中等", text:"周邊新飯店陸續開幕，商場就在樓下，吃飯不用煩惱。", who:"適合：想住近一點、一路待在商場的人"},
-      {name:"台北車站周邊", sub:"機場捷運終點站", walk:"", mrt:"機捷普通車 3 站", price:"平價～中等", text:"住宿選擇最多，隔天轉高鐵、台鐵都方便，也很適合順便逛台北。", who:"適合：外縣市來、想順便玩台北的人"}
+      {name:"新莊副都心", hotels:H["新莊副都心"], sub:"場館所在商圈", walk:"步行 5～10 分", mrt:"不用搭車", price:"中等", text:"周邊新飯店陸續開幕，商場就在樓下，吃飯不用煩惱。", who:"適合：想住近一點、一路待在商場的人"},
+      {name:"台北車站周邊", hotels:H["台北車站周邊"], sub:"機場捷運終點站", walk:"", mrt:"機捷普通車 3 站", price:"平價～中等", text:"住宿選擇最多，隔天轉高鐵、台鐵都方便，也很適合順便逛台北。", who:"適合：外縣市來、想順便玩台北的人"}
     ]}
 ];
 
@@ -171,7 +207,7 @@ const head = (title, desc, path, ld) => `<!doctype html>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@600;900&family=Noto+Sans+TC:wght@400;500;700&family=JetBrains+Mono:wght@500&display=swap">
 <link rel="stylesheet" href="/assets/site.css?v=4">
-<link rel="stylesheet" href="/assets/concert.css?v=2">
+<link rel="stylesheet" href="/assets/concert.css?v=3">
 <script type="application/ld+json">
 ${JSON.stringify(ld, null, 1)}
 </script>
@@ -199,13 +235,16 @@ const foot = `<footer><a href="/about/">關於我們</a> · <a href="/privacy/">
 
 function venuePage(v){
   const p = v.page, path = `/concert/${v.slug}/`;
+  const hz = v.zones.filter(z => z.hotels);
+  const faq = hz.length ? [...p.faq, [`${S(v.short)}附近有哪些飯店？`,
+    hz.map(z => `${z.name}：${z.hotels.map(h => h.n).join("、")}`).join("；") + "。實際房價與空房以訂房平台為準，演唱會日期越早訂越好。"]] : p.faq;
   const ld = {"@context":"https://schema.org","@graph":[
-    {"@type":"Article","headline":p.title,"datePublished":TODAY,"dateModified":TODAY,"inLanguage":"zh-Hant-TW","mainEntityOfPage":SITE+path,"publisher":{"@type":"Organization","name":"放假日曆","url":SITE+"/"}},
+    {"@type":"Article","headline":p.title,"datePublished":TODAY,"dateModified":UPDATED,"inLanguage":"zh-Hant-TW","mainEntityOfPage":SITE+path,"publisher":{"@type":"Organization","name":"放假日曆","url":SITE+"/"}},
     {"@type":"BreadcrumbList","itemListElement":[
       {"@type":"ListItem","position":1,"name":"放假日曆","item":SITE+"/"},
       {"@type":"ListItem","position":2,"name":"演唱會住宿","item":SITE+"/concert/"},
       {"@type":"ListItem","position":3,"name":`${S(v.short)}住宿`,"item":SITE+path}]},
-    {"@type":"FAQPage","mainEntity":p.faq.map(([q,a])=>({"@type":"Question","name":q,"acceptedAnswer":{"@type":"Answer","text":a}}))}
+    {"@type":"FAQPage","mainEntity":faq.map(([q,a])=>({"@type":"Question","name":q,"acceptedAnswer":{"@type":"Answer","text":a}}))}
   ]};
   const others = VENUES.filter(o=>o.page && o.slug!==v.slug);
   return head(p.title, p.desc, path, ld) + `
@@ -213,7 +252,7 @@ function venuePage(v){
   <div>
     <div class="crumb"><a href="/">放假日曆</a> › <a href="/concert/">演唱會住宿</a> › ${S(v.short)}</div>
     <h1>${p.title.replace("｜","<br>")}</h1>
-    <div class="meta">更新日期：${TODAY_ZH}</div>
+    <div class="meta">更新日期：${UPDATED_ZH}</div>
   </div>
 
   <div class="answer">${p.answer}</div>
@@ -252,8 +291,10 @@ ${v.zones.map(z=>`    <article class="zone">
       <div><h3>${z.name}</h3><div class="sub">${z.sub}</div></div>
       <div class="chips">${z.walk?`<span class="chip walk">${z.walk}</span>`:""}<span class="chip mrt">${z.mrt}</span><span class="chip">房價${z.price}</span></div>
       <p>${z.text}</p>
-      <div class="who">${z.who}</div>
+      <div class="who">${z.who}</div>${z.hotels ? `
+      <div class="hotels"><b>這區可以住</b><ul>${z.hotels.map(h => `<li><a href="${mapUrl(h.n)}" target="_blank" rel="noopener">${h.n}</a><small>${h.loc}</small><span>${h.why}</span></li>`).join("")}</ul></div>` : ""}
     </article>`).join("\n")}
+    <p class="note" style="margin-top:12px">飯店是依位置挑出的代表選擇，不是業配，也不代表當天一定有房。點飯店名稱會開 Google 地圖；實際房價、空房和取消規定以訂房平台為準，演唱會日期房價通常會上漲，越早訂越好。</p>
   </section>
 
   <section>
@@ -269,7 +310,7 @@ ${v.zones.map(z=>`    <article class="zone">
 
   <section>
     <h2>常見問題</h2>
-${p.faq.map(([q,a])=>`    <details><summary>${q}</summary><p>${a}</p></details>`).join("\n")}
+${faq.map(([q,a])=>`    <details><summary>${q}</summary><p>${a}</p></details>`).join("\n")}
   </section>
 
   <section>
@@ -305,7 +346,7 @@ function hubPage(){
   <div>
     <div class="crumb"><a href="/">放假日曆</a> › 演唱會住宿</div>
     <h1>演唱會住宿攻略<br>全台場館周邊飯店、交通與散場指南</h1>
-    <div class="meta">更新日期：${TODAY_ZH}</div>
+    <div class="meta">更新日期：${UPDATED_ZH}</div>
   </div>
 
   <div class="answer">搶到演唱會門票，接下來就是安排一趟輕鬆的追星之旅！</div>

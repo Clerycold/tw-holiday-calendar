@@ -47,3 +47,9 @@ a.venue:hover{border-color:var(--red)}
 .venue .badge{justify-self:start;font-size:.7rem;padding:0 8px;border-radius:999px;background:var(--rule);color:var(--muted);margin-bottom:4px}
 .group-h{font-size:1rem;margin:16px 0 8px}
 .tips{margin:0;padding-left:1.2em;display:grid;gap:6px;max-width:65ch}
+.hotels{border-top:1px dashed var(--rule);padding-top:8px;font-size:.9rem}
+.hotels ul{list-style:none;margin:6px 0 0;padding:0;display:grid;gap:8px}
+.hotels li{display:grid;gap:1px;min-width:0}
+.hotels li a{font-weight:700;color:var(--ink)}
+.hotels li small{color:var(--muted);font-size:.8rem}
+.hotels li span{font-size:.86rem}
