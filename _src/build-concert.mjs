@@ -233,6 +233,7 @@ const STEPS = `<p>演唱會熱門場次一公布，周邊飯店往往很快就�
 
 const foot = `<footer><a href="/about/">關於我們</a> · <a href="/privacy/">隱私權政策</a> · <a href="/disclosure/">聯盟連結揭露</a><br>放假日曆｜台灣生活資訊與免費試算工具。<br>場館資料查證日期：${TODAY_ZH}。交通與容納人數依場館及主辦單位公告為準；步行時間為一般速度估算，散場人潮時會更久。住宿房價等級為一般情況參考，演唱會期間可能大幅上漲。</footer>
 <script src="/assets/concert.js"></script>
+<!-- Cloudflare Web Analytics --><script type='module' src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token": "4c058fe6d8d047d290cd5fe7c73a3d15"}'></script><!-- End Cloudflare Web Analytics -->
 </body>
 </html>
 `;
