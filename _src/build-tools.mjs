@@ -6,7 +6,7 @@ const { TW_HOL } = require_("../assets/tools/calc.js");
 
 const SITE = "https://fangjiatw.com";
 const UPDATED = "2026-11-01";
-const NAV = `<nav><a href="/#planner">請假計算器</a><a href="/tools/">試算工具</a><a href="/concert/">演唱會住宿</a><a href="/#calendar">全年行事曆</a></nav>`;
+const HEADER = readFileSync(new URL("./header.html", import.meta.url), "utf8").trim(); // 與首頁一致的共用 Header
 const esc = s => s.replace(/"/g, "&quot;");
 
 function page({ path, title, h1, desc, crumb, faq = [], body, scripts = true, app, updated = UPDATED, disclaimer }) {
@@ -46,17 +46,14 @@ ${faq.map(([q, a]) => `    <details><summary>${q}</summary><p>${a}</p></details>
 <meta name="twitter:card" content="summary_large_image">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700;900&display=swap">
-<link rel="stylesheet" href="/assets/site.css?v=5">
+<link rel="stylesheet" href="/assets/site.css?v=6">
 <link rel="stylesheet" href="/assets/tools/tools.css?v=5">
 <script type="application/ld+json">
 ${JSON.stringify({ "@context": "https://schema.org", "@graph": graph }, null, 1)}
 </script>
 </head>
 <body>
-<header class="top">
-  <a class="logo" href="/">放假<span>日曆</span><small>台灣生活資訊與免費試算工具</small></a>
-  ${NAV}
-</header>
+${HEADER}
 
 <main class="article">
   <div>

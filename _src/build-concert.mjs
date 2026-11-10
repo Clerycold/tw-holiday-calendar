@@ -2,6 +2,7 @@
 // Venue facts verified 2026-11-01. A venue with `page` gets its own page; others show as 整理中 on the hub.
 import fs from "node:fs";
 
+const HEADER = fs.readFileSync(new URL("./header.html", import.meta.url), "utf8").trim(); // 與首頁一致的共用 Header
 const SITE = "https://fangjiatw.com";
 const TODAY = "2026-11-01";
 const UPDATED = "2026-11-07";
@@ -210,17 +211,14 @@ const head = (title, desc, path, ld) => `<!doctype html>
 <meta name="twitter:card" content="summary_large_image">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700;900&display=swap">
-<link rel="stylesheet" href="/assets/site.css?v=5">
+<link rel="stylesheet" href="/assets/site.css?v=6">
 <link rel="stylesheet" href="/assets/concert.css?v=4">
 <script type="application/ld+json">
 ${JSON.stringify(ld, null, 1)}
 </script>
 </head>
 <body>
-<header class="top">
-  <a class="logo" href="/">放假<span>日曆</span><small>台灣生活資訊與免費試算工具</small></a>
-  <nav><a href="/#planner">請假計算器</a><a href="/tools/">試算工具</a><a href="/concert/">演唱會住宿</a><a href="/#calendar">全年行事曆</a></nav>
-</header>
+${HEADER}
 `;
 
 const STEPS = `<p>演唱會熱門場次一公布，周邊飯店往往很快就被訂滿，房價也可能跟著上漲。想住得近、價格又合理，建議按照以下時間安排：</p>

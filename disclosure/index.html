@@ -12,13 +12,20 @@
 <meta name="twitter:card" content="summary_large_image">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700;900&display=swap">
-<link rel="stylesheet" href="/assets/site.css?v=5">
+<link rel="stylesheet" href="/assets/site.css?v=6">
 </head>
 <body>
-<header class="top">
-  <a class="logo" href="/">放假<span>日曆</span><small>台灣生活資訊與免費試算工具</small></a>
-  <nav><a href="/#planner">請假計算器</a><a href="/tools/">試算工具</a><a href="/concert/">演唱會住宿</a><a href="/#calendar">全年行事曆</a></nav>
+<script>document.documentElement.classList.add("js")</script>
+<header class="site-head">
+  <div class="head-in">
+    <a class="logo" href="/">放假<span>日曆</span><small>台灣生活資訊與免費試算工具</small></a>
+    <button class="menu-btn" type="button" aria-expanded="false" aria-controls="siteNav" aria-label="開啟選單"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg></button>
+    <nav class="site-nav" id="siteNav" aria-label="主選單">
+      <a href="/#calendar">行事曆</a><a href="/#long">連假攻略</a><a href="/tools/">生活工具</a><a href="/2027/chunjie/">春節攻略</a><a href="/concert/">演唱會住宿</a><a href="/#faq">常見問題</a>
+    </nav>
+  </div>
 </header>
+<script src="/assets/nav.js?v=1" defer></script>
 
 <main class="article">
   <div>
