@@ -114,6 +114,8 @@ button:focus-visible,select:focus-visible,a:focus-visible{outline:2px solid var(
 .chip{border:1px solid var(--rule);background:var(--paper);color:var(--ink);border-radius:999px;padding:4px 14px;font:inherit;font-size:.9rem;cursor:pointer}
 .chip[aria-pressed="true"]{background:var(--leave);border-color:var(--leave);color:#fff}
 .results{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:12px}
+.results:empty{min-height:289px} /* 腳本填入前先保留高度，避免版面跳動 */
+@media (max-width:720px){.results:empty{min-height:0}}
 .res{border:1px solid var(--rule);border-radius:6px;padding:14px;background:var(--paper);text-align:left;font:inherit;color:inherit;cursor:pointer;display:grid;gap:4px}
 .res:hover{border-color:var(--leave)}
 .res[aria-pressed="true"]{border-color:var(--leave);background:var(--leave-soft)}
@@ -190,11 +192,11 @@ footer{color:var(--muted);font-size:.8rem;border-top:1px solid var(--rule);paddi
     <div class="tear" aria-live="polite">
       <div class="tear-head">下一個連假</div>
       <div class="tear-body">
-        <div class="tear-meta" id="nextMonth"></div>
-        <div class="tear-day num" id="nextDay"></div>
-        <div class="tear-name" id="nextName"></div>
-        <div class="tear-meta" id="nextRange"></div>
-        <div class="count" id="nextCount"></div>
+        <div class="tear-meta" id="nextMonth">&nbsp;</div>
+        <div class="tear-day num" id="nextDay">&nbsp;</div>
+        <div class="tear-name" id="nextName">&nbsp;</div>
+        <div class="tear-meta" id="nextRange">&nbsp;</div>
+        <div class="count" id="nextCount"><b>&nbsp;</b></div>
       </div>
     </div>
   </section>
@@ -208,7 +210,7 @@ footer{color:var(--muted);font-size:.8rem;border-top:1px solid var(--rule);paddi
       </div>
       <div class="picker">
         <span>我想請</span>
-        <div class="chips" id="chips" role="group" aria-label="請假天數"></div>
+        <div class="chips" id="chips" role="group" aria-label="請假天數"><button class="chip" aria-pressed="false" data-n="1">1</button><button class="chip" aria-pressed="false" data-n="2">2</button><button class="chip" aria-pressed="true" data-n="3">3</button><button class="chip" aria-pressed="false" data-n="4">4</button><button class="chip" aria-pressed="false" data-n="5">5</button><button class="chip" aria-pressed="false" data-n="6">6</button><button class="chip" aria-pressed="false" data-n="8">8</button></div>
         <span>天</span>
       </div>
     </div>
