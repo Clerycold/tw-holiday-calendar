@@ -175,6 +175,13 @@
         out2.innerHTML = `<div>${ymd(s)} 之後第 ${n} 個工作天是</div><div class="big">${ymd(d)} <small>（${W[d.getDay()]}）</small></div>`;
       }
     }
+    // 快速帶入：今天到本月底／年底／明年底
+    const iso = d => `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`;
+    wd.querySelectorAll("[data-range]").forEach(btn => btn.addEventListener("click", () => {
+      const t = new Date(); t.setHours(0,0,0,0);
+      const end = {month: new Date(t.getFullYear(), t.getMonth()+1, 0), year: new Date(t.getFullYear(), 11, 31), next: new Date(t.getFullYear()+1, 11, 31)}[btn.dataset.range];
+      f.from.value = iso(t); f.to.value = iso(end); run();
+    }));
     wd.addEventListener("input", run); wd.addEventListener("submit", e => { e.preventDefault(); run(); });
     run();
   }

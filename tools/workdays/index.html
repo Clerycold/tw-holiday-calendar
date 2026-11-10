@@ -17,7 +17,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@600;900&family=Noto+Sans+TC:wght@400;500;700&family=JetBrains+Mono:wght@500&display=swap">
 <link rel="stylesheet" href="/assets/site.css?v=4">
-<link rel="stylesheet" href="/assets/tools/tools.css?v=3">
+<link rel="stylesheet" href="/assets/tools/tools.css?v=4">
 <script type="application/ld+json">
 {
  "@context": "https://schema.org",
@@ -27,7 +27,7 @@
    "name": "工作天數計算機｜扣除台灣國定假日＋Excel NETWORKDAYS 公式（2026–2027）",
    "url": "https://fangjiatw.com/tools/workdays/",
    "inLanguage": "zh-Hant-TW",
-   "dateModified": "2026-11-01",
+   "dateModified": "2026-11-10",
    "publisher": {
     "@type": "Organization",
     "name": "放假日曆",
@@ -105,6 +105,22 @@
       "@type": "Answer",
       "text": "國定假日本身相同，但遇到週末時，民間企業的補假日期由勞雇雙方協商，不一定和政府機關相同。請依公司公告調整假日清單。"
      }
+    },
+    {
+     "@type": "Question",
+     "name": "2026 年到年底還剩幾個工作天？",
+     "acceptedAnswer": {
+      "@type": "Answer",
+      "text": "從 11 月 1 日算到 12 月 31 日有 43 個工作天，從 12 月 1 日算起有 22 個（12/25 行憲紀念日放假已扣除）。想從今天算，按本頁計算機的「今天到年底」就會自動帶入日期。"
+     }
+    },
+    {
+     "@type": "Question",
+     "name": "2027 年每個月有幾個工作天？",
+     "acceptedAnswer": {
+      "@type": "Answer",
+      "text": "2027 年全年 244 個工作天。工作天最少的是 2 月（春節）只有 15 個，最多的 3、7、8、11 月各 22 個；各月從 1 日算到年底還剩幾個工作天，請看本頁的對照表。"
+     }
     }
    ]
   }
@@ -122,7 +138,7 @@
   <div>
     <div class="crumb"><a href="/">放假日曆</a> › <a href="/tools/">試算工具</a> › 工作天數計算</div>
     <h1>工作天數計算<br>扣掉國定假日＋Excel 公式</h1>
-    <div class="meta">更新日期：2026 年 11 月 1 日</div>
+    <div class="meta">更新日期：2026 年 11 月 10 日</div>
   </div>
 
   <div class="answer">依人事行政總處公布的辦公日曆表，2026 年共有 <b>245 個</b>工作天，2027 年共有 <b>244 個</b>（扣除週末、國定假日與補假，兩年都沒有補班日）。下面的工具能算任兩個日期之間的工作天數，也附上可直接貼進 Excel 的<b>台灣假日清單</b>。</div>
@@ -136,6 +152,7 @@
           <label class="field">開始日<input type="date" name="from" value="2027-01-01"></label>
           <label class="field">結束日<input type="date" name="to" value="2027-01-31"></label>
         </div>
+        <div class="quick" role="group" aria-label="快速帶入日期"><span>快速帶入：</span><button type="button" class="copy" data-range="month">今天到本月底</button><button type="button" class="copy" data-range="year">今天到年底</button><button type="button" class="copy" data-range="next">今天到明年底</button></div>
       </fieldset>
       <fieldset>
         <legend>公司的休假規則（選填）</legend>
@@ -154,6 +171,33 @@
       <div class="result" id="addOut" aria-live="polite"></div>
     </form>
     <p class="note" style="margin-top:8px">以人事行政總處辦公日曆表計算，涵蓋 2026～2027 年。民間企業的補假日期可能不同，可以用上方「公司額外放假日」自行加入。</p>
+  </section>
+
+  <section>
+    <h2>到年底還剩幾個工作天？</h2>
+    <p>從表格左邊的日期（含當天）算到當年 12 月 31 日，已扣除週末、國定假日與補假，以週休二日計算。要從今天算，按上方計算機的「<b>今天到年底</b>」就好。</p>
+    <div class="tbl"><table>
+      <thead><tr><th>起算日</th><th>到年底剩</th><th>當月工作天</th></tr></thead>
+      <tbody>
+        <tr><td class="num">2026/11/01</td><td class="num"><b>43</b></td><td class="num">21</td></tr>
+        <tr><td class="num">2026/11/16</td><td class="num"><b>33</b></td><td class="num">—</td></tr>
+        <tr><td class="num">2026/12/01</td><td class="num"><b>22</b></td><td class="num">22</td></tr>
+        <tr><td class="num">2026/12/16</td><td class="num"><b>11</b></td><td class="num">—</td></tr>
+        <tr><td class="num">2027/01/01</td><td class="num"><b>244</b></td><td class="num">20</td></tr>
+        <tr><td class="num">2027/02/01</td><td class="num"><b>224</b></td><td class="num">15</td></tr>
+        <tr><td class="num">2027/03/01</td><td class="num"><b>209</b></td><td class="num">22</td></tr>
+        <tr><td class="num">2027/04/01</td><td class="num"><b>187</b></td><td class="num">19</td></tr>
+        <tr><td class="num">2027/05/01</td><td class="num"><b>168</b></td><td class="num">21</td></tr>
+        <tr><td class="num">2027/06/01</td><td class="num"><b>147</b></td><td class="num">21</td></tr>
+        <tr><td class="num">2027/07/01</td><td class="num"><b>126</b></td><td class="num">22</td></tr>
+        <tr><td class="num">2027/08/01</td><td class="num"><b>104</b></td><td class="num">22</td></tr>
+        <tr><td class="num">2027/09/01</td><td class="num"><b>82</b></td><td class="num">20</td></tr>
+        <tr><td class="num">2027/10/01</td><td class="num"><b>62</b></td><td class="num">19</td></tr>
+        <tr><td class="num">2027/11/01</td><td class="num"><b>43</b></td><td class="num">22</td></tr>
+        <tr><td class="num">2027/12/01</td><td class="num"><b>21</b></td><td class="num">21</td></tr>
+      </tbody>
+    </table></div>
+    <p class="note" style="margin-top:8px">2026 年 12 月有 22 個工作天（12/25 行憲紀念日放假）；2027 年 12 月有 21 個（12/24 行憲紀念日補假、12/31 元旦補假）。算專案剩餘天數、年底結案或請款時可以先參考，公司補假日期不同時再用計算機調整。</p>
   </section>
 
   <section>
@@ -239,6 +283,8 @@
     <details><summary>2026、2027 年有補班日嗎？</summary><p>沒有。2026、2027 年政府行政機關辦公日曆表都沒有補班日，所以只要扣掉週末和平日放假的國定假日、補假就好。</p></details>
     <details><summary>一週只休週日，怎麼算工作天？</summary><p>用 NETWORKDAYS.INTL，週末參數填 "0000001"（從週一到週日，1 代表休息），公式為 =NETWORKDAYS.INTL(A2,B2,"0000001",假日!A:A)。</p></details>
     <details><summary>民間企業的國定假日跟政府一樣嗎？</summary><p>國定假日本身相同，但遇到週末時，民間企業的補假日期由勞雇雙方協商，不一定和政府機關相同。請依公司公告調整假日清單。</p></details>
+    <details><summary>2026 年到年底還剩幾個工作天？</summary><p>從 11 月 1 日算到 12 月 31 日有 43 個工作天，從 12 月 1 日算起有 22 個（12/25 行憲紀念日放假已扣除）。想從今天算，按本頁計算機的「今天到年底」就會自動帶入日期。</p></details>
+    <details><summary>2027 年每個月有幾個工作天？</summary><p>2027 年全年 244 個工作天。工作天最少的是 2 月（春節）只有 15 個，最多的 3、7、8、11 月各 22 個；各月從 1 日算到年底還剩幾個工作天，請看本頁的對照表。</p></details>
   </section>
 
   <section>
@@ -270,7 +316,7 @@
 
 <footer><a href="/about/">關於我們</a> · <a href="/privacy/">隱私權政策</a> · <a href="/disclosure/">聯盟連結揭露</a><br>放假日曆｜台灣生活資訊與免費試算工具。<br>本站試算結果僅供參考，實際金額以主管機關規定、公司制度及官方系統計算為準。</footer>
 <script src="/assets/tools/calc.js?v=11"></script>
-<script src="/assets/tools/ui.js?v=16"></script>
+<script src="/assets/tools/ui.js?v=17"></script>
 <!-- Cloudflare Web Analytics --><script type='module' src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token": "4c058fe6d8d047d290cd5fe7c73a3d15"}'></script><!-- End Cloudflare Web Analytics -->
 </body>
 </html>

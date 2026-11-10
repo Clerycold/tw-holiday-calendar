@@ -47,7 +47,7 @@ ${faq.map(([q, a]) => `    <details><summary>${q}</summary><p>${a}</p></details>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@600;900&family=Noto+Sans+TC:wght@400;500;700&family=JetBrains+Mono:wght@500&display=swap">
 <link rel="stylesheet" href="/assets/site.css?v=4">
-<link rel="stylesheet" href="/assets/tools/tools.css?v=3">
+<link rel="stylesheet" href="/assets/tools/tools.css?v=4">
 <script type="application/ld+json">
 ${JSON.stringify({ "@context": "https://schema.org", "@graph": graph }, null, 1)}
 </script>
@@ -70,7 +70,7 @@ ${path === "/tools/" ? "" : related(path)}
 
 <footer><a href="/about/">關於我們</a> · <a href="/privacy/">隱私權政策</a> · <a href="/disclosure/">聯盟連結揭露</a><br>放假日曆｜台灣生活資訊與免費試算工具。<br>${disclaimer || "本站試算結果僅供參考，實際金額以主管機關規定、公司制度及官方系統計算為準。"}</footer>
 ${scripts ? `<script src="/assets/tools/calc.js?v=11"></script>
-<script src="/assets/tools/ui.js?v=16"></script>` : ""}
+<script src="/assets/tools/ui.js?v=17"></script>` : ""}
 <!-- Cloudflare Web Analytics --><script type='module' src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token": "4c058fe6d8d047d290cd5fe7c73a3d15"}'></script><!-- End Cloudflare Web Analytics -->
 </body>
 </html>
@@ -517,18 +517,26 @@ const overtime = page({
 });
 
 // ---------------- 工作天數 ----------------
+const wdCount = (a, b) => require_("../assets/tools/calc.js").workdays(new Date(a + "T00:00"), new Date(b + "T00:00")).workdays;
+const lastDay = (y, m) => new Date(y, m, 0).getDate();
+const yearEndRows = [
+  ...["2026-11-01", "2026-11-16", "2026-12-01", "2026-12-16"].map(s => [s, "2026-12-31", s.endsWith("-01") ? wdCount(s, `2026-${s.slice(5, 7)}-${lastDay(2026, +s.slice(5, 7))}`) : null]),
+  ...Array.from({ length: 12 }, (_, i) => { const m = String(i + 1).padStart(2, "0"); return [`2027-${m}-01`, "2027-12-31", wdCount(`2027-${m}-01`, `2027-${m}-${lastDay(2027, i + 1)}`)]; }),
+].map(([s, e, mon]) => `        <tr><td class="num">${s.replace(/-/g, "/")}</td><td class="num"><b>${wdCount(s, e)}</b></td><td class="num">${mon ?? "—"}</td></tr>`).join("\n");
 const wdFaq = [
   ["NETWORKDAYS 會把開始和結束那天算進去嗎？", "會。NETWORKDAYS 計算的天數包含開始日和結束日；WORKDAY 則是從開始日的下一個工作天開始數。"],
   ["2026、2027 年有補班日嗎？", "沒有。2026、2027 年政府行政機關辦公日曆表都沒有補班日，所以只要扣掉週末和平日放假的國定假日、補假就好。"],
   ["一週只休週日，怎麼算工作天？", "用 NETWORKDAYS.INTL，週末參數填 \"0000001\"（從週一到週日，1 代表休息），公式為 =NETWORKDAYS.INTL(A2,B2,\"0000001\",假日!A:A)。"],
   ["民間企業的國定假日跟政府一樣嗎？", "國定假日本身相同，但遇到週末時，民間企業的補假日期由勞雇雙方協商，不一定和政府機關相同。請依公司公告調整假日清單。"],
+  ["2026 年到年底還剩幾個工作天？", `從 11 月 1 日算到 12 月 31 日有 ${wdCount("2026-11-01", "2026-12-31")} 個工作天，從 12 月 1 日算起有 ${wdCount("2026-12-01", "2026-12-31")} 個（12/25 行憲紀念日放假已扣除）。想從今天算，按本頁計算機的「今天到年底」就會自動帶入日期。`],
+  ["2027 年每個月有幾個工作天？", `2027 年全年 ${wdCount("2027-01-01", "2027-12-31")} 個工作天。工作天最少的是 2 月（春節）只有 ${wdCount("2027-02-01", "2027-02-28")} 個，最多的 3、7、8、11 月各 22 個；各月從 1 日算到年底還剩幾個工作天，請看本頁的對照表。`],
 ];
 const workdays = page({
   path: "/tools/workdays/", crumb: "工作天數計算",
   title: "工作天數計算機｜扣除台灣國定假日＋Excel NETWORKDAYS 公式（2026–2027）",
   h1: "工作天數計算<br>扣掉國定假日＋Excel 公式",
   desc: "工作天數計算機：輸入兩個日期，自動扣除週末與台灣國定假日、補假，算出工作天數；也能算 N 個工作天後是哪天。提供 2026–2027 台灣假日清單，搭配 Excel NETWORKDAYS、WORKDAY 公式。",
-  faq: wdFaq, app: "工作天數計算機",
+  faq: wdFaq, app: "工作天數計算機", updated: "2026-11-10",
   body: `
   <div class="answer">依人事行政總處公布的辦公日曆表，2026 年共有 <b>245 個</b>工作天，2027 年共有 <b>244 個</b>（扣除週末、國定假日與補假，兩年都沒有補班日）。下面的工具能算任兩個日期之間的工作天數，也附上可直接貼進 Excel 的<b>台灣假日清單</b>。</div>
 
@@ -541,6 +549,7 @@ const workdays = page({
           <label class="field">開始日<input type="date" name="from" value="2027-01-01"></label>
           <label class="field">結束日<input type="date" name="to" value="2027-01-31"></label>
         </div>
+        <div class="quick" role="group" aria-label="快速帶入日期"><span>快速帶入：</span><button type="button" class="copy" data-range="month">今天到本月底</button><button type="button" class="copy" data-range="year">今天到年底</button><button type="button" class="copy" data-range="next">今天到明年底</button></div>
       </fieldset>
       <fieldset>
         <legend>公司的休假規則（選填）</legend>
@@ -559,6 +568,18 @@ const workdays = page({
       <div class="result" id="addOut" aria-live="polite"></div>
     </form>
     <p class="note" style="margin-top:8px">以人事行政總處辦公日曆表計算，涵蓋 2026～2027 年。民間企業的補假日期可能不同，可以用上方「公司額外放假日」自行加入。</p>
+  </section>
+
+  <section>
+    <h2>到年底還剩幾個工作天？</h2>
+    <p>從表格左邊的日期（含當天）算到當年 12 月 31 日，已扣除週末、國定假日與補假，以週休二日計算。要從今天算，按上方計算機的「<b>今天到年底</b>」就好。</p>
+    <div class="tbl"><table>
+      <thead><tr><th>起算日</th><th>到年底剩</th><th>當月工作天</th></tr></thead>
+      <tbody>
+${yearEndRows}
+      </tbody>
+    </table></div>
+    <p class="note" style="margin-top:8px">2026 年 12 月有 ${wdCount("2026-12-01", "2026-12-31")} 個工作天（12/25 行憲紀念日放假）；2027 年 12 月有 ${wdCount("2027-12-01", "2027-12-31")} 個（12/24 行憲紀念日補假、12/31 元旦補假）。算專案剩餘天數、年底結案或請款時可以先參考，公司補假日期不同時再用計算機調整。</p>
   </section>
 
   <section>
