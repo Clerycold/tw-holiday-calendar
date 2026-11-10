@@ -172,7 +172,7 @@ def draw_year(out):
     im = Image.new("RGB", (W, H), PAPER); d = ImageDraw.Draw(im)
     d.rectangle([0, 0, W, 16], fill=BRAND)
     d.text((x0, 64), "2027 全年請假攻略", font=F("Black", 84), fill=INK)
-    d.text((x0, 178), "11 個假期，每個怎麼請最划算", font=F("Bold", 40), fill=BRAND)
+    d.text((x0, 178), "9 個連假＋3 個單日節日，每個怎麼請最划算", font=F("Bold", 40), fill=BRAND)
     d.text((x0, 240), "依人事行政總處 116 年辦公日曆表　全年 121 天假、0 天補班", font=F("Medium", 28), fill=MUTED)
     y = 310
     for name, leave, a, b, days in rows:
@@ -216,12 +216,12 @@ def draw_year(out):
 yw, yh = draw_year("assets/info/2027-year.png")
 print("year card", (yw, yh))
 # 插進首頁「2027 連假一覽」和 2027 請假攻略（插在指定文字之前；重跑會先移除舊的）
-YALT = "2027 全年請假攻略圖：11 個假期最划算請法，春節請 2 休 11、清明請 3 休 9、教師節請 1 休 4、年底請 4 休 10"
+YALT = "2027 全年請假攻略圖：9 個 3 天以上連假（年底行憲紀念日與跨年合併成一列）加上端午、中秋、教師節 3 個單日節日的最划算請法，春節請 2 休 11、清明請 3 休 9、教師節請 1 休 4、年底請 4 休 10"
 for f, anchor in [("index.html", '    <p class="singles">'), ("2027/qingjia/index.html", '    <p class="note">12/31（五）放假是因為')]:
     s = io.open(f, encoding="utf-8", newline="").read()
     s = re.sub(r'    <figure class="info year">.*?</figure>\n', "", s, flags=re.S)
     cap = (f'<figcaption>{YALT}。手機長按圖片可存圖分享。</figcaption>' if f != "index.html" else
-           '<figcaption><b>一張圖看懂 2027 怎麼請假</b><span>11 個假期的最划算請法、要請哪幾天、能連休幾天，全部整理在這張圖。春節請 2 天就能休 11 天，是全年 CP 值最高的連假。</span>'
+           '<figcaption><b>一張圖看懂 2027 怎麼請假</b><span>9 個 3 天以上連假，加上端午、中秋、教師節 3 個單日節日，每個的最划算請法、要請哪幾天、能連休幾天，全部整理在這張圖。春節請 2 天就能休 11 天，是全年 CP 值最高的連假。</span>'
            '<span>手機長按圖片就能存圖，傳給家人朋友一起排假。</span><a href="/2027/qingjia/">看 2027 請假攻略：特休 3～14 天怎麼排 →</a></figcaption>')
     ext = "webp" if f == "index.html" else "png"   # 首頁用 WebP（build_home_thumbs.py 產生）；文章維持 PNG 方便存圖
     fig = (f'    <figure class="info year"><img src="/assets/info/2027-year.{ext}?v={ver(f"assets/info/2027-year.{ext}")}" width="{yw}" height="{yh}" loading="lazy" alt="{YALT}">'

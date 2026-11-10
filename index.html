@@ -133,11 +133,25 @@ main > section:last-child{padding-bottom:var(--gap)}
 .chip{min-height:48px;border:1px solid var(--line);background:var(--surface);color:var(--text);border-radius:12px;font:inherit;font-weight:700;font-size:1rem;cursor:pointer}
 .chip:hover{border-color:var(--primary);color:var(--primary)}
 .chip[aria-pressed="true"]{background:var(--primary);border-color:var(--primary);color:var(--on-primary)}
+.chip small{display:block;font-size:.72rem;font-weight:500;line-height:1.2}
+.custom{display:flex;align-items:center;flex-wrap:wrap;gap:6px 12px}
+.custom label{font-weight:700}
+.custom input{width:96px;min-height:48px;padding:0 12px;border:1px solid var(--line);border-radius:12px;background:var(--surface);color:var(--text);font:inherit;font-weight:700;font-size:1.1rem}
+.custom input:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+.custom input[aria-invalid="true"]{border-color:var(--hol);box-shadow:inset 0 0 0 1px var(--hol)}
+.custom-help{color:var(--muted);font-size:.88rem}
+.custom-help.err{color:var(--hol);font-weight:700}
+.plan-stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px}
+.ps{background:var(--surface);border-radius:12px;padding:8px 6px;display:grid;text-align:center;line-height:1.3}
+.ps b{font-size:1.5rem;font-weight:900;color:var(--primary)}
+.ps span{font-size:.78rem;color:var(--muted)}
+.plan-alt{color:var(--muted);font-size:.9rem}
+.plan-alt:empty{display:none}
 .plan-box{background:var(--primary-light);border-radius:var(--r);padding:16px;display:grid;gap:12px}
 .plan-sum{font-weight:700;font-size:1.05rem;min-height:1.7em}
 .plan-sum b{color:var(--primary);font-size:1.35rem}
 .results{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,240px),1fr));gap:10px}
-.res{border:1px solid var(--line);border-radius:12px;padding:14px;background:var(--surface);text-align:left;font:inherit;color:inherit;cursor:pointer;display:grid;gap:4px;min-height:48px}
+.res{border:1px solid var(--line);border-radius:12px;padding:14px;background:var(--surface);text-align:left;font:inherit;color:inherit;text-decoration:none;cursor:pointer;display:grid;gap:4px;min-height:48px}
 .res:hover{border-color:var(--primary)}
 .res[aria-pressed="true"]{border-color:var(--primary);box-shadow:inset 0 0 0 1px var(--primary)}
 .res .big{font-weight:900;font-size:1.45rem}
@@ -313,14 +327,22 @@ main > section:last-child{padding-bottom:var(--gap)}
     </div>
     <div class="planner">
       <div class="picker">
-        <span class="picker-label" id="chipsLabel">我想請幾天特休？</span>
-        <div class="chips" id="chips" role="group" aria-labelledby="chipsLabel"><button class="chip" type="button" aria-pressed="false" data-n="1">1 天</button><button class="chip" type="button" aria-pressed="false" data-n="2">2 天</button><button class="chip" type="button" aria-pressed="true" data-n="3">3 天</button><button class="chip" type="button" aria-pressed="false" data-n="4">4 天</button><button class="chip" type="button" aria-pressed="false" data-n="5">5 天</button><button class="chip" type="button" aria-pressed="false" data-n="6">6 天</button><button class="chip" type="button" aria-pressed="false" data-n="8">8 天</button></div>
+        <span class="picker-label" id="chipsLabel">我有幾天特休？</span>
+        <div class="chips" id="chips" role="group" aria-labelledby="chipsLabel"><button class="chip" type="button" aria-pressed="true" data-n="3">3 天<small>滿半年</small></button><button class="chip" type="button" aria-pressed="false" data-n="7">7 天<small>滿 1 年</small></button><button class="chip" type="button" aria-pressed="false" data-n="10">10 天<small>滿 2 年</small></button><button class="chip" type="button" aria-pressed="false" data-n="14">14 天<small>滿 3 年</small></button></div>
+        <div class="custom"><label for="leaveN">自訂天數</label><input id="leaveN" type="number" inputmode="numeric" min="1" max="30" step="1" value="3" aria-describedby="leaveHelp"><span class="custom-help" id="leaveHelp">可輸入 1～30 天</span></div>
       </div>
       <div class="plan-box">
+        <div class="plan-stats">
+          <div class="ps"><b class="num" id="psUsed">3</b><span>使用特休</span></div>
+          <div class="ps"><b class="num" id="psLeft">0</b><span>剩餘特休</span></div>
+          <div class="ps"><b class="num" id="psSegs">2</b><span>長假段數</span></div>
+          <div class="ps"><b class="num" id="psTotal">15</b><span>連休合計</span></div>
+        </div>
         <p class="plan-sum" id="planSum" aria-live="polite">&nbsp;</p>
         <div class="results" id="results"></div>
+        <p class="plan-alt" id="planAlt"></p>
       </div>
-      <p class="hint">點選任一方案，下方行事曆會用綠色標出要請假的日子。</p>
+      <p class="hint">選好天數，下方行事曆會自動用綠色標出所有建議請假日；點任一段假期可以跳到該月份。</p>
     </div>
   </section>
 
@@ -331,7 +353,7 @@ main > section:last-child{padding-bottom:var(--gap)}
       <p>每個連假放哪幾天、怎麼請假最划算，點進攻略看完整排法。</p>
     </div>
     <div class="lw" id="lwList"></div>
-    <figure class="info year"><img src="/assets/info/2027-year.webp?v=351c9378" width="1080" height="2050" loading="lazy" alt="2027 全年請假攻略圖：11 個假期最划算請法，春節請 2 休 11、清明請 3 休 9、教師節請 1 休 4、年底請 4 休 10"><figcaption><b>一張圖看懂 2027 怎麼請假</b><span>11 個假期的最划算請法、要請哪幾天、能連休幾天，全部整理在這張圖。春節請 2 天就能休 11 天，是全年 CP 值最高的連假。</span><span>手機長按圖片就能存圖，傳給家人朋友一起排假。</span><a href="/2027/qingjia/">看 2027 請假攻略：特休 3～14 天怎麼排 →</a></figcaption></figure>
+    <figure class="info year"><img src="/assets/info/2027-year.webp?v=324f97ca" width="1080" height="2050" loading="lazy" alt="2027 全年請假攻略圖：9 個 3 天以上連假（年底行憲紀念日與跨年合併成一列）加上端午、中秋、教師節 3 個單日節日的最划算請法，春節請 2 休 11、清明請 3 休 9、教師節請 1 休 4、年底請 4 休 10"><figcaption><b>一張圖看懂 2027 怎麼請假</b><span>9 個 3 天以上連假，加上端午、中秋、教師節 3 個單日節日，每個的最划算請法、要請哪幾天、能連休幾天，全部整理在這張圖。春節請 2 天就能休 11 天，是全年 CP 值最高的連假。</span><span>手機長按圖片就能存圖，傳給家人朋友一起排假。</span><a href="/2027/qingjia/">看 2027 請假攻略：特休 3～14 天怎麼排 →</a></figcaption></figure>
     <p class="singles">放 1 天、沒有連假的：端午節 6/9（三）、中秋節 9/15（三）、教師節 9/28（二）。每個連假怎麼請最划算、特休 3～14 天怎麼排，請看 <a href="/2027/qingjia/">2027 全年請假攻略</a>。</p>
   </section>
 
@@ -577,39 +599,75 @@ main > section:last-child{padding-bottom:var(--gap)}
   }
 
   // ---- render: planner ----
+  // 全年特休分配：在特休額度內挑幾段互不重疊、含國定假日的連假（請假日都在 2027 年），
+  // 讓「連休天數 − 1」的總和最大（同樣天數時偏好段數少、每段長）；同分時依序選段數較少、每段 CP 值（休÷請）較高、日期較早的。
+  // 特休 3／7／10／14 天的結果與 /2027/qingjia/ 文章的排法一致（14 天時 228 和勞動節同分，文章也列為可互換）。
+  const MAXN = 30;
+  function yearPlan(B){
+    const C = candidates(B)
+      .filter(x=>DAYS.slice(x.i,x.j+1).some(y=>HOL[y.k]) && leaveDays(x).every(d=>d.getFullYear()===2027))
+      .sort((a,b)=>a.j-b.j || a.i-b.i);
+    const val = x => (x.len-1)*1e7 - 1e5 + Math.round(x.len/x.leave*100) - x.i/1000;
+    const prev = C.map(c=>{ let k=-1; C.forEach((t,ix)=>{ if(t.j<c.i) k=ix; }); return k; });
+    const best = [Array.from({length:B+1},()=>({v:0,set:[]}))];
+    C.forEach((c,t)=>{
+      const row = best[t].slice();
+      for(let b=c.leave;b<=B;b++){
+        const p = best[prev[t]+1][b-c.leave], v = p.v + val(c);
+        if(v > row[b].v) row[b] = {v, set:[...p.set,c]};
+      }
+      best.push(row);
+    });
+    return best[C.length][B].set.sort((a,b)=>a.i-b.i);
+  }
+
   const chips=document.getElementById("chips"), results=document.getElementById("results");
+  const input=document.getElementById("leaveN"), help=document.getElementById("leaveHelp");
+  const fmtD = d => `${d.getMonth()+1}/${d.getDate()}`;
   let N = 3;
-  try{ const s=+localStorage.getItem("leaveN"); if(s>=1&&s<=8) N=s; }catch(e){}
+  try{ const s=+localStorage.getItem("leaveN"); if(Number.isInteger(s)&&s>=1&&s<=MAXN) N=s; }catch(e){}
   function renderPlanner(){
-    chips.innerHTML = [1,2,3,4,5,6,8].map(n=>`<button class="chip" type="button" aria-pressed="${n===N}" data-n="${n}">${n} 天</button>`).join("");
-    const p = plan(N);
-    const b0 = p[0];
-    document.getElementById("planSum").innerHTML = b0
-      ? `有 ${N} 天特休，最長可連休 <b class="num">${b0.len}</b> 天${b0.leave<N?`（只要請 ${b0.leave} 天）`:""}：${md(DAYS[b0.i].d)} – ${md(DAYS[b0.j].d)}`
-      : `有 ${N} 天特休，目前找不到可以接成連假的組合`;
-    results.innerHTML = p.map((x,ix)=>{
+    chips.querySelectorAll(".chip").forEach(c=>c.setAttribute("aria-pressed",String(+c.dataset.n===N)));
+    if(+input.value!==N) input.value=N;
+    input.removeAttribute("aria-invalid"); help.classList.remove("err"); help.textContent="可輸入 1～30 天";
+    const segs = yearPlan(N);
+    const used = segs.reduce((s,x)=>s+x.leave,0), total = segs.reduce((s,x)=>s+x.len,0);
+    document.getElementById("psUsed").textContent = used;
+    document.getElementById("psLeft").textContent = N-used;
+    document.getElementById("psSegs").textContent = segs.length;
+    document.getElementById("psTotal").textContent = total;
+    document.getElementById("planSum").innerHTML = segs.length
+      ? `特休 ${N} 天可以排出 ${segs.length} 段長假，連續休假日合計 <b class="num">${total}</b> 天${N>used?`，剩 ${N-used} 天可自由運用`:""}`
+      : `特休 ${N} 天目前找不到可以接成連假的組合`;
+    const top = segs.reduce((a,x)=>!a||x.len/x.leave>a.len/a.leave?x:a,null);
+    results.innerHTML = segs.map(x=>{
       const s=DAYS[x.i].d, e=DAYS[x.j].d, lv=leaveDays(x);
-      return `<button class="res" type="button" data-ix="${ix}" aria-pressed="false">
-        ${ix===0?'<span class="tag">最划算</span>':""}
+      const m = lv[0].getMonth()+1;
+      return `<a class="res" href="#m${m}" aria-label="${fmtD(s)} 到 ${fmtD(e)}，請 ${x.leave} 天休 ${x.len} 天，跳到 ${m} 月行事曆">
+        ${x===top&&segs.length>1?'<span class="tag">最划算</span>':""}
         <div class="big">請 <span>${x.leave}</span> 休 ${x.len}</div>
         <div>${md(s)} – ${md(e)}</div>
-        <small>請假日：${lv.map(d=>`${d.getMonth()+1}/${d.getDate()}`).join("、")}</small>
-      </button>`;
+        <small>請假日：${lv.map(fmtD).join("、")}</small>
+      </a>`;
     }).join("");
-    results.querySelectorAll(".res").forEach(btn=>btn.addEventListener("click",()=>{
-      const on = btn.getAttribute("aria-pressed")!=="true";
-      results.querySelectorAll(".res").forEach(b=>b.setAttribute("aria-pressed","false"));
-      btn.setAttribute("aria-pressed",String(on));
-      highlight = on ? new Set(leaveDays(p[+btn.dataset.ix]).map(key)) : new Set();
-      renderMonths();
-    }));
-    chips.querySelectorAll(".chip").forEach(c=>c.addEventListener("click",()=>{
-      N=+c.dataset.n; try{localStorage.setItem("leaveN",N)}catch(e){}
-      highlight=new Set(); renderPlanner(); renderMonths();
-      chips.querySelector(`[data-n="${N}"]`).focus(); // 按鈕重畫後把鍵盤焦點留在選中的天數
-    }));
+    // 對照：同樣天數全部集中請一次，最長能連休幾天（舊版計算器的算法）
+    const one = plan(N)[0], longest = Math.max(0,...segs.map(x=>x.len));
+    document.getElementById("planAlt").textContent = one && one.len>longest
+      ? `想一次休很長？${N} 天集中請，${md(DAYS[one.i].d)} – ${md(DAYS[one.j].d)} 可連休 ${one.len} 天（請 ${one.leave} 天）。`
+      : "";
+    highlight = new Set(segs.flatMap(x=>leaveDays(x).map(key)));
+    renderMonths();
   }
-  renderPlanner(); renderMonths();
+  const setN = n => { N=n; try{localStorage.setItem("leaveN",N)}catch(e){} renderPlanner(); };
+  chips.addEventListener("click",e=>{ const c=e.target.closest(".chip"); if(c) setN(+c.dataset.n); });
+  input.addEventListener("input",()=>{
+    const v = input.value.trim(), n = +v;
+    if(v!=="" && Number.isInteger(n) && n>=1 && n<=MAXN){ if(n!==N) setN(n); return; }
+    input.setAttribute("aria-invalid","true"); help.classList.add("err");
+    help.textContent = v==="" ? "請輸入 1～30 天" : "請輸入 1～30 的整數";
+  });
+  input.addEventListener("blur",()=>{ if(input.getAttribute("aria-invalid")) renderPlanner(); });
+  renderPlanner();
 
   // ---- render: hero stats（由上方資料計算，HTML 內的數字只是載入前的預設值） ----
   const y27 = DAYS.filter(x=>x.d.getFullYear()===2027);
