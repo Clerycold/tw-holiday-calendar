@@ -135,3 +135,98 @@ for page, name, anchor in REUSE:
     i = s.index(anchor); s = s[:i] + fig + "\n    " + s[i:]
     if ".info{" not in s: s = s.replace("</head>", f"<style>{CSS}</style>\n</head>", 1)
     io.open(f, "w", encoding="utf-8", newline="").write(s); print("reuse", page)
+
+# ---------------- 2027 全年請假總覽圖卡（首頁、2027 請假攻略用） ----------------
+# (名稱, 要請的日期, 預期連休天數)；和 2027/qingjia 文章的「最划算請法」一致
+YEAR = [
+    ("元旦跨年", ["2026-12-28", "2026-12-29", "2026-12-30", "2026-12-31"], 10),
+    ("春節", ["2027-02-11", "2027-02-12"], 11),
+    ("228 和平紀念日", ["2027-03-02", "2027-03-03", "2027-03-04", "2027-03-05"], 9),
+    ("兒童節・清明節", ["2027-04-07", "2027-04-08", "2027-04-09"], 9),
+    ("勞動節", ["2027-04-26", "2027-04-27", "2027-04-28", "2027-04-29"], 9),
+    ("端午節", ["2027-06-07", "2027-06-08"], 5),
+    ("中秋節", ["2027-09-13", "2027-09-14"], 5),
+    ("教師節", ["2027-09-27"], 4),
+    ("國慶日", ["2027-10-12", "2027-10-13", "2027-10-14", "2027-10-15"], 9),
+    ("臺灣光復節", ["2027-10-26", "2027-10-27", "2027-10-28", "2027-10-29"], 9),
+    ("行憲紀念日跨年", ["2027-12-27", "2027-12-28", "2027-12-29", "2027-12-30"], 10),
+]
+
+def leave_txt(leave):
+    ds = [D(x) for x in leave]
+    if len(ds) > 2 and (ds[-1] - ds[0]).days == len(ds) - 1:
+        return f"{ds[0].month}/{ds[0].day}～{ds[-1].month}/{ds[-1].day}"
+    return "、".join(f"{d.month}/{d.day}" for d in ds)
+
+def draw_year(out):
+    rows = []
+    for name, leave, want in YEAR:
+        a, b = span(leave); days = (b - a).days + 1
+        assert days == want, (name, days, want)
+        rows.append((name, leave, a, b, days))
+    best = max(rows, key=lambda r: r[4] / len(r[1]))
+    x0, rh, gap = 56, 112, 12
+    H = 330 + len(rows) * (rh + gap) + 420
+    im = Image.new("RGB", (W, H), PAPER); d = ImageDraw.Draw(im)
+    d.rectangle([0, 0, W, 16], fill=RED)
+    d.text((x0, 64), "2027 全年請假攻略", font=F("Black", 84), fill=INK)
+    d.text((x0, 178), "11 個假期，每個怎麼請最划算", font=F("Bold", 40), fill=RED)
+    d.text((x0, 240), "依人事行政總處 116 年辦公日曆表　全年 121 天假、0 天補班", font=F("Medium", 28), fill=MUTED)
+    y = 310
+    for name, leave, a, b, days in rows:
+        hi = (name, a) == (best[0], best[2])
+        d.rounded_rectangle([x0, y, W - x0, y + rh], radius=14, fill=RED_SOFT if hi else SHEET, outline=RED if hi else RULE, width=2 if hi else 1)
+        # 左：月份方塊
+        d.rounded_rectangle([x0 + 14, y + 14, x0 + 14 + 84, y + rh - 14], radius=10, fill=RED if hi else INK)
+        d.text((x0 + 56, y + rh / 2 - 2), f"{a.month if a.year == 2027 or name != '元旦跨年' else 1}月", font=F("Black", 30), fill="#ffffff", anchor="mm")
+        # 中：名稱與日期
+        tx = x0 + 124
+        d.text((tx, y + 20), name, font=F("Bold", 36), fill=INK)
+        if hi:
+            tw = d.textlength(name, font=F("Bold", 36))
+            d.rounded_rectangle([tx + tw + 14, y + 24, tx + tw + 14 + 150, y + 62], radius=19, fill=RED)
+            d.text((tx + tw + 89, y + 43), "CP 值最高", font=F("Bold", 24), fill="#ffffff", anchor="mm")
+        d.text((tx, y + 70), f"請 {leave_txt(leave)}　連休 {a.month}/{a.day}～{b.month}/{b.day}", font=F("Medium", 26), fill=MUTED)
+        # 右：請 X 休 Y
+        rx = W - x0 - 24; big, small = F("Black", 56), F("Bold", 30)
+        parts = [("請 ", small, MUTED), (str(len(leave)), big, LEAVE), (" 休 ", small, MUTED), (str(days), big, RED)]
+        total = sum(d.textlength(t, font=f) for t, f, _ in parts); cx = rx - total
+        for t, f, c in parts:
+            d.text((cx, y + rh / 2), t, font=f, fill=c, anchor="lm"); cx += d.textlength(t, font=f)
+        y += rh + gap
+    # 特休 7 天推薦
+    y += 20
+    d.rounded_rectangle([x0, y, W - x0, y + 190], radius=14, fill=LEAVE_SOFT, outline=LEAVE, width=2)
+    d.text((x0 + 30, y + 30), "只有 7 天特休？這樣排最划算", font=F("Black", 38), fill=LEAVE)
+    d.text((x0 + 30, y + 92), "春節請 2 天＋教師節請 1 天＋年底請 4 天", font=F("Bold", 32), fill=INK)
+    d.text((x0 + 30, y + 140), "排出 3 段長假，連續休假合計 25 天", font=F("Bold", 32), fill=INK)
+    y += 230
+    d.text((x0, y), "以週一到週五上班、週休二日的上班族計算；民間企業補假日期依公司公告。", font=F("Medium", 24), fill=MUTED)
+    y += 56
+    lf2 = F("Black", 40)
+    d.text((x0, y + 20), "放假", font=lf2, fill=INK, anchor="lm")
+    d.text((x0 + d.textlength("放假", font=lf2), y + 20), "日曆", font=lf2, fill=RED, anchor="lm")
+    d.text((W - x0, y + 22), "fangjiatw.com", font=F("Medium", 28), fill=MUTED, anchor="rm")
+    im = im.crop((0, 0, W, y + 70))
+    im.quantize(colors=64, method=Image.Quantize.MEDIANCUT).save(out, optimize=True)
+    return im.size
+
+yw, yh = draw_year("assets/info/2027-year.png")
+print("year card", (yw, yh))
+# 插進首頁「2027 連假一覽」和 2027 請假攻略（插在指定文字之前；重跑會先移除舊的）
+YALT = "2027 全年請假攻略圖：11 個假期最划算請法，春節請 2 休 11、清明請 3 休 9、教師節請 1 休 4、年底請 4 休 10"
+for f, anchor in [("index.html", '    <p class="singles">'), ("2027/qingjia/index.html", '    <p class="note">12/31（五）放假是因為')]:
+    s = io.open(f, encoding="utf-8", newline="").read()
+    s = re.sub(r'    <figure class="info year">.*?</figure>\n', "", s, flags=re.S)
+    cap = (f'<figcaption>{YALT}。手機長按圖片可存圖分享。</figcaption>' if f != "index.html" else
+           '<figcaption><b>一張圖看懂 2027 怎麼請假</b><span>11 個假期的最划算請法、要請哪幾天、能連休幾天，全部整理在這張圖。春節請 2 天就能休 11 天，是全年 CP 值最高的連假。</span>'
+           '<span>手機長按圖片就能存圖，傳給家人朋友一起排假。</span><a href="/2027/qingjia/">看 2027 請假攻略：特休 3～14 天怎麼排 →</a></figcaption>')
+    fig = (f'    <figure class="info year"><img src="/assets/info/2027-year.png?v={dt.date.today():%Y%m%d}" width="{yw}" height="{yh}" loading="lazy" alt="{YALT}">'
+           f'{cap}</figure>\n')
+    i = s.index(anchor); s = s[:i] + fig + s[i:]
+    if ".info{" not in s: s = s.replace("</head>", f"<style>{CSS}</style>\n</head>", 1)
+    if f == "index.html" and ".info.year{" not in s:  # 首頁：桌機左圖右文，手機上下排
+        s = s.replace("</head>", "<style>.info.year{margin-top:20px;grid-template-columns:minmax(0,400px) minmax(0,1fr);gap:28px;align-items:center}"
+                      ".info.year figcaption{display:grid;gap:12px;font-size:1rem;color:var(--muted)}.info.year figcaption b{font-size:1.35rem;color:var(--ink)}"
+                      ".info.year figcaption a{font-weight:700}@media (max-width:720px){.info.year{grid-template-columns:1fr}}</style>\n</head>", 1)
+    io.open(f, "w", encoding="utf-8", newline="").write(s); print("year card ->", f)
