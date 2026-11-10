@@ -6,8 +6,9 @@ from PIL import Image, ImageDraw, ImageFont
 
 FONT_DIR = "C:/Users/Administrator/tools/fonts/"
 F = lambda w, s: ImageFont.truetype(FONT_DIR + f"NotoSansTC-{w}.otf", s)
-PAPER, SHEET, INK, MUTED, RULE = "#fbfbf8", "#ffffff", "#1d1f24", "#6b6f78", "#e3e2dc"
-RED, RED_SOFT, MAKEUP, LEAVE, LEAVE_SOFT = "#c8102e", "#fde8ea", "#e8833a", "#0f7b6c", "#dff3ef"
+PAPER, SHEET, INK, MUTED, RULE = "#F8FAF8", "#ffffff", "#202B26", "#5F6E66", "#E1E9E4"
+RED, RED_SOFT, MAKEUP, LEAVE, LEAVE_SOFT = "#c8102e", "#fde8ea", "#D97745", "#176B50", "#E7F4ED"
+BRAND, ACCENT, ACCENT_SOFT = "#176B50", "#A8521F", "#FBEDE3"   # 品牌綠（版頭、Logo）；紅色只代表放假
 W = 1080
 
 js = io.open("assets/holiday.js", encoding="utf-8").read()
@@ -51,13 +52,13 @@ def draw_card(title, leave, out):
     top = 372
     H = top + 60 + rows * (cell + gap) + 520
     im = Image.new("RGB", (W, H), PAPER); d = ImageDraw.Draw(im)
-    d.rectangle([0, 0, W, 16], fill=RED)
+    d.rectangle([0, 0, W, 16], fill=BRAND)
     d.text((x0, 70), title, font=F("Bold", 40), fill=MUTED)
     hf = F("Black", 120)
     d.text((x0, 120), f"請 {len(leave)} 休 {days}", font=hf, fill=INK)
     hw = d.textlength(f"請 {len(leave)} 休 {days}", font=hf)
     d.text((x0 + hw + 24, 205), "天", font=F("Black", 56), fill=INK)
-    d.text((x0, 278), f"{md(a)} ～ {md(b)}　連休 {days} 天", font=F("Bold", 38), fill=RED)
+    d.text((x0, 278), f"{md(a)} ～ {md(b)}　連休 {days} 天", font=F("Bold", 38), fill=BRAND)
     # 星期列
     for i, ch in enumerate(DOW):
         d.text((x0 + i * (cell + gap) + cell / 2, top + 26), ch, font=F("Bold", 28), fill=RED if i in (0, 6) else MUTED, anchor="mm")
@@ -98,14 +99,15 @@ def draw_card(title, leave, out):
     y += 56
     lf2 = F("Black", 40)
     d.text((x0, y + 20), "放假", font=lf2, fill=INK, anchor="lm")
-    d.text((x0 + d.textlength("放假", font=lf2), y + 20), "日曆", font=lf2, fill=RED, anchor="lm")
+    d.text((x0 + d.textlength("放假", font=lf2), y + 20), "日曆", font=lf2, fill=BRAND, anchor="lm")
     d.text((W - x0, y + 22), "fangjiatw.com", font=F("Medium", 28), fill=MUTED, anchor="rm")
     im = im.crop((0, 0, W, y + 70))
     im.quantize(colors=64, method=Image.Quantize.MEDIANCUT).save(out, optimize=True)
     return a, b, days, im.size
 
-import os
+import os, hashlib
 os.makedirs("assets/info", exist_ok=True)
+ver = lambda path: hashlib.md5(open(path, "rb").read()).hexdigest()[:8]   # 版本號跟著圖檔內容變，避免瀏覽器快取舊圖
 CSS = ".info{margin:0;display:grid;gap:6px}.info img{width:100%;max-width:540px;height:auto;border:1px solid var(--rule);border-radius:8px;display:block}.info figcaption{color:var(--muted);font-size:.85rem}"
 for page, title, leave, want in PLANS:
     name = page.replace("/", "-")
@@ -113,7 +115,7 @@ for page, title, leave, want in PLANS:
     assert days == want, (page, days, want)
     f = page + "/index.html"; s = io.open(f, encoding="utf-8", newline="").read()
     alt = f"{title}請假圖解：請 {len(leave)} 天特休，{a.month}/{a.day}～{b.month}/{b.day} 連休 {days} 天"
-    fig = (f'<figure class="info"><img src="/assets/info/{name}.png?v={dt.date.today():%Y%m%d}" width="{w}" height="{h}" loading="lazy" alt="{alt}">'
+    fig = (f'<figure class="info"><img src="/assets/info/{name}.png?v={ver(f"assets/info/{name}.png")}" width="{w}" height="{h}" loading="lazy" alt="{alt}">'
            f'<figcaption>{alt}。手機長按圖片可存圖分享。</figcaption></figure>')
     s = re.sub(r'\n    <figure class="info">.*?</figure>', "", s)
     i = s.index('<div class="plans" id="plans">')
@@ -129,7 +131,7 @@ for page, name, anchor in REUSE:
     f = page + "/index.html"; s = io.open(f, encoding="utf-8", newline="").read()
     w, h = Image.open(f"assets/info/{name}.png").size
     alt = "2027 春節連假請假圖解：請 2 天特休，2/4～2/14 連休 11 天"
-    fig = (f'<figure class="info"><img src="/assets/info/{name}.png?v={dt.date.today():%Y%m%d}" width="{w}" height="{h}" loading="lazy" alt="{alt}">'
+    fig = (f'<figure class="info"><img src="/assets/info/{name}.png?v={ver(f"assets/info/{name}.png")}" width="{w}" height="{h}" loading="lazy" alt="{alt}">'
            f'<figcaption>{alt}。手機長按圖片可存圖分享。</figcaption></figure>')
     s = re.sub(r'\n    <figure class="info">.*?</figure>', "", s)
     i = s.index(anchor); s = s[:i] + fig + "\n    " + s[i:]
@@ -168,23 +170,23 @@ def draw_year(out):
     x0, rh, gap = 56, 112, 12
     H = 330 + len(rows) * (rh + gap) + 420
     im = Image.new("RGB", (W, H), PAPER); d = ImageDraw.Draw(im)
-    d.rectangle([0, 0, W, 16], fill=RED)
+    d.rectangle([0, 0, W, 16], fill=BRAND)
     d.text((x0, 64), "2027 全年請假攻略", font=F("Black", 84), fill=INK)
-    d.text((x0, 178), "11 個假期，每個怎麼請最划算", font=F("Bold", 40), fill=RED)
+    d.text((x0, 178), "11 個假期，每個怎麼請最划算", font=F("Bold", 40), fill=BRAND)
     d.text((x0, 240), "依人事行政總處 116 年辦公日曆表　全年 121 天假、0 天補班", font=F("Medium", 28), fill=MUTED)
     y = 310
     for name, leave, a, b, days in rows:
         hi = (name, a) == (best[0], best[2])
-        d.rounded_rectangle([x0, y, W - x0, y + rh], radius=14, fill=RED_SOFT if hi else SHEET, outline=RED if hi else RULE, width=2 if hi else 1)
+        d.rounded_rectangle([x0, y, W - x0, y + rh], radius=14, fill=ACCENT_SOFT if hi else SHEET, outline=ACCENT if hi else RULE, width=2 if hi else 1)
         # 左：月份方塊
-        d.rounded_rectangle([x0 + 14, y + 14, x0 + 14 + 84, y + rh - 14], radius=10, fill=RED if hi else INK)
+        d.rounded_rectangle([x0 + 14, y + 14, x0 + 14 + 84, y + rh - 14], radius=10, fill=ACCENT if hi else INK)
         d.text((x0 + 56, y + rh / 2 - 2), f"{a.month if a.year == 2027 or name != '元旦跨年' else 1}月", font=F("Black", 30), fill="#ffffff", anchor="mm")
         # 中：名稱與日期
         tx = x0 + 124
         d.text((tx, y + 20), name, font=F("Bold", 36), fill=INK)
         if hi:
             tw = d.textlength(name, font=F("Bold", 36))
-            d.rounded_rectangle([tx + tw + 14, y + 24, tx + tw + 14 + 150, y + 62], radius=19, fill=RED)
+            d.rounded_rectangle([tx + tw + 14, y + 24, tx + tw + 14 + 150, y + 62], radius=19, fill=ACCENT)
             d.text((tx + tw + 89, y + 43), "CP 值最高", font=F("Bold", 24), fill="#ffffff", anchor="mm")
         d.text((tx, y + 70), f"請 {leave_txt(leave)}　連休 {a.month}/{a.day}～{b.month}/{b.day}", font=F("Medium", 26), fill=MUTED)
         # 右：請 X 休 Y
@@ -205,7 +207,7 @@ def draw_year(out):
     y += 56
     lf2 = F("Black", 40)
     d.text((x0, y + 20), "放假", font=lf2, fill=INK, anchor="lm")
-    d.text((x0 + d.textlength("放假", font=lf2), y + 20), "日曆", font=lf2, fill=RED, anchor="lm")
+    d.text((x0 + d.textlength("放假", font=lf2), y + 20), "日曆", font=lf2, fill=BRAND, anchor="lm")
     d.text((W - x0, y + 22), "fangjiatw.com", font=F("Medium", 28), fill=MUTED, anchor="rm")
     im = im.crop((0, 0, W, y + 70))
     im.quantize(colors=64, method=Image.Quantize.MEDIANCUT).save(out, optimize=True)
@@ -222,7 +224,7 @@ for f, anchor in [("index.html", '    <p class="singles">'), ("2027/qingjia/inde
            '<figcaption><b>一張圖看懂 2027 怎麼請假</b><span>11 個假期的最划算請法、要請哪幾天、能連休幾天，全部整理在這張圖。春節請 2 天就能休 11 天，是全年 CP 值最高的連假。</span>'
            '<span>手機長按圖片就能存圖，傳給家人朋友一起排假。</span><a href="/2027/qingjia/">看 2027 請假攻略：特休 3～14 天怎麼排 →</a></figcaption>')
     ext = "webp" if f == "index.html" else "png"   # 首頁用 WebP（build_home_thumbs.py 產生）；文章維持 PNG 方便存圖
-    fig = (f'    <figure class="info year"><img src="/assets/info/2027-year.{ext}?v={dt.date.today():%Y%m%d}" width="{yw}" height="{yh}" loading="lazy" alt="{YALT}">'
+    fig = (f'    <figure class="info year"><img src="/assets/info/2027-year.{ext}?v={ver(f"assets/info/2027-year.{ext}")}" width="{yw}" height="{yh}" loading="lazy" alt="{YALT}">'
            f'{cap}</figure>\n')
     i = s.index(anchor); s = s[:i] + fig + s[i:]
     if ".info{" not in s: s = s.replace("</head>", f"<style>{CSS}</style>\n</head>", 1)

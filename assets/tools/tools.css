@@ -9,7 +9,7 @@
 .check{display:flex;gap:8px;align-items:center;font-size:.9rem}
 .seg{display:inline-flex;border:1px solid var(--rule);border-radius:6px;overflow:hidden}
 .seg button{font:inherit;font-size:.9rem;border:0;background:var(--sheet);color:var(--muted);padding:8px 14px;cursor:pointer}
-.seg button[aria-pressed="true"]{background:var(--leave);color:#fff}
+.seg button[aria-pressed="true"]{background:var(--leave);color:var(--on-brand,#fff)}
 .result{border-top:1px solid var(--rule);padding-top:14px;display:grid;gap:10px}
 .result .big{font-family:var(--f-num);font-size:2rem;font-weight:700;color:var(--leave);line-height:1.1}
 .result .big small{font-family:var(--f-body,inherit);font-size:.9rem;color:var(--muted);font-weight:400;margin-left:6px}
@@ -31,7 +31,7 @@
 .toolgrid .soon{border-style:dashed;color:var(--muted)}
 .pill{display:inline-block;font-size:.72rem;padding:1px 8px;border-radius:999px;background:var(--leave-soft);color:var(--leave);justify-self:start}
 .dl{display:flex;gap:12px;align-items:center;flex-wrap:wrap;border:1px solid var(--leave);background:var(--leave-soft);border-radius:8px;padding:12px 14px;margin-bottom:14px}
-.dl a{background:var(--leave);color:#fff;text-decoration:none;font-weight:700;border-radius:6px;padding:9px 14px;white-space:nowrap}
+.dl a{background:var(--leave);color:var(--on-brand,#fff);text-decoration:none;font-weight:700;border-radius:6px;padding:9px 14px;white-space:nowrap}
 .dl a:hover{filter:brightness(1.1)}
 .dl span{font-size:.88rem;color:var(--ink);flex:1;min-width:180px}
 /* 手機：避免 fieldset 與結果區的表格把版面撐寬 */

@@ -9,8 +9,9 @@ from PIL import Image, ImageDraw, ImageFont
 FONT_DIR = "C:/Users/Administrator/tools/fonts/"
 SITE = "https://fangjiatw.com"
 W, H = 1200, 630
-PAPER, INK, MUTED, RULE = "#fbfbf8", "#1d1f24", "#6b6f78", "#e3e2dc"
-RED, RED_SOFT, LEAVE, LEAVE_SOFT = "#c8102e", "#fde8ea", "#0f7b6c", "#dff3ef"
+PAPER, INK, MUTED, RULE = "#F8FAF8", "#202B26", "#5F6E66", "#E1E9E4"
+RED, RED_SOFT, LEAVE, LEAVE_SOFT = "#c8102e", "#fde8ea", "#176B50", "#E7F4ED"
+BRAND, BRAND_SOFT, ACCENT, ACCENT_SOFT = "#176B50", "#E7F4ED", "#A8521F", "#FBEDE3"   # 和網站同一組品牌色
 F = lambda w, s: ImageFont.truetype(FONT_DIR + f"NotoSansTC-{w}.otf", s)
 
 NO_START = set("，、。？！：；）」』〉》％,.?!:;)%～")
@@ -23,10 +24,10 @@ def og_url(path):
 
 def kicker(path):
     if path.startswith("/tools/"): return ("免費試算工具", LEAVE, LEAVE_SOFT)
-    if path.startswith("/concert/"): return ("演唱會住宿攻略", RED, RED_SOFT)
+    if path.startswith("/concert/"): return ("演唱會住宿攻略", ACCENT, ACCENT_SOFT)
     if path.startswith("/2026/land-value-tax"): return ("生活資訊", LEAVE, LEAVE_SOFT)
-    if re.match(r"/20\d\d/", path): return (path[1:5] + " 連假攻略", RED, RED_SOFT)
-    return ("放假日曆", RED, RED_SOFT)
+    if re.match(r"/20\d\d/", path): return (path[1:5] + " 連假攻略", BRAND, BRAND_SOFT)
+    return ("放假日曆", BRAND, BRAND_SOFT)
 
 def split_title(t):
     t = re.sub(r"｜放假日曆$", "", t).strip()
@@ -57,7 +58,7 @@ def fit(draw, text, weight, sizes, width, max_lines):
 
 def card(path, main, sub, out):
     im = Image.new("RGB", (W, H), PAPER); d = ImageDraw.Draw(im)
-    d.rectangle([0, 0, W, 14], fill=RED)
+    d.rectangle([0, 0, W, 14], fill=BRAND)
     label, fg, bg = kicker(path)
     kf = F("Bold", 30); kw = d.textlength(label, font=kf)
     d.rounded_rectangle([64, 62, 64 + kw + 40, 62 + 54], radius=27, fill=bg)
@@ -88,7 +89,7 @@ def card(path, main, sub, out):
     d.line([64, 520, W - 64, 520], fill=RULE, width=2)
     lf = F("Black", 44)
     d.text((64, 572), "放假", font=lf, fill=INK, anchor="lm")
-    d.text((64 + d.textlength("放假", font=lf), 572), "日曆", font=lf, fill=RED, anchor="lm")
+    d.text((64 + d.textlength("放假", font=lf), 572), "日曆", font=lf, fill=BRAND, anchor="lm")
     d.text((64 + d.textlength("放假日曆", font=lf) + 24, 574), "台灣生活資訊與免費試算工具", font=F("Medium", 26), fill=MUTED, anchor="lm")
     d.text((W - 64, 574), "fangjiatw.com", font=F("Medium", 28), fill=MUTED, anchor="rm")
     im = im.quantize(colors=64, method=Image.Quantize.MEDIANCUT)

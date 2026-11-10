@@ -1,7 +1,7 @@
 /* 演唱會住宿 section. Builds on site.css tokens. */
 .venues{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:10px}
 .venue{display:grid;gap:2px;border:1px solid var(--rule);border-radius:6px;padding:14px;background:var(--sheet);color:var(--ink);text-decoration:none}
-a.venue:hover{border-color:var(--red)}
+a.venue:hover{border-color:var(--brand)}
 .venue .city{font-size:.72rem;color:var(--muted);letter-spacing:.06em}
 .venue .nm{font-family:var(--f-display);font-weight:900;font-size:1.1rem}
 .venue small{color:var(--muted);font-size:.8rem}
@@ -19,19 +19,19 @@ a.venue:hover{border-color:var(--red)}
 .chips{display:flex;gap:6px;flex-wrap:wrap}
 .chip{font-size:.75rem;padding:1px 10px;border-radius:999px;border:1px solid var(--rule);white-space:nowrap}
 .chip.walk{background:var(--leave-soft);border-color:transparent;color:var(--leave);font-weight:700}
-.chip.mrt{background:var(--red-soft);border-color:transparent;color:var(--red);font-weight:700}
-.book{justify-self:start;font-size:.88rem;font-weight:700;text-decoration:none;border:1px solid var(--red);border-radius:6px;padding:4px 12px}
-.book:hover{background:var(--red-soft)}
+.chip.mrt{background:var(--brand-soft);border-color:transparent;color:var(--brand);font-weight:700}
+.book{justify-self:start;font-size:.88rem;font-weight:700;text-decoration:none;border:1px solid var(--brand);border-radius:6px;padding:4px 12px}
+.book:hover{background:var(--brand-soft)}
 
-.tip{background:var(--red-soft);border-radius:6px;padding:14px 16px}
+.tip{background:var(--brand-soft);border-radius:6px;padding:14px 16px}
 
 .helper{border:1px solid var(--rule);border-radius:6px;background:var(--sheet);padding:16px;display:grid;gap:14px}
 .helper .q b{display:block;font-size:.9rem;margin-bottom:6px}
 .seg{display:flex;flex-wrap:wrap;gap:6px}
 .seg button{font:inherit;color:inherit;font-size:.88rem;border:1px solid var(--rule);background:var(--paper);border-radius:6px;padding:5px 12px;cursor:pointer}
-.seg button[aria-pressed="true"]{background:var(--red);border-color:var(--red);color:#fff}
+.seg button[aria-pressed="true"]{background:var(--brand);border-color:var(--brand);color:var(--on-brand)}
 .verdict{border-radius:6px;padding:14px 16px;background:var(--paper);border-left:4px solid var(--muted)}
-.verdict.stay{border-left-color:var(--red)}
+.verdict.stay{border-left-color:var(--brand)}
 .verdict.maybe{border-left-color:var(--makeup)}
 .verdict.go{border-left-color:var(--leave)}
 .verdict strong{font-family:var(--f-display);font-size:1.1rem;display:block}
@@ -39,10 +39,10 @@ a.venue:hover{border-color:var(--red)}
 
 .steps{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px}
 .step{border-top:3px solid var(--ink);padding-top:8px}
-.step .when{font-size:.75rem;color:var(--red);font-weight:700}
+.step .when{font-size:.75rem;color:var(--brand);font-weight:700}
 .step h3{font-size:1rem;margin:2px 0 4px}
 .step p{margin:0;font-size:.9rem;color:var(--muted)}
-.venue .cta{margin-top:6px;font-size:.85rem;font-weight:700;color:var(--red)}
+.venue .cta{margin-top:6px;font-size:.85rem;font-weight:700;color:var(--brand)}
 .venue.soon{border-style:dashed;background:transparent}
 .venue .badge{justify-self:start;font-size:.7rem;padding:0 8px;border-radius:999px;background:var(--rule);color:var(--muted);margin-bottom:4px}
 .group-h{font-size:1rem;margin:16px 0 8px}
