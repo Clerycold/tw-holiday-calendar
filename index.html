@@ -37,6 +37,44 @@
    "url": "https://fangjiatw.com/",
    "slogan": "台灣生活資訊與免費試算工具",
    "email": "contact@fangjiatw.com"
+  },
+  {
+   "@type": "FAQPage",
+   "@id": "https://fangjiatw.com/#faq",
+   "mainEntity": [
+    {
+     "@type": "Question",
+     "name": "2027 年有補班嗎？",
+     "acceptedAnswer": {
+      "@type": "Answer",
+      "text": "沒有。2027 年遇到週末的國定假日都用「補假」處理，例如國慶日 10/10 是週日，就改在 10/11（一）補假，所以全年不用補班。"
+     }
+    },
+    {
+     "@type": "Question",
+     "name": "2027 春節放幾天？",
+     "acceptedAnswer": {
+      "@type": "Answer",
+      "text": "放 7 天，從 2/4（四）小年夜放到 2/10（三）。除夕是 2/5（五），大年初一是 2/6（六），初一、初二碰到週末，所以補假到 2/9 和 2/10。"
+     }
+    },
+    {
+     "@type": "Question",
+     "name": "2027 總共放幾天假？",
+     "acceptedAnswer": {
+      "@type": "Answer",
+      "text": "121 天，包含 104 天週末和 17 天平日的國定假日或補假。"
+     }
+    },
+    {
+     "@type": "Question",
+     "name": "勞工也照這份行事曆放假嗎？",
+     "acceptedAnswer": {
+      "@type": "Answer",
+      "text": "這份是人事行政總處公布的公務機關行事曆。私人企業依《勞動基準法》，國定假日要放，但「補假」日要看公司規定，有些公司會另外調整，請以公司公告為準。"
+     }
+    }
+   ]
   }
  ]
 }
@@ -85,13 +123,13 @@ main > section:last-child{padding-bottom:var(--gap)}
 .btn-primary:hover{filter:brightness(.9)}
 .btn-ghost{background:var(--surface);color:var(--text);border-color:var(--line)}
 .btn-ghost:hover{border-color:var(--primary);color:var(--primary)}
-.more{font-weight:700;text-decoration:none}
+.more{font-weight:700;text-decoration:none;display:inline-block;padding:11px 0;margin:-11px 0}
 .more:hover{text-decoration:underline}
 
 /* header */
 .site-head{position:sticky;top:0;z-index:20;background:color-mix(in srgb,var(--surface) 92%,transparent);backdrop-filter:saturate(1.4) blur(8px);border-bottom:1px solid var(--border)}
 .head-in{height:var(--head);display:flex;align-items:center;justify-content:space-between;gap:16px}
-.logo{color:var(--text);text-decoration:none;font-weight:900;font-size:1.2rem;line-height:1.15;display:inline-block}
+.logo{color:var(--text);text-decoration:none;font-weight:900;font-size:1.2rem;line-height:1.15;display:inline-block;padding:5px 0}
 .logo span{color:var(--primary)}
 .logo small{display:block;font-weight:500;font-size:.68rem;color:var(--muted);letter-spacing:.02em;margin-top:2px}
 .menu-btn{display:none;width:44px;height:44px;border:1px solid var(--line);border-radius:10px;background:var(--surface);color:var(--text);cursor:pointer;align-items:center;justify-content:center}
@@ -169,7 +207,8 @@ main > section:last-child{padding-bottom:var(--gap)}
 .lw-card h3{font-size:1.05rem}
 .lw-card p{color:var(--muted);font-size:.9rem;margin-top:2px}
 .lw-card .tip{color:var(--primary);font-weight:700}
-.lw-card .more{display:inline-block;margin-top:6px;font-size:.92rem}
+.lw-card .more{display:inline-block;padding:10px 0;margin:-4px 0 -10px;font-size:.92rem}
+.post-body .more{display:inline-block;padding:9px 0;margin:-9px 0}
 .singles{color:var(--muted);font-size:.92rem;margin-top:16px}
 .info{margin:0;display:grid;gap:6px}
 .info img{width:100%;max-width:540px;height:auto;border:1px solid var(--border);border-radius:12px;display:block}
@@ -184,7 +223,7 @@ main > section:last-child{padding-bottom:var(--gap)}
 .legend i{display:inline-block;width:14px;height:14px;border-radius:4px;vertical-align:-2px;margin-right:6px}
 .mjump{position:sticky;top:var(--head);z-index:5;background:var(--bg);margin:12px -16px 0;padding:8px 16px;display:flex;gap:6px;overflow-x:auto;scrollbar-width:none}
 .mjump::-webkit-scrollbar{display:none}
-.mjump a{flex:0 0 auto;min-width:44px;min-height:40px;display:inline-flex;align-items:center;justify-content:center;padding:0 10px;border:1px solid var(--line);border-radius:999px;background:var(--surface);color:var(--text);text-decoration:none;font-size:.9rem;font-weight:500}
+.mjump a{flex:0 0 auto;min-width:44px;min-height:44px;display:inline-flex;align-items:center;justify-content:center;padding:0 10px;border:1px solid var(--line);border-radius:999px;background:var(--surface);color:var(--text);text-decoration:none;font-size:.9rem;font-weight:500}
 .mjump a:hover{border-color:var(--primary);color:var(--primary)}
 .months{display:grid;grid-template-columns:1fr;gap:14px;margin-top:12px}
 .month{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:14px;scroll-margin-top:56px} /* 加上 html 的 scroll-padding，剛好落在月份列下方 */
@@ -261,7 +300,8 @@ main > section:last-child{padding-bottom:var(--gap)}
   h1{font-size:44px} h2{font-size:30px}
   .menu-btn,.js .menu-btn{display:none}
   .js .site-nav,.site-nav{display:flex;position:static;flex-direction:row;padding:0;box-shadow:none;border:0;background:none;gap:4px 22px}
-  .js .site-nav a{padding:6px 0;border:0;font-size:.95rem}
+  .js .site-nav a{padding:6px 0;border:0;font-size:.95rem;display:inline-flex;align-items:center;min-height:44px}
+  .month{scroll-margin-top:0} /* 桌機月份列不黏頂，只留 Header 的距離 */
   .hero{grid-template-columns:minmax(0,1.45fr) minmax(0,1fr);gap:48px;align-items:center;padding-top:48px}
   .stat{padding:14px 16px}
   .stat b{font-size:2.1rem}
@@ -675,14 +715,9 @@ main > section:last-child{padding-bottom:var(--gap)}
   document.getElementById("statLong").textContent = BLOCKS.filter(b=>b.s.startsWith("2027") && Math.round((parse(b.e)-parse(b.s))/864e5)+1>=3).length;
   document.getElementById("statWork").textContent = Object.values(HOL).filter(h=>h[1]==="w").length; // 補班日（資料中 type "w"；2027 年沒有）
 
-  // ---- mobile menu ----
-  const menuBtn=document.querySelector(".menu-btn"), nav=document.getElementById("siteNav");
-  const setMenu = open => { nav.classList.toggle("open",open); menuBtn.setAttribute("aria-expanded",String(open)); menuBtn.setAttribute("aria-label",open?"關閉選單":"開啟選單"); };
-  menuBtn.addEventListener("click",()=>setMenu(menuBtn.getAttribute("aria-expanded")!=="true"));
-  nav.addEventListener("click",e=>{ if(e.target.closest("a")) setMenu(false); });
-  document.addEventListener("keydown",e=>{ if(e.key==="Escape" && nav.classList.contains("open")){ setMenu(false); menuBtn.focus(); } });
 })();
 </script>
+<script src="/assets/nav.js?v=1" defer></script>
 <!-- Cloudflare Web Analytics --><script type='module' src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token": "4c058fe6d8d047d290cd5fe7c73a3d15"}'></script><!-- End Cloudflare Web Analytics -->
 </body>
 </html>
