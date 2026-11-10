@@ -11,7 +11,7 @@
   const load = k => { try{ return JSON.parse(localStorage.getItem(k)); }catch(e){ return null; } };
 
   document.addEventListener("click", e => {
-    const b = e.target.closest(".copy"); if(!b) return;
+    const b = e.target.closest(".copy[data-copy]"); if(!b) return;   // 只處理有複製目標的按鈕（.copy 也被拿來當一般按鈕樣式）
     const src = document.getElementById(b.dataset.copy);
     const text = src.value !== undefined ? src.value : src.textContent;
     const done = () => { const t = b.textContent; b.textContent = "已複製"; setTimeout(()=>b.textContent = t, 1500); };

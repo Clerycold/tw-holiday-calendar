@@ -221,7 +221,8 @@ for f, anchor in [("index.html", '    <p class="singles">'), ("2027/qingjia/inde
     cap = (f'<figcaption>{YALT}。手機長按圖片可存圖分享。</figcaption>' if f != "index.html" else
            '<figcaption><b>一張圖看懂 2027 怎麼請假</b><span>11 個假期的最划算請法、要請哪幾天、能連休幾天，全部整理在這張圖。春節請 2 天就能休 11 天，是全年 CP 值最高的連假。</span>'
            '<span>手機長按圖片就能存圖，傳給家人朋友一起排假。</span><a href="/2027/qingjia/">看 2027 請假攻略：特休 3～14 天怎麼排 →</a></figcaption>')
-    fig = (f'    <figure class="info year"><img src="/assets/info/2027-year.png?v={dt.date.today():%Y%m%d}" width="{yw}" height="{yh}" loading="lazy" alt="{YALT}">'
+    ext = "webp" if f == "index.html" else "png"   # 首頁用 WebP（build_home_thumbs.py 產生）；文章維持 PNG 方便存圖
+    fig = (f'    <figure class="info year"><img src="/assets/info/2027-year.{ext}?v={dt.date.today():%Y%m%d}" width="{yw}" height="{yh}" loading="lazy" alt="{YALT}">'
            f'{cap}</figure>\n')
     i = s.index(anchor); s = s[:i] + fig + s[i:]
     if ".info{" not in s: s = s.replace("</head>", f"<style>{CSS}</style>\n</head>", 1)

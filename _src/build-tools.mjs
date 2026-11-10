@@ -70,7 +70,7 @@ ${path === "/tools/" ? "" : related(path)}
 
 <footer><a href="/about/">關於我們</a> · <a href="/privacy/">隱私權政策</a> · <a href="/disclosure/">聯盟連結揭露</a><br>放假日曆｜台灣生活資訊與免費試算工具。<br>${disclaimer || "本站試算結果僅供參考，實際金額以主管機關規定、公司制度及官方系統計算為準。"}</footer>
 ${scripts ? `<script src="/assets/tools/calc.js?v=11"></script>
-<script src="/assets/tools/ui.js?v=17"></script>` : ""}
+<script src="/assets/tools/ui.js?v=18"></script>` : ""}
 <!-- Cloudflare Web Analytics --><script type='module' src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token": "4c058fe6d8d047d290cd5fe7c73a3d15"}'></script><!-- End Cloudflare Web Analytics -->
 </body>
 </html>
@@ -1950,18 +1950,26 @@ const GROUPS = [
   const byPath = Object.fromEntries(TOOLS.map(t => [t.path, t]));
   const missing = TOOLS.filter(t => !GROUPS.some(([, ps]) => ps.includes(t.path)));
   if (missing.length) throw new Error("首頁工具分類缺少：" + missing.map(t => t.path).join(", "));
+  // 首頁卡片的圖示字（每個工具一個字，放在綠色方塊裡）
+  const GLYPH = { "/tools/take-home-pay/": "薪", "/tools/insurance/": "保", "/tools/overtime/": "加", "/tools/annual-leave/": "休", "/tools/severance/": "遣",
+    "/tools/income-tax/": "稅", "/tools/workdays/": "日", "/tools/pension/": "退", "/tools/labor-insurance-pension/": "年", "/tools/loan/": "貸",
+    "/tools/interest/": "息", "/tools/currency/": "匯", "/tools/unit/": "量" };
+  const noGlyph = TOOLS.filter(t => !GLYPH[t.path]);
+  if (noGlyph.length) throw new Error("首頁工具圖示字缺少：" + noGlyph.map(t => t.path).join(", "));
   const block = `  <!-- tools:start -->
-  <section id="tools">
-    <div class="eyebrow">LIFE TOOLS</div>
-    <h2>生活試算工具</h2>
-    <p style="margin:8px 0 0">報稅、薪水、退休、貸款這些要算錢的事，輸入數字就能算出結果，每頁都附計算依據和 Excel 公式。<a href="/tools/">看全部工具 →</a></p>
-    <div class="tg">
-${GROUPS.map(([g, ps]) => `      <div><h3>${g}</h3>${ps.map(p => `<a href="${p}">${byPath[p].name}<small>${byPath[p].sub}</small></a>`).join("")}</div>`).join("\n")}
+  <section id="tools" aria-labelledby="toolsTitle">
+    <div class="sec-head">
+      <div class="eyebrow">LIFE TOOLS</div>
+      <h2 id="toolsTitle">免費生活試算工具</h2>
+      <p>報稅、薪水、退休、貸款等生活大小事，輸入數字就能快速算出結果，每頁都附計算依據和 Excel 公式。<a class="more" href="/tools/">看全部工具 →</a></p>
+    </div>
+    <div class="tool-grid">
+${GROUPS.map(([g, ps]) => ps.map(p => `      <a class="tool-card" href="${p}"><span class="tc-top"><span class="ti" aria-hidden="true">${GLYPH[p]}</span><span class="tcat">${g}</span></span><b>${byPath[p].name}</b><small>${byPath[p].sub}</small></a>`).join("\n")).join("\n")}
     </div>
   </section>
   <!-- tools:end -->`;
   const home = readFileSync("index.html", "utf8");
-  const next = home.replace(/  <!-- tools:start -->[\s\S]*?<!-- tools:end -->/, block);
+  const next = home.replace(/  <!-- tools:start -->[\s\S]*?<!-- tools:end -->/, () => block);
   if (next === home && !home.includes(block)) throw new Error("index.html 找不到 tools:start／tools:end 標記");
   writeFileSync("index.html", next);
   console.log("wrote index.html (tools block)");
