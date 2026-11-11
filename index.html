@@ -165,12 +165,25 @@ main > section:last-child{padding-bottom:var(--gap)}
 .cta{display:flex;flex-wrap:wrap;gap:10px;margin-top:20px}
 .cta .btn{flex:1 1 200px}
 .next{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);overflow:hidden;text-align:center;box-shadow:0 14px 30px -24px rgba(23,107,80,.6)}
-.next-head{background:var(--primary);color:var(--on-primary);padding:9px;font-weight:700;letter-spacing:.12em;font-size:.85rem}
+.next-head{background:var(--primary);color:var(--on-primary);padding:9px 14px;font-weight:700;letter-spacing:.12em;font-size:.85rem;display:flex;justify-content:space-between;align-items:center;gap:8px}
+.next-head .live{font-size:.72rem;font-weight:500;letter-spacing:0;display:inline-flex;align-items:center;gap:6px}
+.next-head .live::before{content:"";width:7px;height:7px;border-radius:50%;background:currentColor;opacity:.85}
+.next-facts{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px;margin:14px 0 0;padding:12px 0;border-block:1px solid var(--border)}
+.next-facts dt{font-size:.75rem;color:var(--muted)}
+.next-facts dd{margin:0;font-weight:700;font-size:.92rem;line-height:1.35}
+.next-best{margin-top:12px;background:var(--primary-light);border-radius:12px;padding:10px 12px;display:grid;gap:2px}
+.next-best span{font-size:.78rem;font-weight:700;color:var(--primary)}
+.next-best b{font-size:1.35rem;font-weight:900}
+.next-best b em{font-style:normal;color:var(--primary)}
+.next-best small{color:var(--muted);font-size:.82rem}
+.next .more{margin-top:12px}
+.next-also{margin-top:10px;font-size:.85rem;color:var(--muted)}
+.next-also b{color:var(--hol)}
 .next-body{padding:16px 20px 20px}
 .next-meta{color:var(--muted);font-size:.88rem}
 .next-day{font-weight:900;font-size:4.5rem;line-height:1.05;color:var(--hol)}
 .next-name{font-size:1.3rem;font-weight:700;margin-top:2px}
-.count{margin-top:10px;font-size:.95rem}
+.count{font-size:.95rem;font-weight:700;margin-bottom:6px}
 .count b{font-size:1.4rem;color:var(--primary)}
 
 /* planner */
@@ -358,14 +371,21 @@ main > section:last-child{padding-bottom:var(--gap)}
         <a class="btn btn-ghost" href="#calendar">看 2027 全年行事曆</a>
       </div>
     </div>
-    <div class="next" aria-live="polite">
-      <div class="next-head">下一個連假</div>
+    <div class="next" id="nextCard">
+      <div class="next-head"><span>下一個連假</span><span class="live">依今天日期自動更新</span></div>
       <div class="next-body">
+        <div class="count" id="nextCount">&nbsp;</div>
         <div class="next-meta" id="nextMonth">&nbsp;</div>
         <div class="next-day num" id="nextDay">&nbsp;</div>
         <div class="next-name" id="nextName">&nbsp;</div>
-        <div class="next-meta" id="nextRange">&nbsp;</div>
-        <div class="count" id="nextCount"><b>&nbsp;</b></div>
+        <dl class="next-facts">
+          <div><dt>連假日期</dt><dd class="num" id="nfDate">&nbsp;</dd></div>
+          <div><dt>放假天數</dt><dd class="num" id="nfLen">&nbsp;</dd></div>
+          <div><dt>建議請假日</dt><dd class="num" id="nfLeave">&nbsp;</dd></div>
+        </dl>
+        <div class="next-best" id="nextBest"><span>最划算請法</span><b>&nbsp;</b><small>&nbsp;</small></div>
+        <p class="next-also" id="nextAlso" hidden></p>
+        <a class="more" id="nextLink" href="/2027/qingjia/">查看完整連假攻略 →</a>
       </div>
     </div>
   </section>
@@ -549,7 +569,7 @@ main > section:last-child{padding-bottom:var(--gap)}
   // ---- leave optimizer ----
   // Candidate = maximal stretch [i,j] where i and j are off-days, neighbours outside are workdays,
   // and the workdays inside (= leave needed) <= n.
-  function candidates(n){
+  function candidates(n, anyYear){
     const out = [];
     for(let i=1;i<DAYS.length-1;i++){
       if(!DAYS[i].off || DAYS[i-1].off) continue;
@@ -558,7 +578,7 @@ main > section:last-child{padding-bottom:var(--gap)}
         if(!DAYS[j].off) leave++;
         if(leave>n) break;
         if(DAYS[j].off && !DAYS[j+1].off && leave>0){
-          if(in2027(i)) out.push({i,j,len:j-i+1,leave});
+          if(anyYear || in2027(i)) out.push({i,j,len:j-i+1,leave});
         }
       }
     }
@@ -575,11 +595,11 @@ main > section:last-child{padding-bottom:var(--gap)}
     return picked;
   }
   // best small extension (1–3 leave days) for a holiday block
-  function extend(b){
+  function extend(b, anyYear){  // anyYear：也考慮 2026 年底開始的組合（首頁「下一個連假」卡用）
     const s=idx(b.s), e=idx(b.e), base=e-s+1;
     let best=null;
     for(let n=1;n<=4;n++){
-      const c=candidates(n).filter(x=>x.i<=s&&x.j>=e&&x.leave===n);
+      const c=candidates(n,anyYear).filter(x=>x.i<=s&&x.j>=e&&x.leave===n);
       if(!c.length) continue;
       const top=c.sort((a,b)=>b.len-a.len)[0];
       const gainPer=(top.len-base)/n;
@@ -590,16 +610,46 @@ main > section:last-child{padding-bottom:var(--gap)}
   const leaveDays = x => DAYS.slice(x.i,x.j+1).filter(y=>!y.off).map(y=>y.d);
 
   // ---- render: next holiday ----
-  const today = new Date(); today.setHours(0,0,0,0);
-  const next = BLOCKS.find(b=>parse(b.e)>=today) || BLOCKS[BLOCKS.length-1];
-  const ns=parse(next.s), ne=parse(next.e);
-  document.getElementById("nextMonth").textContent = `${ns.getFullYear()} 年 ${ns.getMonth()+1} 月 · 星期${DOW[ns.getDay()]}`;
-  document.getElementById("nextDay").textContent = ns.getDate();
-  document.getElementById("nextName").textContent = next.name;
-  const nlen = Math.round((ne-ns)/864e5)+1;
-  document.getElementById("nextRange").textContent = `${md(ns)} – ${md(ne)} · 連休 ${nlen} 天`;
-  const diff = Math.round((ns-today)/864e5);
-  document.getElementById("nextCount").innerHTML = diff>0 ? `還有 <b>${diff}</b> 天` : `<b>放假中</b>`;
+  let today = new Date(); today.setHours(0,0,0,0);
+  try{ const q=new URLSearchParams(location.search).get("today"); if(/^20\d\d-\d\d-\d\d$/.test(q||"")) today=parse(q); }catch(e){}  // 測試用：?today=2027-04-01 模擬日期
+  // 依今天日期挑「還沒結束」的第一個連假；全部結束後改顯示提示，不會停在過期的連假
+  const $ = id => document.getElementById(id);
+  const fmtD = d => `${d.getMonth()+1}/${d.getDate()}`;
+  const fmtDays = ds => ds.length>2 && (ds[ds.length-1]-ds[0])/864e5===ds.length-1 ? `${fmtD(ds[0])}–${fmtD(ds[ds.length-1])}` : ds.map(fmtD).join("、");
+  const next = BLOCKS.find(b=>parse(b.e)>=today);
+  if(!next){
+    $("nextCount").textContent = "2027 年的連假都放完了";
+    $("nextName").textContent = "2028 行事曆公布後更新";
+    ["nextMonth","nextDay","nfDate","nfLen","nfLeave"].forEach(id=>$(id).textContent="—");
+    $("nextBest").hidden = true;
+  } else {
+    const ns=parse(next.s), ne=parse(next.e), nlen=Math.round((ne-ns)/864e5)+1;
+    const diff = Math.round((ns-today)/864e5), left = Math.round((ne-today)/864e5)+1;
+    $("nextCount").innerHTML = diff>0 ? `距離假期還有 <b class="num">${diff}</b> 天` : `<b>放假中</b>，還剩 ${left} 天`;
+    $("nextMonth").textContent = `${ns.getFullYear()} 年 ${ns.getMonth()+1} 月 · 星期${DOW[ns.getDay()]}`;
+    $("nextDay").textContent = ns.getDate();
+    $("nextName").textContent = next.name;
+    $("nfDate").textContent = `${fmtD(ns)}–${fmtD(ne)}`;
+    $("nfLen").textContent = `${nlen} 天`;
+    // 最划算請法：請假日都還沒過才建議（已經在放假中就不建議）
+    const ex = extend(next, true), lv = ex ? leaveDays(ex) : [];
+    if(ex && lv.every(d=>d>=today)){
+      $("nfLeave").textContent = fmtDays(lv);
+      $("nextBest").innerHTML = `<span>最划算請法</span><b>請 <em>${ex.leave}</em> 天休 <em>${ex.len}</em> 天</b><small>${md(DAYS[ex.i].d)} – ${md(DAYS[ex.j].d)} 連續放假</small>`;
+    } else {
+      $("nfLeave").textContent = "不用請";
+      $("nextBest").innerHTML = `<span>最划算請法</span><b>不用請假，直接連休 <em>${nlen}</em> 天</b><small>${ex ? "建議的請假日已經過了，這次直接放就好" : "前後請假的 CP 值不高，直接放就好"}</small>`;
+    }
+    // 在這個連假之前，還有哪些單日國定假日（例如端午、中秋）
+    const inBlock = k => BLOCKS.some(b=>k>=b.s && k<=b.e);
+    const singles = Object.keys(HOL).sort().filter(k=>HOL[k][1]==="h" && !inBlock(k) && parse(k)>=today && parse(k)<ns);
+    if(singles.length){
+      $("nextAlso").innerHTML = `在那之前還有單日假：${singles.map(k=>`${HOL[k][0]} <b>${md(parse(k))}</b>`).join("、")}`;
+      $("nextAlso").hidden = false;
+    }
+    if(next.url) $("nextLink").href = next.url;
+    $("nextLink").textContent = `查看${next.name}完整攻略 →`;
+  }
 
   // ---- render: long weekends ----
   const lw = document.getElementById("lwList");
@@ -673,7 +723,6 @@ main > section:last-child{padding-bottom:var(--gap)}
 
   const chips=document.getElementById("chips"), results=document.getElementById("results");
   const input=document.getElementById("leaveN"), help=document.getElementById("leaveHelp");
-  const fmtD = d => `${d.getMonth()+1}/${d.getDate()}`;
   let N = 3;
   try{ const s=+localStorage.getItem("leaveN"); if(Number.isInteger(s)&&s>=1&&s<=MAXN) N=s; }catch(e){}
   function renderPlanner(){
