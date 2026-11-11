@@ -279,6 +279,17 @@ main > section:last-child{padding-bottom:var(--gap)}
 .d.mk{background:var(--hol-soft);color:var(--hol);box-shadow:inset 0 0 0 2px var(--accent);font-weight:700}
 .d.lv{background:var(--primary);color:var(--on-primary);font-weight:700}
 .d.today{outline:2px solid var(--text);outline-offset:-2px}
+button.d{border:0;background:transparent;color:inherit;font-family:inherit;padding:0;cursor:pointer;min-height:40px}
+button.d:hover{box-shadow:inset 0 0 0 2px var(--line)}
+button.d[aria-pressed="true"]{box-shadow:0 0 0 3px var(--accent);position:relative;z-index:1}
+.day-info{margin-top:8px;font-size:.85rem;line-height:1.6;background:var(--primary-light);border-radius:10px;padding:8px 10px}
+.day-info:empty{display:none}
+.day-info a{font-weight:700;white-space:nowrap}
+.lg-we{color:var(--we);font-style:normal;font-weight:700;font-size:.8rem;line-height:14px;text-align:center;box-shadow:inset 0 0 0 1px var(--line)}
+.legend-tip{color:var(--primary);font-weight:700}
+.mjump a.mj-now{background:var(--primary);border-color:var(--primary);color:var(--on-primary);font-weight:700}
+.mjump a[aria-current="true"]{border-color:var(--primary);color:var(--primary);font-weight:700}
+@media (max-width:359px){.month{padding:10px 8px}.grid7{gap:2px}} /* 320px 手機：省邊距讓日期格子大一點 */
 .month ul{list-style:none;margin:8px 0 0;padding:0;font-size:.8rem;color:var(--muted)}
 
 /* tools */
@@ -470,10 +481,11 @@ main > section:last-child{padding-bottom:var(--gap)}
       <span><i style="background:var(--hol-soft);box-shadow:inset 0 0 0 2px var(--accent)"></i>補假</span>
       <span><i style="background:var(--primary)"></i>建議請假</span>
       <span><i style="box-shadow:inset 0 0 0 2px var(--text)"></i>今天</span>
-      <span style="color:var(--we)">紅字＝週末</span>
+      <span><i class="lg-we">6</i>週末</span>
+      <span class="legend-tip">點任一天看假期說明</span>
     </div>
     <nav class="mjump" aria-label="跳到月份">
-      <a href="#m1">1 月</a><a href="#m2">2 月</a><a href="#m3">3 月</a><a href="#m4">4 月</a><a href="#m5">5 月</a><a href="#m6">6 月</a><a href="#m7">7 月</a><a href="#m8">8 月</a><a href="#m9">9 月</a><a href="#m10">10 月</a><a href="#m11">11 月</a><a href="#m12">12 月</a>
+      <a class="mj-now" id="mjNow" href="#m1" hidden>本月</a><a href="#m1">1 月</a><a href="#m2">2 月</a><a href="#m3">3 月</a><a href="#m4">4 月</a><a href="#m5">5 月</a><a href="#m6">6 月</a><a href="#m7">7 月</a><a href="#m8">8 月</a><a href="#m9">9 月</a><a href="#m10">10 月</a><a href="#m11">11 月</a><a href="#m12">12 月</a>
     </nav>
     <div class="months" id="months"></div>
   </section>
@@ -704,6 +716,22 @@ main > section:last-child{padding-bottom:var(--gap)}
 
   // ---- render: calendar ----
   let highlight = new Set();
+  // 點日期顯示說明：這天是什麼假、屬於哪個連假、是不是建議請假日
+  let selK = null;
+  function dayInfo(k){
+    const dt=parse(k), h=HOL[k], wd=dt.getDay()===0||dt.getDay()===6;
+    const blk=BLOCKS.find(b=>k>=b.s&&k<=b.e);
+    const seg=(lastPlan.segs||[]).find(x=>k>=DAYS[x.i].k&&k<=DAYS[x.j].k);
+    let t = `<b>${md(dt)}</b> `;
+    if(highlight.has(k)) t += `建議請特休這天`;
+    else if(h) t += h[1]==="h" ? `國定假日：${h[0]}` : `${h[0]}（放假）`;
+    else if(wd) t += `週末`;
+    else t += `上班日`;
+    if(blk){ const n=Math.round((parse(blk.e)-parse(blk.s))/864e5)+1; t += `｜${blk.name}連假 ${fmtD(parse(blk.s))}–${fmtD(parse(blk.e))}，共 ${n} 天`; }
+    if(seg) t += `｜照特休 ${N} 天的排法，${md(DAYS[seg.i].d)} – ${md(DAYS[seg.j].d)} 可連休 ${seg.len} 天`;
+    if(blk && blk.url) t += ` <a href="${blk.url}">看攻略 →</a>`;
+    return t;
+  }
   function renderMonths(){
     const box=document.getElementById("months"); box.innerHTML="";
     for(let m=0;m<12;m++){
@@ -719,13 +747,14 @@ main > section:last-child{padding-bottom:var(--gap)}
         else if(dt.getDay()===0||dt.getDay()===6) cls+=" we";
         if(k===key(today)) cls+=" today";
         if(h) names.push(`${m+1}/${d} ${h[0]}`);
-        cells+=`<div class="${cls}" title="${h?h[0]:""}">${d}</div>`;
+        cells+=`<button type="button" class="${cls}" data-k="${k}" aria-pressed="${k===selK}" aria-label="${m+1} 月 ${d} 日${h?` ${h[0]}`:""}">${d}</button>`;
       }
       const off=Array.from({length:dim},(_,i)=>isOff(new Date(2027,m,i+1))).filter(Boolean).length;
       box.insertAdjacentHTML("beforeend",`
         <div class="month" id="m${m+1}">
           <h3>${m+1} 月<small>放假 ${off} 天</small></h3>
           <div class="grid7">${cells}</div>
+          <p class="day-info" id="di${m+1}" aria-live="polite">${selK && parse(selK).getMonth()===m ? dayInfo(selK) : ""}</p>
           ${names.length?`<ul>${names.map(n=>`<li>${n}</li>`).join("")}</ul>`:""}
         </div>`);
     }
@@ -839,6 +868,28 @@ main > section:last-child{padding-bottom:var(--gap)}
     catch(e){ shareMsg.textContent = `複製失敗，請手動複製這個連結：${url}`; }
   });
   renderPlanner();
+
+  // 行事曆：點日期顯示說明（再點一次收起）
+  document.getElementById("months").addEventListener("click",e=>{
+    const c=e.target.closest("button.d"); if(!c) return;
+    const k=c.dataset.k;
+    document.querySelectorAll('button.d[aria-pressed="true"]').forEach(b=>b.setAttribute("aria-pressed","false"));
+    document.querySelectorAll(".day-info").forEach(p=>p.innerHTML="");
+    if(selK===k){ selK=null; return; }
+    selK=k; c.setAttribute("aria-pressed","true");
+    document.getElementById(`di${parse(k).getMonth()+1}`).innerHTML = dayInfo(k);
+  });
+  // 快速跳轉：2027 年內顯示「本月」，2027 年以前顯示最近的假日在哪個月
+  {
+    const now=document.getElementById("mjNow");
+    let m=null, label="";
+    if(today.getFullYear()===2027){ m=today.getMonth()+1; label=`本月 ${m} 月`; }
+    else if(today<new Date(2027,0,1)){ const k=Object.keys(HOL).sort().find(k=>k.startsWith("2027")); m=parse(k).getMonth()+1; label=`下個假日 ${m} 月`; }
+    if(m){
+      now.href=`#m${m}`; now.textContent=label; now.hidden=false;
+      const cur=document.querySelector(`.mjump a:not(.mj-now)[href="#m${m}"]`); if(cur) cur.setAttribute("aria-current","true");
+    }
+  }
 
   // ---- render: hero stats（由上方資料計算，HTML 內的數字只是載入前的預設值） ----
   const y27 = DAYS.filter(x=>x.d.getFullYear()===2027);
