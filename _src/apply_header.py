@@ -3,11 +3,10 @@
 # 執行（repo 根目錄）：python _src/apply_header.py   可重複執行。
 import io, re, glob
 HEAD = io.open("_src/header.html", encoding="utf-8").read().strip()
-pat = re.compile(r'(<script>document\.documentElement\.classList\.add\("js"\)</script>\n)?<header class="(top|site-head)">.*?</header>(\n<script src="/assets/nav\.js[^"]*" defer></script>)?', re.S)
+pat = re.compile(r'(<script>document\.documentElement\.classList\.add\("js"\)</script>\n)?<header class="(top|site-head)">.*?</header>(?:\r?\n(?:<nav class="bottom-nav".*?</nav>|<script src="/assets/nav\.js[^"]*" defer></script>))*', re.S)  # 連同底部導覽、nav.js 一起換掉（多份也會清成一份）
 for f in glob.glob("**/index.html", recursive=True):
     if f.replace("\\", "/") == "index.html": continue   # 首頁有自己的 Header
     s = io.open(f, encoding="utf-8", newline="").read()
     t, n = pat.subn(lambda m: HEAD, s, count=1)
-    if n:
-        t = t.replace("/assets/site.css?v=5", "/assets/site.css?v=6")
+    if n and t != s:
         io.open(f, "w", encoding="utf-8", newline="").write(t); print("ok", f)

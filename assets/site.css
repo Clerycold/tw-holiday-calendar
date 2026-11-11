@@ -115,3 +115,12 @@ td.lv{color:var(--leave);font-weight:700}
 .picks > div{border:1px solid var(--rule);background:var(--sheet);border-radius:8px;padding:14px 16px}
 .picks h3{margin:0 0 6px;font-size:1rem}
 .picks p{margin:0;font-size:.92rem}
+/* 手機底部快速導覽 */
+.bottom-nav{display:none}
+@media (max-width:767px){
+  .bottom-nav{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));position:fixed;left:0;right:0;bottom:0;z-index:30;background:color-mix(in srgb,var(--sheet) 96%,transparent);-webkit-backdrop-filter:saturate(1.4) blur(8px);backdrop-filter:saturate(1.4) blur(8px);border-top:1px solid var(--rule);padding-bottom:env(safe-area-inset-bottom)}
+  .bottom-nav a{display:grid;justify-items:center;align-content:center;gap:2px;min-height:58px;font-size:.72rem;font-weight:700;color:var(--muted);text-decoration:none}
+  .bottom-nav svg{width:22px;height:22px}
+  .bottom-nav a[aria-current="true"]{color:var(--brand)}
+  body{padding-bottom:calc(58px + env(safe-area-inset-bottom))}
+}

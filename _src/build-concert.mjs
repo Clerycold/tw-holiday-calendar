@@ -214,7 +214,7 @@ const head = (title, desc, path, ld) => `<!doctype html>
 <meta name="twitter:card" content="summary_large_image">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700;900&display=swap">
-<link rel="stylesheet" href="/assets/site.css?v=8">
+<link rel="stylesheet" href="/assets/site.css?v=9">
 <link rel="stylesheet" href="/assets/concert.css?v=4">
 <script type="application/ld+json">
 ${JSON.stringify(ld, null, 1)}

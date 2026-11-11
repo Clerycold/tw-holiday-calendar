@@ -12,3 +12,21 @@
     if(p.indexOf(r[0])===0){ var a=nav.querySelector('a[href="'+r[1]+'"]'); if(a) a.setAttribute("aria-current","page"); }
   });
 })();
+
+// 手機底部快速導覽：標示目前所在的區塊。首頁依捲動位置切換，工具頁固定標「生活工具」。
+(function(){
+  var bn=document.querySelector(".bottom-nav"); if(!bn) return;
+  function mark(k){ bn.querySelectorAll("a").forEach(function(a){ if(a.dataset.bn===k) a.setAttribute("aria-current","true"); else a.removeAttribute("aria-current"); }); }
+  if(location.pathname.indexOf("/tools/")===0){ mark("tools"); return; }
+  var ids=["planner","calendar","tools"].filter(function(id){ return document.getElementById(id); });
+  if(location.pathname!=="/" || !ids.length) return;
+  var ticking=false;
+  function update(){
+    ticking=false;
+    var mid=window.innerHeight/2, cur=null;  // 區塊跨過畫面中線才算「在這裡」
+    ids.forEach(function(id){ var r=document.getElementById(id).getBoundingClientRect(); if(r.top<=mid && r.bottom>mid) cur=id; });
+    mark(cur||(window.scrollY<400?"home":null));
+  }
+  window.addEventListener("scroll",function(){ if(!ticking){ ticking=true; setTimeout(update,80); } },{passive:true});
+  update();
+})();

@@ -49,7 +49,7 @@ ${faq.map(([q, a]) => `    <details><summary>${q}</summary><p>${a}</p></details>
 <meta name="twitter:card" content="summary_large_image">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700;900&display=swap">
-<link rel="stylesheet" href="/assets/site.css?v=8">
+<link rel="stylesheet" href="/assets/site.css?v=9">
 <link rel="stylesheet" href="/assets/tools/tools.css?v=5">
 <script type="application/ld+json">
 ${JSON.stringify({ "@context": "https://schema.org", "@graph": graph }, null, 1)}
@@ -1939,11 +1939,10 @@ for (const [f, html] of Object.entries(out)) {
 }
 
 // 首頁「生活試算工具」區塊：依 TOOLS 產生，寫進 index.html 的 tools:start／tools:end 之間
+// 首頁分 3 類：桌機 3 欄並排（每類一欄），手機上下排
 const GROUPS = [
-  ["薪資與勞工", ["/tools/take-home-pay/", "/tools/insurance/", "/tools/overtime/", "/tools/annual-leave/", "/tools/severance/"]],
-  ["報稅與工作日", ["/tools/income-tax/", "/tools/workdays/"]],
-  ["退休規劃", ["/tools/pension/", "/tools/labor-insurance-pension/"]],
-  ["貸款與存款", ["/tools/loan/", "/tools/interest/"]],
+  ["薪資與勞工", ["/tools/take-home-pay/", "/tools/insurance/", "/tools/overtime/", "/tools/annual-leave/", "/tools/severance/", "/tools/workdays/"]],
+  ["退休與財務", ["/tools/labor-insurance-pension/", "/tools/pension/", "/tools/loan/", "/tools/interest/", "/tools/income-tax/"]],
   ["旅遊與生活", ["/tools/currency/", "/tools/unit/"]],
 ];
 {
@@ -1963,8 +1962,14 @@ const GROUPS = [
       <h2 id="toolsTitle">免費生活試算工具</h2>
       <p>報稅、薪水、退休、貸款等生活大小事，輸入數字就能快速算出結果，每頁都附計算依據和 Excel 公式。<a class="more" href="/tools/">看全部工具 →</a></p>
     </div>
-    <div class="tool-grid">
-${GROUPS.map(([g, ps]) => ps.map(p => `      <a class="tool-card" href="${p}"><span class="tc-top"><span class="ti" aria-hidden="true">${GLYPH[p]}</span><span class="tcat">${g}</span></span><b>${byPath[p].name}</b><small>${byPath[p].sub}</small></a>`).join("\n")).join("\n")}
+    <div class="tool-groups">
+${GROUPS.map(([g, ps], gi) => `      <div class="tool-group">
+        <div class="tg-head"><h3>${g}</h3><a class="more" href="/tools/" aria-label="查看全部生活試算工具">查看全部 →</a></div>
+        <div class="tool-grid">
+${ps.map(p => `          <a class="tool-card" href="${p}"><span class="ti" aria-hidden="true">${GLYPH[p]}</span><b>${byPath[p].name}</b><small>${byPath[p].sub}</small></a>`).join("\n")}${gi === GROUPS.length - 1 ? `
+          <a class="tool-card tool-all" href="/tools/"><span class="ti" aria-hidden="true">＋</span><b>全部 ${TOOLS.length} 個工具</b><small>還有免費 Excel 試算範本可以下載</small></a>` : ""}
+        </div>
+      </div>`).join("\n")}
     </div>
   </section>
   <!-- tools:end -->`;
