@@ -242,10 +242,15 @@ main > section:last-child{padding-bottom:var(--gap)}
 
 /* long weekends */
 .lw{display:grid;grid-template-columns:1fr;gap:12px}
-.lw-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:16px;display:grid;grid-template-columns:64px minmax(0,1fr);gap:14px;align-items:start}
-.lw-date{background:var(--hol-soft);border-radius:12px;text-align:center;padding:8px 0;line-height:1.1}
-.lw-date b{display:block;font-weight:900;font-size:1.7rem;color:var(--hol)}
-.lw-date small{font-size:.75rem;color:var(--muted)}
+.lw-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);overflow:hidden;display:grid;grid-template-rows:auto 1fr}
+.lw-vis{position:relative;display:flex;align-items:center;justify-content:space-between;gap:10px;padding:14px 16px;background:linear-gradient(135deg,var(--hol-soft),var(--surface) 85%);border-bottom:1px solid var(--border)}
+.lw-days{display:flex;align-items:baseline;gap:6px}
+.lw-days b{font-size:3rem;font-weight:900;line-height:1;color:var(--hol)}
+.lw-days span{font-weight:700;color:var(--text)}
+.lw-glyph{width:52px;height:52px;border-radius:50%;background:var(--surface);color:var(--primary);display:grid;place-items:center;font-weight:900;font-size:1.5rem;box-shadow:0 6px 16px -10px rgba(23,107,80,.7);flex:none}
+.lw-vis .tag{position:absolute;top:10px;right:76px}
+.lw-top{border-color:var(--accent);box-shadow:0 14px 30px -24px rgba(181,84,28,.7)}
+.lw-body{padding:14px 16px 16px;display:grid;gap:2px;align-content:start}
 .lw-card h3{font-size:1.05rem}
 .lw-card p{color:var(--muted);font-size:.9rem;margin-top:2px}
 .lw-card .tip{color:var(--primary);font-weight:700}
@@ -736,14 +741,23 @@ button.d[aria-pressed="true"]{box-shadow:0 0 0 3px var(--accent);position:relati
 
   // ---- render: long weekends ----
   const lw = document.getElementById("lwList");
-  BLOCKS.filter(b=>b.s.startsWith("2027")).forEach(b=>{
-    const s=parse(b.s), e=parse(b.e), len=Math.round((e-s)/864e5)+1;
+  // 每個連假一個代表字，放在卡片色帶的圓形圖示裡
+  const LW_GLYPH = {"元旦":"元","春節":"春","228 和平紀念日":"和","兒童節・清明節":"清","勞動節":"勞","國慶日":"國","臺灣光復節":"光","行憲紀念日":"憲","跨年・元旦":"跨"};
+  const lwBlocks = BLOCKS.filter(b=>b.s.startsWith("2027"));
+  const lwLen = b => Math.round((parse(b.e)-parse(b.s))/864e5)+1;
+  const lwMax = Math.max(...lwBlocks.map(lwLen));
+  lwBlocks.forEach(b=>{
+    const s=parse(b.s), e=parse(b.e), len=lwLen(b);
     const ex=extend(b);
     const tip = ex ? `請 ${ex.leave} 天（${leaveDays(ex).map(d=>`${d.getMonth()+1}/${d.getDate()}`).join("、")}）→ 連休 ${ex.len} 天` : "";
     lw.insertAdjacentHTML("beforeend",`
-      <article class="lw-card">
-        <div class="lw-date"><b class="num">${len}</b><small>天</small></div>
-        <div>
+      <article class="lw-card${len===lwMax?" lw-top":""}">
+        <div class="lw-vis">
+          <div class="lw-days"><b class="num">${len}</b><span>天連假</span></div>
+          ${len===lwMax?'<span class="tag">最長連假</span>':""}
+          <span class="lw-glyph" aria-hidden="true">${LW_GLYPH[b.name]||b.name[0]}</span>
+        </div>
+        <div class="lw-body">
           <h3>${b.name}</h3>
           <p>${md(s)} – ${md(e)}${b.note?`・${b.note}`:""}</p>
           ${tip?`<p class="tip">${tip}</p>`:""}
