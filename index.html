@@ -6,6 +6,9 @@
 <meta name="description" content="2027（民國116年）行事曆：國定假日、9個連假、補假一覽與請假攻略計算器；另有所得稅、勞健保、薪資實領、資遣費、退休金、房貸、存款利息等免費試算工具。">
 <title>放假日曆｜2027 行事曆、連假請假攻略與生活試算工具</title>
 <link rel="canonical" href="https://fangjiatw.com/">
+<link rel="icon" href="/favicon.ico" sizes="48x48">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="放假日曆">
 <meta property="og:title" content="放假日曆｜2027 行事曆、連假請假攻略與生活試算工具">
@@ -87,7 +90,7 @@
 /* 首頁：sticky header → hero（統計＋下一個連假）→ 請假計算器 → 連假卡片 → 全年行事曆 → 生活工具 → 最新攻略 → FAQ → footer。最大寬 1200px，mobile first。 */
 :root{
   --bg:#F8FAF8; --surface:#FFFFFF; --text:#202B26; --muted:#5F6E66; --border:#EAF0EC; --line:#DCE6E0;
-  --primary:#176B50; --primary-light:#E7F4ED; --primary-ink:#0F4F3A; --on-primary:#FFFFFF; --accent:#D97745; --accent-strong:#A8521F; --on-accent:#FFFFFF;
+  --primary:#176B50; --primary-light:#E7F4ED; --primary-ink:#0F4F3A; --on-primary:#FFFFFF; --accent:#D97745; --accent-strong:#A8521F; --on-accent:#FFFFFF; --cta:#B5541C; --cta-hover:#9A4515; --on-cta:#FFFFFF;
   --hol:#C8102E; --on-hol:#FFFFFF; --hol-soft:#FDECEE; --we:#B4232F;
   --f:"Noto Sans TC","PingFang TC","Microsoft JhengHei",sans-serif;
   --r:14px; --head:60px; --gap:44px;
@@ -95,11 +98,11 @@
 }
 @media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
   --bg:#111714; --surface:#18201C; --text:#E6EFE9; --muted:#A3B3AA; --border:#26302B; --line:#33403A;
-  --primary:#4FBF93; --primary-light:#163328; --primary-ink:#A8E6CC; --on-primary:#0E1A15; --accent:#F0A060; --accent-strong:#F0A060; --on-accent:#1A0E05;
+  --primary:#4FBF93; --primary-light:#163328; --primary-ink:#A8E6CC; --on-primary:#0E1A15; --accent:#F0A060; --accent-strong:#F0A060; --on-accent:#1A0E05; --cta:#F0A060; --cta-hover:#F5B57E; --on-cta:#1A0E05;
   --hol:#FF6B7A; --on-hol:#1A0B0D; --hol-soft:#3A1D22; --we:#FF8A95; color-scheme:dark}}
 :root[data-theme="dark"]{
   --bg:#111714; --surface:#18201C; --text:#E6EFE9; --muted:#A3B3AA; --border:#26302B; --line:#33403A;
-  --primary:#4FBF93; --primary-light:#163328; --primary-ink:#A8E6CC; --on-primary:#0E1A15; --accent:#F0A060; --accent-strong:#F0A060; --on-accent:#1A0E05;
+  --primary:#4FBF93; --primary-light:#163328; --primary-ink:#A8E6CC; --on-primary:#0E1A15; --accent:#F0A060; --accent-strong:#F0A060; --on-accent:#1A0E05; --cta:#F0A060; --cta-hover:#F5B57E; --on-cta:#1A0E05;
   --hol:#FF6B7A; --on-hol:#1A0B0D; --hol-soft:#3A1D22; --we:#FF8A95; color-scheme:dark}
 *{box-sizing:border-box}
 html{scroll-padding-top:calc(var(--head) + 12px);-webkit-text-size-adjust:100%}
@@ -121,6 +124,8 @@ main > section:last-child{padding-bottom:var(--gap)}
 .btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;min-height:48px;padding:0 22px;border-radius:12px;font:inherit;font-weight:700;text-decoration:none;border:1px solid transparent;cursor:pointer}
 .btn-primary{background:var(--primary);color:var(--on-primary)}
 .btn-primary:hover{filter:brightness(.9)}
+.btn-cta{background:var(--cta);color:var(--on-cta);box-shadow:0 10px 22px -12px rgba(181,84,28,.8)} /* 主按鈕用橘色，和滿版綠色拉開對比（白字 4.94:1） */
+.btn-cta:hover{background:var(--cta-hover)}
 .btn-ghost{background:var(--surface);color:var(--text);border-color:var(--line)}
 .btn-ghost:hover{border-color:var(--primary);color:var(--primary)}
 .more{font-weight:700;text-decoration:none;display:inline-block;padding:11px 0;margin:-11px 0}
@@ -129,8 +134,10 @@ main > section:last-child{padding-bottom:var(--gap)}
 /* header */
 .site-head{position:sticky;top:0;z-index:20;background:color-mix(in srgb,var(--surface) 92%,transparent);backdrop-filter:saturate(1.4) blur(8px);border-bottom:1px solid var(--border)}
 .head-in{height:var(--head);display:flex;align-items:center;justify-content:space-between;gap:16px}
-.logo{color:var(--text);text-decoration:none;font-weight:900;font-size:1.2rem;line-height:1.15;display:inline-block;padding:5px 0}
-.logo span{color:var(--primary)}
+.logo{color:var(--text);text-decoration:none;font-weight:900;font-size:1.2rem;line-height:1.15;display:inline-flex;align-items:center;gap:9px;padding:5px 0}
+.logo-mark{width:34px;height:34px;flex:none}
+.logo .lt{display:block}
+.logo .lt span{color:var(--primary)}
 .logo small{display:block;font-weight:500;font-size:.68rem;color:var(--muted);letter-spacing:.02em;margin-top:2px}
 .menu-btn{display:none;width:44px;height:44px;border:1px solid var(--line);border-radius:10px;background:var(--surface);color:var(--text);cursor:pointer;align-items:center;justify-content:center}
 .menu-btn svg{width:22px;height:22px}
@@ -146,10 +153,13 @@ main > section:last-child{padding-bottom:var(--gap)}
 /* hero */
 .hero{display:grid;gap:24px;padding-top:32px}
 .hero .eyebrow{margin-bottom:8px}
+.h1-year{display:block;font-size:clamp(4rem,16vw,6.5rem);line-height:.95;letter-spacing:-.03em;color:var(--primary);font-variant-numeric:tabular-nums}
 .lead{font-size:1.05rem;color:var(--muted);margin-top:10px}
 .stats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin-top:20px}
-.stat{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:12px 10px;display:grid;gap:2px}
-.stat b{font-size:1.75rem;font-weight:900;line-height:1.15;color:var(--primary)}
+.stat{background:var(--surface);border:1px solid var(--border);border-top:4px solid var(--primary);border-radius:var(--r);padding:12px 10px;display:grid;gap:2px;box-shadow:0 10px 24px -20px rgba(23,107,80,.6)}
+.stat:nth-child(2){border-top-color:var(--accent)}
+.stat:nth-child(2) b{color:var(--accent-strong)}
+.stat b{font-size:2rem;font-weight:900;line-height:1.15;color:var(--primary)}
 .stat b small{font-size:.9rem;font-weight:700;margin-left:2px}
 .stat > span{font-size:.8rem;color:var(--muted);line-height:1.4}
 .cta{display:flex;flex-wrap:wrap;gap:10px;margin-top:20px}
@@ -304,7 +314,7 @@ main > section:last-child{padding-bottom:var(--gap)}
   .month{scroll-margin-top:0} /* 桌機月份列不黏頂，只留 Header 的距離 */
   .hero{grid-template-columns:minmax(0,1.45fr) minmax(0,1fr);gap:48px;align-items:center;padding-top:48px}
   .stat{padding:14px 16px}
-  .stat b{font-size:2.1rem}
+  .stat b{font-size:2.5rem}
   .next-day{font-size:5.5rem}
   .lw{grid-template-columns:repeat(3,minmax(0,1fr))}
   .months{grid-template-columns:repeat(3,minmax(0,1fr))}
@@ -323,7 +333,7 @@ main > section:last-child{padding-bottom:var(--gap)}
 
 <header class="site-head">
   <div class="container head-in">
-    <a class="logo" href="/">放假<span>日曆</span><small>台灣生活資訊與免費試算工具</small></a>
+    <a class="logo" href="/"><svg class="logo-mark" viewBox="0 0 32 32" width="34" height="34" aria-hidden="true" focusable="false"><rect width="32" height="32" rx="8" fill="#176B50"/><rect x="6.5" y="9.5" width="19" height="16" rx="2.5" fill="#FFFFFF"/><rect x="6.5" y="9.5" width="19" height="4.5" rx="2" fill="#A8E6CC"/><rect x="10.5" y="6.5" width="3" height="6" rx="1.5" fill="#FFFFFF"/><rect x="18.5" y="6.5" width="3" height="6" rx="1.5" fill="#FFFFFF"/><rect x="9.6" y="16.2" width="3.2" height="3.2" rx=".8" fill="#9DB8AB"/><rect x="14.4" y="16.2" width="3.2" height="3.2" rx=".8" fill="#9DB8AB"/><rect x="19.2" y="16.2" width="3.2" height="3.2" rx=".8" fill="#C8102E"/><rect x="9.6" y="20.6" width="3.2" height="3.2" rx=".8" fill="#9DB8AB"/><rect x="14.4" y="20.6" width="3.2" height="3.2" rx=".8" fill="#9DB8AB"/><rect x="19.2" y="20.6" width="3.2" height="3.2" rx=".8" fill="#9DB8AB"/></svg><span class="lt">放假<span>日曆</span><small>台灣生活資訊與免費試算工具</small></span></a>
     <button class="menu-btn" type="button" aria-expanded="false" aria-controls="siteNav" aria-label="開啟選單"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg></button>
     <nav class="site-nav" id="siteNav" aria-label="主選單">
       <a href="#calendar">行事曆</a><a href="#long">連假攻略</a><a href="#tools">生活工具</a><a href="/2027/chunjie/">春節攻略</a><a href="/concert/">演唱會住宿</a><a href="#faq">常見問題</a>
@@ -336,7 +346,7 @@ main > section:last-child{padding-bottom:var(--gap)}
   <section class="hero" aria-labelledby="heroTitle">
     <div>
       <div class="eyebrow">民國 116 年 · 人事行政總處辦公日曆表</div>
-      <h1 id="heroTitle">2027 行事曆</h1>
+      <h1 id="heroTitle"><span class="h1-year">2027</span> 行事曆</h1>
       <p class="lead">國定假日、連假、補假與請假攻略，一次掌握。</p>
       <div class="stats">
         <div class="stat"><b class="num"><span id="statOff">121</span><small>天</small></b><span>全年放假天數</span></div>
@@ -344,7 +354,7 @@ main > section:last-child{padding-bottom:var(--gap)}
         <div class="stat"><b class="num"><span id="statWork">0</span><small>天</small></b><span>補班日</span></div>
       </div>
       <div class="cta">
-        <a class="btn btn-primary" href="#planner">立即計算我的連假</a>
+        <a class="btn btn-cta" href="#planner">立即計算我的連假</a>
         <a class="btn btn-ghost" href="#calendar">看 2027 全年行事曆</a>
       </div>
     </div>
@@ -474,7 +484,7 @@ main > section:last-child{padding-bottom:var(--gap)}
 <footer class="site-foot">
   <div class="container foot-grid">
     <div class="foot-brand">
-      <a class="logo" href="/">放假<span>日曆</span><small>台灣生活資訊與免費試算工具</small></a>
+      <a class="logo" href="/"><svg class="logo-mark" viewBox="0 0 32 32" width="34" height="34" aria-hidden="true" focusable="false"><rect width="32" height="32" rx="8" fill="#176B50"/><rect x="6.5" y="9.5" width="19" height="16" rx="2.5" fill="#FFFFFF"/><rect x="6.5" y="9.5" width="19" height="4.5" rx="2" fill="#A8E6CC"/><rect x="10.5" y="6.5" width="3" height="6" rx="1.5" fill="#FFFFFF"/><rect x="18.5" y="6.5" width="3" height="6" rx="1.5" fill="#FFFFFF"/><rect x="9.6" y="16.2" width="3.2" height="3.2" rx=".8" fill="#9DB8AB"/><rect x="14.4" y="16.2" width="3.2" height="3.2" rx=".8" fill="#9DB8AB"/><rect x="19.2" y="16.2" width="3.2" height="3.2" rx=".8" fill="#C8102E"/><rect x="9.6" y="20.6" width="3.2" height="3.2" rx=".8" fill="#9DB8AB"/><rect x="14.4" y="20.6" width="3.2" height="3.2" rx=".8" fill="#9DB8AB"/><rect x="19.2" y="20.6" width="3.2" height="3.2" rx=".8" fill="#9DB8AB"/></svg><span class="lt">放假<span>日曆</span><small>台灣生活資訊與免費試算工具</small></span></a>
       <p style="margin-top:10px">放假日曆｜台灣生活資訊與免費試算工具。本站僅供參考，實際放假以官方公告為準。</p>
     </div>
     <div>

@@ -36,6 +36,9 @@ ${faq.map(([q, a]) => `    <details><summary>${q}</summary><p>${a}</p></details>
 <title>${title}｜放假日曆</title>
 <meta name="description" content="${esc(desc)}">
 <link rel="canonical" href="${url}">
+<link rel="icon" href="/favicon.ico" sizes="48x48">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
 <meta property="og:type" content="website">
 <meta property="og:title" content="${esc(title)}">
 <meta property="og:description" content="${esc(desc)}">
@@ -46,7 +49,7 @@ ${faq.map(([q, a]) => `    <details><summary>${q}</summary><p>${a}</p></details>
 <meta name="twitter:card" content="summary_large_image">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700;900&display=swap">
-<link rel="stylesheet" href="/assets/site.css?v=7">
+<link rel="stylesheet" href="/assets/site.css?v=8">
 <link rel="stylesheet" href="/assets/tools/tools.css?v=5">
 <script type="application/ld+json">
 ${JSON.stringify({ "@context": "https://schema.org", "@graph": graph }, null, 1)}
