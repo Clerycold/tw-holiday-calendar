@@ -17,6 +17,15 @@
 
 首頁的「生活時事整理」區塊要滿 5 篇才會出現；最新一篇的 `verified` 超過 30 天，首頁區塊會自動隱藏（文章頁不受影響）。
 
+## 重點數字圖（選用）
+
+在 `_src/build_news_img.py` 的 `IMGS` 加一筆（key 是文章 slug），填標題、生效日、對照卡數字和補充重點，再跑：
+```
+PYTHONPATH=C:/Users/Administrator/tools/pylib python _src/build_news_img.py
+```
+會產生 `assets/news/<slug>.webp`（文內圖）和 `.jpg`（社群縮圖）。build-news.mjs 看到圖就自動放在結論框下方、
+改用它當 og:image；這時文章欄位必須加 `imgalt:`，把圖上的數字寫成一句話。圖上的數字一定要和內文、來源一致。
+
 ## 檔案格式
 
 檔名就是網址：`_src/news/2027-minimum-wage.html` → `/news/2027-minimum-wage/`（只能用小寫英數和 `-`）。

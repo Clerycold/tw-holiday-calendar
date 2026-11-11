@@ -119,10 +119,11 @@ const ART = {
   qingjia: ["/2027/qingjia/", "2027 全年請假攻略", "9 個連假、特休 3～14 天怎麼排"],
   chunjie: ["/2027/chunjie/", "2027 春節連假攻略", "請 5 天休 16 天，勞工補假與加班費"],
   landTax: ["/2026/land-value-tax/", "2026 地價稅試算與繳納", "公告地價、自用住宅 2‰、持分面積"],
+  minWage: ["/news/2027-minimum-wage/", "2027 最低工資調漲重點", "月薪 30,900、時薪 205，哪些錢可以算進去"],
 };
 const TOOL_ART = {
-  "/tools/annual-leave/": ["qingjia", "chunjie"], "/tools/overtime/": ["chunjie", "qingjia"], "/tools/workdays/": ["qingjia"],
-  "/tools/income-tax/": ["landTax"], "/tools/take-home-pay/": ["landTax"], "/tools/loan/": ["landTax"], "/tools/unit/": ["landTax"],
+  "/tools/annual-leave/": ["qingjia", "chunjie"], "/tools/overtime/": ["minWage", "chunjie", "qingjia"], "/tools/workdays/": ["qingjia"],
+  "/tools/income-tax/": ["landTax"], "/tools/take-home-pay/": ["minWage", "landTax"], "/tools/insurance/": ["minWage"], "/tools/loan/": ["landTax"], "/tools/unit/": ["landTax"],
   "/tools/currency/": ["qingjia", "chunjie"],
 };
 function related(path) {

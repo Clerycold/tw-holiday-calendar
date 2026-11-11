@@ -2,6 +2,7 @@
 // _src/news/drafts/ 是草稿區，產生器不會讀；人工查證後把檔案搬到 _src/news/ 才算發布。格式見 _src/news/README.md。
 // 也會更新 sitemap.xml 的 /news/ 網址，以及首頁 <!-- news:start --> 區塊（滿 5 篇才顯示）。
 import fs from "node:fs";
+import crypto from "node:crypto";
 
 const HEADER = fs.readFileSync(new URL("./header.html", import.meta.url), "utf8").trim();
 const SITE = "https://fangjiatw.com";
@@ -16,6 +17,14 @@ const esc = s => s.replace(/&/g, "&amp;").replace(/"/g, "&quot;").replace(/</g, 
 const strip = s => s.replace(/<[^>]+>/g, "");
 
 // 試算工具名稱從工具頁 <title> 讀，工具改名時這裡自動跟上
+// 重點數字圖（_src/build_news_img.py 產生）：有圖就放進文章開頭並當 og:image，版本號用內容雜湊
+const imgOf = slug => {
+  const f = `assets/news/${slug}.webp`;
+  if (!fs.existsSync(f)) return null;
+  const v = crypto.createHash("md5").update(fs.readFileSync(f)).digest("hex").slice(0, 8);
+  return { webp: `/${f}?v=${v}`, jpg: `/assets/news/${slug}.jpg?v=${v}` };
+};
+
 const toolName = slug => {
   const f = `tools/${slug}/index.html`;
   if (!fs.existsSync(f)) return null;
@@ -53,6 +62,8 @@ function parse(file) {
   if (!a.tools.length) err.push("至少連到一個試算工具（tools:）");
   for (const t of a.tools) if (!toolName(t)) err.push(`找不到工具 tools/${t}/`);
   if (/TODO|待查|\?\?/.test(raw)) err.push("文中還有 TODO／待查／?? 記號");
+  a.img = imgOf(a.slug);
+  if (a.img && !a.imgalt) err.push(`有 assets/news/${a.slug}.webp 就要寫 imgalt（圖片替代文字，寫出圖上的數字）`);
   if (err.length) throw new Error(`${file}:\n  - ${err.join("\n  - ")}`);
   return a;
 }
@@ -61,7 +72,7 @@ const files = fs.existsSync(SRC) ? fs.readdirSync(SRC).filter(f => f.endsWith(".
 const NEWS = files.map(parse).sort((x, y) => y.published.localeCompare(x.published) || x.slug.localeCompare(y.slug));
 
 // ---- 頁面 ----
-const head = (title, desc, path, ld) => `<!doctype html>
+const head = (title, desc, path, ld, og) => `<!doctype html>
 <html lang="zh-Hant-TW">
 <head>
 <meta charset="utf-8">
@@ -76,7 +87,7 @@ const head = (title, desc, path, ld) => `<!doctype html>
 <meta property="og:title" content="${esc(title)}">
 <meta property="og:description" content="${esc(desc)}">
 <meta property="og:url" content="${SITE}${path}">
-<meta property="og:image" content="${SITE}/assets/og/${path.replace(/^\/|\/$/g, "").replace(/\//g, "-")}.png">
+<meta property="og:image" content="${SITE}${og || `/assets/og/${path.replace(/^\/|\/$/g, "").replace(/\//g, "-")}.png`}">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
 <meta name="twitter:card" content="summary_large_image">
@@ -120,7 +131,7 @@ function articlePage(a) {
     ...(a.faq.length ? [{ "@type": "FAQPage", "mainEntity": a.faq.map(([q, ans]) => ({ "@type": "Question", "name": q, "acceptedAnswer": { "@type": "Answer", "text": strip(ans) } })) }] : [])
   ] };
   const more = NEWS.filter(o => o.slug !== a.slug).slice(0, 4);
-  return head(a.title, a.desc, path, ld) + `
+  return head(a.title, a.desc, path, ld, a.img && a.img.jpg) + `
 <main class="article">
   <div>
     <div class="crumb"><a href="/">放假日曆</a> › <a href="/news/">生活時事整理</a> › ${a.short}</div>
@@ -129,7 +140,12 @@ function articlePage(a) {
   </div>
 
   <div class="answer">${a.answer}</div>
-
+${a.img ? `
+  <figure style="margin:0">
+    <a href="${a.img.webp}"><img src="${a.img.webp}" width="1200" height="630" style="width:100%;height:auto;border-radius:8px;border:1px solid var(--rule)" alt="${esc(a.imgalt)}"></a>
+    <figcaption class="note" style="margin-top:6px">重點整理，數字與內文、資料來源一致。點圖可放大。</figcaption>
+  </figure>
+` : ""}
 ${a.body}
 
   <section>
