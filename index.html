@@ -317,6 +317,7 @@ button.d[aria-pressed="true"]{box-shadow:0 0 0 3px var(--accent);position:relati
 .posts .post{scroll-snap-align:start}
 .post{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);overflow:hidden;display:grid;grid-template-rows:auto 1fr}
 .post img{width:100%;height:auto;aspect-ratio:16/9;object-fit:cover;display:block;border-bottom:1px solid var(--border)}
+.post-text{grid-template-rows:1fr;border-top:4px solid var(--primary)} /* 時事卡片沒有封面圖，用頂部色條區分 */
 .post-meta{display:flex;align-items:center;justify-content:space-between;gap:8px}
 .post-meta time{font-size:.78rem;color:var(--muted)}
 .post h3{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;line-height:1.4;min-height:2.8em} /* 標題最多兩行 */
@@ -555,6 +556,8 @@ button.d[aria-pressed="true"]{box-shadow:0 0 0 3px var(--accent);position:relati
     </div>
   </section>
   <!-- tools:end -->
+
+  <!-- news:start --><!-- news:end -->
 
   <section id="articles" aria-labelledby="postTitle">
     <div class="sec-head">

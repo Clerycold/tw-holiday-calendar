@@ -25,6 +25,7 @@ def og_url(path):
 def kicker(path):
     if path.startswith("/tools/"): return ("免費試算工具", LEAVE, LEAVE_SOFT)
     if path.startswith("/concert/"): return ("演唱會住宿攻略", ACCENT, ACCENT_SOFT)
+    if path.startswith("/news/"): return ("生活時事整理", LEAVE, LEAVE_SOFT)
     if path.startswith("/2026/land-value-tax"): return ("生活資訊", LEAVE, LEAVE_SOFT)
     if re.match(r"/20\d\d/", path): return (path[1:5] + " 連假攻略", BRAND, BRAND_SOFT)
     return ("放假日曆", BRAND, BRAND_SOFT)
