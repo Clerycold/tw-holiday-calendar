@@ -76,6 +76,7 @@ const head = (title, desc, path, ld, og) => `<!doctype html>
 <html lang="zh-Hant-TW">
 <head>
 <meta charset="utf-8">
+<meta name="google-adsense-account" content="ca-pub-1876699539464325">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>${title}｜放假日曆</title>
 <meta name="description" content="${esc(desc)}">
