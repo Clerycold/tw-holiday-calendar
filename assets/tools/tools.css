@@ -1,6 +1,7 @@
 /* 放假日曆 試算工具 */
 .tool{border:1px solid var(--rule);border-radius:8px;background:var(--sheet);padding:16px;display:grid;gap:14px}
 .tool fieldset{border:0;padding:0;margin:0;display:grid;gap:10px}
+.tool [hidden]{display:none}
 .tool legend{font-weight:700;margin-bottom:6px;font-family:var(--f-display)}
 .fields{display:grid;gap:10px;grid-template-columns:repeat(auto-fit,minmax(150px,1fr))}
 .field{display:grid;gap:4px;font-size:.85rem;color:var(--muted)}

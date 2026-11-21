@@ -51,7 +51,7 @@ ${faq.map(([q, a]) => `    <details><summary>${q}</summary><p>${a}</p></details>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700;900&display=swap">
 <link rel="stylesheet" href="/assets/site.css?v=9">
-<link rel="stylesheet" href="/assets/tools/tools.css?v=5">
+<link rel="stylesheet" href="/assets/tools/tools.css?v=6">
 <script type="application/ld+json">
 ${JSON.stringify({ "@context": "https://schema.org", "@graph": graph }, null, 1)}
 </script>
@@ -202,7 +202,7 @@ ${TOOLS.filter(t => t.xls).map(t => `        <tr><td>${t.xlsName}</td><td>${t.xl
 
 // ---------------- 所得稅 ----------------
 const taxFaq = [
-  ["115 年度綜所稅什麼時候申報？", "115 年（2026 年）的所得，在 116 年（2027 年）5 月 1 日到 5 月 31 日申報，實際日期以財政部公告為準。"],
+  ["2027 年什麼時候報稅？", "2027 年 5 月 1 日到 5 月 31 日，申報的是 115 年度（2026 年）的所得。實際日期以財政部公告為準；期限最後一天遇到假日會順延。"],
   ["115 年度免稅額是多少？", "每人 10.1 萬元；本人、配偶或受扶養直系尊親屬年滿 70 歲為 15.15 萬元。另依 2026 年 8 月三讀的所得稅法修正，扶養未成年子女的免稅額也提高為每人 15.15 萬元。"],
   ["單身上班族年薪多少以下不用繳稅？", "單身、只有薪資所得、用標準扣除額時，年薪 46.4 萬元以下不用繳稅；如果是全家無自有房屋的租屋族，還可以減除實際支付的房租（最多 18 萬元），年房租達 18 萬元時，年薪 64.4 萬元以下不用繳稅。"],
   ["夫妻要合併還是分開計稅？", "夫妻要合併申報，但稅額可以選擇薪資分開計稅或各類所得分開計稅。報稅系統會自動比較，幫你選最省的方式；本試算也會比較這幾種方式，顯示最省的結果。"],
@@ -210,12 +210,12 @@ const taxFaq = [
 ];
 const tax = page({
   path: "/tools/income-tax/", crumb: "所得稅試算",
-  title: "2027 報稅試算｜115 年度綜所稅計算機（免稅額、扣除額、級距）",
-  h1: "115 年度綜所稅試算<br>明年 5 月報稅前先算一次",
-  desc: "115 年度綜合所得稅試算：免稅額 10.1 萬、未成年子女 15.15 萬、標準扣除額 13.6 萬、薪資特別扣除額 22.7 萬，淨所得 61 萬以下稅率 5%。輸入薪資立即算出應納稅額，附 Excel 公式。",
-  faq: taxFaq, app: "115 年度綜所稅試算",
+  title: "2027 報稅試算｜5 月申報時間、115 年度免稅額、扣除額、級距一覽",
+  h1: "2027 報稅試算<br>免稅額、扣除額、<span style=\"white-space:nowrap\">級距一覽</span>",
+  desc: "2027 年 5/1～5/31 報稅，申報 115 年度所得：免稅額 10.1 萬、未成年子女 15.15 萬、標準扣除額 13.6 萬、薪資特別扣除額 22.7 萬，淨所得 61 萬以下稅率 5%。輸入薪資立即試算應納稅額，附免費 Excel。",
+  faq: taxFaq, app: "115 年度綜所稅試算", updated: "2026-11-21",
   body: `
-  <div class="answer">2027 年 5 月申報的是 <b>115 年度</b>所得。115 年度起免稅額、扣除額和級距全面調高，<b>未成年子女免稅額更提高到 15.15 萬</b>。單身租屋族年薪 <b>64.4 萬</b>以下不用繳稅。</div>
+  <div class="answer">2027 年報稅時間是 <b>5 月 1 日～5 月 31 日</b>，申報的是 <b>115 年度（2026 年）</b>所得。免稅額 <b>10.1 萬</b>、標準扣除額 <b>13.6 萬</b>、薪資特別扣除額 <b>22.7 萬</b>，未成年子女免稅額提高到 <b>15.15 萬</b>；單身租屋族年薪 <b>64.4 萬</b>以下不用繳稅。</div>
 
   <section>
     <h2>綜所稅試算</h2>
@@ -260,7 +260,7 @@ const tax = page({
 
 
   <section>
-    <h2>115 年度免稅額、扣除額一覽</h2>
+    <h2>2027 報稅免稅額、扣除額一覽（115 年度）</h2>
     <div class="tbl"><table>
       <thead><tr><th>項目</th><th>115 年度</th><th>114 年度</th></tr></thead>
       <tbody>
@@ -304,7 +304,7 @@ const tax = page({
   </section>
 
   <section>
-    <h2>115 年度綜所稅課稅級距</h2>
+    <h2>2027 報稅課稅級距（115 年度）</h2>
     <div class="tbl"><table>
       <thead><tr><th>綜合所得淨額</th><th>稅率</th><th>累進差額</th></tr></thead>
       <tbody>
