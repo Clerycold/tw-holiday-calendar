@@ -2,6 +2,8 @@
 
 ## 流程
 
+> **進度表：`drafts/PROGRESS.md`**（只在本機，不進 git）。開工前先讀；下面每一步做完都要更新它（已發布／草稿／待查／commit／索引狀態），其他視窗才知道做到哪。
+
 1. **草稿**：每週排程（或手動）把候選題目寫成 `_src/news/drafts/<slug>.html`。
    `drafts/` 裡的檔案產生器完全不讀，不會上線。
 2. **查證**：人工逐項核對草稿裡的數字、日期、適用對象，和「資料來源」列的官方原文一致。
@@ -12,6 +14,7 @@
    PYTHONPATH=C:/Users/Administrator/tools/pylib python _src/build_og.py
    ```
    本機預覽確認後再 commit、push，並到 Search Console 要求建立索引。
+   最後把這篇從 PROGRESS.md 的「草稿」移到「已發布」，填上 commit 和索引狀態。
 4. **更新**：政策有新公告時，改內文、改 `verified` 日期，重跑上面兩行。
 5. **下架**：直接刪掉 `_src/news/` 裡的檔案再重跑；頁面和 sitemap 網址會一起拿掉。
 
