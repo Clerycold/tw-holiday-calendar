@@ -70,8 +70,8 @@ ${path === "/tools/" ? "" : related(path)}
 </main>
 
 <footer><a href="/about/">關於我們</a> · <a href="/privacy/">隱私權政策</a> · <a href="/disclosure/">聯盟連結揭露</a><br>放假日曆｜台灣生活資訊與免費試算工具。<br>${disclaimer || "本站試算結果僅供參考，實際金額以主管機關規定、公司制度及官方系統計算為準。"}</footer>
-${scripts ? `<script src="/assets/tools/calc.js?v=11"></script>
-<script src="/assets/tools/ui.js?v=18"></script>` : ""}
+${scripts ? `<script src="/assets/tools/calc.js?v=12"></script>
+<script src="/assets/tools/ui.js?v=19"></script>` : ""}
 <!-- Cloudflare Web Analytics --><script type='module' src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token": "4c058fe6d8d047d290cd5fe7c73a3d15"}'></script><!-- End Cloudflare Web Analytics -->
 </body>
 </html>
@@ -97,6 +97,8 @@ const TOOLS = [
   { path: "/tools/take-home-pay/", name: "薪資實領計算", sub: "月薪扣完勞健保、所得稅實際入帳多少", pill: "薪資",
     ask: "月薪 4 萬，實際入帳多少？", cta: "計算實領薪資",
     xls: "fangjiatw-payroll-115.xlsx", xlsName: "115年薪資條試算表", xlsFor: "每月薪資條：應發、各項扣款與實領一次算好" },
+  { path: "/tools/year-end-bonus/", name: "年終獎金計算", sub: "年終扣稅 5%、補充保費，實拿多少", pill: "薪資",
+    ask: "年終 2 個月，實際入帳多少？", cta: "計算年終實拿" },
   { path: "/tools/severance/", name: "資遣費計算", sub: "新制、舊制、新舊制併用資遣費", pill: "勞工",
     ask: "被資遣了，可以拿多少？", cta: "計算資遣費",
     xls: "fangjiatw-severance.xlsx", xlsName: "資遣費計算表", xlsFor: "人資一次算多位員工的新舊制資遣費與預告期間" },
@@ -124,7 +126,7 @@ const ART = {
 };
 const TOOL_ART = {
   "/tools/annual-leave/": ["qingjia", "chunjie"], "/tools/overtime/": ["minWage", "chunjie", "qingjia"], "/tools/workdays/": ["qingjia"],
-  "/tools/income-tax/": ["landTax"], "/tools/take-home-pay/": ["minWage", "landTax"], "/tools/insurance/": ["minWage"], "/tools/loan/": ["landTax"], "/tools/unit/": ["landTax"],
+  "/tools/income-tax/": ["landTax"], "/tools/take-home-pay/": ["minWage", "landTax"], "/tools/year-end-bonus/": ["chunjie", "minWage"], "/tools/insurance/": ["minWage"], "/tools/loan/": ["landTax"], "/tools/unit/": ["landTax"],
   "/tools/currency/": ["qingjia", "chunjie"],
 };
 function related(path) {
@@ -799,7 +801,7 @@ ${payRows}
     <p>以月薪 45,000 元（健保投保金額 45,800 元）、年終 20 萬元為例：</p>
     <p><b>所得稅預扣</b>：20 萬 ≥ 90,501 元，扣 5% ＝ <b>10,000 元</b>。</p>
     <p><b>二代健保補充保費</b>：投保金額 4 倍 ＝ 183,200 元，超過的 16,800 元 × 2.11% ＝ <b>354 元</b>。</p>
-    <p>所以年終入帳約 189,646 元。上方工具填入「本月獎金」就能自動算。</p>
+    <p>所以年終入帳約 189,646 元。上方工具填入「本月獎金」就能自動算；只想算年終，可以用<a href="/tools/year-end-bonus/">年終獎金計算機</a>，還能依月數、在職月數換算。</p>
   </section>
 
   <section>
@@ -809,6 +811,122 @@ ${payRows}
     ${formula("fiveFormula", "=IF(ROUND(B2*5%,0)>2000,ROUND(B2*5%,0),0)")}
     <p style="margin-top:12px">獎金在 C2、健保投保金額在 D2，補充保費（假設今年第一次領獎金）：</p>
     ${formula("suppFormula", "=ROUND(MAX(0,C2-4*D2)*2.11%,0)")}
+  </section>`,
+});
+
+// ---------------- 年終獎金 ----------------
+const bonusSal = [30000, 35000, 40000, 45000, 50000, 60000, 80000];
+const bonusRows = bonusSal.map(s => {
+  const c = m => { const r = INS.yearEndBonus({ salary: s, months: m }); return `${r.net.toLocaleString()}${r.tax + r.supp ? `<br><small>扣 ${(r.tax + r.supp).toLocaleString()}</small>` : ""}`; };
+  return `        <tr><td class="num">${s.toLocaleString()}</td><td class="num">${c(2)}</td><td class="num">${c(2.5)}</td><td class="num">${c(3)}</td></tr>`;
+}).join("\n");
+const yb45 = INS.yearEndBonus({ salary: 45000, amount: 200000 });
+const bonusFaq = [
+  ["年終獎金多少要扣稅？", "單次發放達 90,501 元以上，公司要先預扣 5% 所得稅，例如 10 萬元扣 5,000 元；未達 90,501 元不預扣。這是 115 年度的起扣標準，預扣的稅報稅時多退少補。"],
+  ["年終獎金要扣二代健保嗎？", "今年（發放當年 1 月到 12 月）領的獎金累計超過健保投保金額 4 倍的部分，要扣 2.11% 補充保費。例如投保金額 45,800 元，4 倍是 183,200 元，年終 20 萬元要對超過的 16,800 元扣 354 元。"],
+  ["年終拆成兩次發，可以少扣嗎？", "所得稅：每次未達 90,501 元就不會預扣，但這只是不先扣，報稅時年終一樣算進全年所得，該繳的稅不會變少。補充保費：看的是全年累計，拆開發也一樣會扣。"],
+  ["公司一定要發年終獎金嗎？", "勞基法第 29 條只規定事業單位有盈餘時，對全年工作無過失的勞工應給獎金或分配紅利，沒有規定金額或月數。發多少、未滿一年怎麼算，看勞動契約、工作規則或公司慣例。"],
+  ["年終獎金會算進平均工資嗎？", "不會。勞基法施行細則第 10 條把年終獎金列為非經常性給與，不算工資，所以計算資遣費、退休金的平均工資時不包括年終。"],
+];
+const bonusPage = page({
+  path: "/tools/year-end-bonus/", crumb: "年終獎金計算", updated: "2026-11-25",
+  title: "年終獎金計算機｜年終扣稅 5%、二代健保補充保費，實拿多少",
+  h1: "年終獎金計算<br>扣完稅和補充保費，<span style=\"white-space:nowrap\">實拿多少？</span>",
+  desc: "年終獎金計算機：輸入月薪和年終月數，算出所得稅預扣 5%（單次 90,501 元以上）、二代健保補充保費 2.11%（超過投保金額 4 倍）與實際入帳金額，附月薪 3 萬～8 萬年終實拿對照表。",
+  faq: bonusFaq, app: "年終獎金計算機",
+  body: `
+  <div class="answer">年終獎金會被扣兩筆：單次發放達 <b>90,501 元</b>，先預扣 <b>5% 所得稅</b>；今年獎金累計超過<b>健保投保金額 4 倍</b>的部分，再扣 <b>2.11% 補充保費</b>。月薪 45,000 元、年終 20 萬元，扣 ${(yb45.tax + yb45.supp).toLocaleString()} 元，<b>實拿 ${yb45.net.toLocaleString()} 元</b>。</div>
+
+  <section>
+    <h2>年終獎金試算</h2>
+    <form class="tool" data-tool="bonus" autocomplete="off">
+      <fieldset>
+        <legend>年終怎麼算</legend>
+        <div class="fields">
+          ${field("salary", "月薪（本薪＋固定津貼）", 'placeholder="例如 45000"')}
+          <label class="field">年終幾個月<input name="months" inputmode="decimal" placeholder="例如 2.5"></label>
+          <label class="field">今年工作幾個月<select name="worked">${[12,11,10,9,8,7,6,5,4,3,2,1].map(v => `<option value="${v}">${v === 12 ? "做滿一年" : v + " 個月（按比例）"}</option>`).join("")}</select></label>
+          ${field("amount", "或直接輸入年終金額（選填）")}
+        </div>
+      </fieldset>
+      <fieldset>
+        <legend>補充保費（選填）</legend>
+        <div class="fields">
+          ${field("ytd", "今年已經領過的獎金")}
+          ${field("grade", "健保投保金額（不填就依月薪換算）")}
+        </div>
+      </fieldset>
+      <div class="result" id="bonusOut" aria-live="polite"></div>
+    </form>
+    <p class="note" style="margin-top:8px">依 115 年財政部扣繳規定與健保署補充保費規定計算，適用一般受僱勞工。「按比例」是常見算法，實際以公司規定為準。計算都在你的瀏覽器裡完成。</p>
+  </section>
+
+  <section>
+    <h2>年終實拿對照表</h2>
+    <div class="tbl"><table>
+      <thead><tr><th>月薪</th><th>2 個月</th><th>2.5 個月</th><th>3 個月</th></tr></thead>
+      <tbody>
+${bonusRows}
+      </tbody>
+    </table></div>
+    <p class="note" style="margin-top:8px">欄位是年終月數。年終 1 個月的話，月薪 90,500 元以下都不會被扣，實拿就是 1 個月薪水。年終 ＝ 月薪 × 月數，今年第一次領獎金、健保投保金額依月薪對應 115 年級距。數字是實拿金額，下方小字是預扣的所得稅。這些情況都沒超過健保投保金額 4 倍，不扣補充保費；其他月數或金額請用上方工具計算。</p>
+  </section>
+
+  <section>
+    <h2>年終扣稅：為什麼有人扣、有人不扣？</h2>
+    <p>年終獎金屬於「非每月給付的薪資」，不併入當月薪水計算，而是<b>每次發放時單獨看金額</b>：達到薪資所得扣繳稅額表的起扣標準（115 年度無配偶及受扶養親屬者為 <b>90,501 元</b>），公司就要按發放金額扣 <b>5%</b>；沒達到就不扣。</p>
+    <div class="tbl"><table>
+      <thead><tr><th>年終金額</th><th>預扣所得稅</th></tr></thead>
+      <tbody>
+        <tr><td class="num">80,000 元</td><td class="num">0（未達 90,501）</td></tr>
+        <tr><td class="num">90,500 元</td><td class="num">0（未達 90,501）</td></tr>
+        <tr><td class="num">90,501 元</td><td class="num">4,525 元</td></tr>
+        <tr><td class="num">100,000 元</td><td class="num">5,000 元</td></tr>
+        <tr><td class="num">200,000 元</td><td class="num">10,000 元</td></tr>
+      </tbody>
+    </table></div>
+    <p style="margin-top:12px">預扣的 5% 不是最後要繳的稅。隔年 5 月報稅時，年終會併入全年薪資所得計算，扣多了退回來、扣少了補繳。年終沒被預扣，也不代表不用繳稅。想知道全年稅額，可以用<a href="/tools/income-tax/">所得稅試算</a>。</p>
+  </section>
+
+  <section>
+    <h2>二代健保補充保費怎麼算？</h2>
+    <p>健保署的算法是：每次發獎金時，把<b>今年（1 月到 12 月）累計的獎金</b>和<b>發放當月健保投保金額的 4 倍</b>比較，超過的部分扣 2.11%；但每次最多只就這次發的獎金計算，不會重複扣。</p>
+    <p>以健保署的例子：投保金額 38,200 元，4 倍是 152,800 元。2 月領年終 18 萬元，超過 27,200 元，扣 574 元；6 月再領端午獎金 1 萬元（當時投保金額 40,100 元），累計已經超過，1 萬元全額扣 211 元。</p>
+    <p><b>年終通常在 1、2 月發</b>，這時是新的一年剛開始，「今年已領獎金」通常是 0。去年領過的三節獎金不會算進來。</p>
+    <p class="note">月薪越高，健保投保金額越高，4 倍的門檻也越高。年終 4 個月以內、而且今年沒領過其他獎金的人，大多不用扣補充保費。</p>
+  </section>
+
+  <section>
+    <h2>公司一定要發年終嗎？未滿一年怎麼算？</h2>
+    <p>勞基法第 29 條規定，事業單位在營業年度結算<b>有盈餘</b>時，對全年工作沒有過失的勞工，應給獎金或分配紅利。法律沒有規定要發幾個月，也沒有規定未滿一年怎麼算。</p>
+    <p>實務上常見的做法是依當年在職月數按比例發放，例如年中到職、做了 6 個月，年終 2 個月就發 1 個月。實際怎麼算，請看勞動契約、工作規則或公司過去的慣例。</p>
+    <p>年終獎金依勞基法施行細則第 10 條屬於非經常性給與，<b>不算進平均工資</b>，計算<a href="/tools/severance/">資遣費</a>或退休金時不包括年終。</p>
+  </section>
+
+  <section>
+    <h2>用 Excel 算年終實拿</h2>
+    <p>年終金額在 A2、健保投保金額在 B2、今年已領獎金在 C2。預扣所得稅：</p>
+    ${formula("ybTaxFormula", "=IF(A2>=90501,ROUND(A2*5%,0),0)")}
+    <p style="margin-top:12px">補充保費：</p>
+    ${formula("ybSuppFormula", "=ROUND(MIN(A2,MAX(0,C2+A2-4*B2))*2.11%,0)")}
+    <p style="margin-top:12px">實拿 ＝ A2 − 預扣所得稅 − 補充保費。整間公司的薪資條可以下載<a href="/tools/take-home-pay/">薪資實領計算</a>頁的 Excel 範本。</p>
+  </section>
+
+  <section>
+    <h2>計算依據、資料來源與更新紀錄</h2>
+    <ul>
+      <li><a href="https://www.etax.nat.gov.tw/etwmain/tax-info/understanding/tax-q-and-a/national/individual-income-tax/withheld-rule/rule/n3x6znM" rel="noopener">財政部稅務入口網：給付獎金、補助費等非每月給付薪資應如何辦理扣繳？</a>（5%、115 年度起扣標準 90,501 元）</li>
+      <li><a href="https://www.mof.gov.tw/singlehtml/384fb3077bb349ea973e7fc6f13b6974?cntId=1d6facbaae674fb7b1e15161df56768e" rel="noopener">財政部：年終獎金，領多少要先扣稅？</a></li>
+      <li><a href="https://www.nhi.gov.tw/ch/cp-2489-1e757-3151-1.html" rel="noopener">健保署二代健保實例說明：獎金</a>（費基與 2.11% 計算方式）</li>
+      <li><a href="https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=L0060001&flno=31" rel="noopener">全民健康保險法第 31 條</a>（全年累計逾當月投保金額 4 倍部分之獎金）</li>
+      <li><a href="https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0030001&flno=29" rel="noopener">勞動基準法第 29 條</a>、<a href="https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0030002&flno=10" rel="noopener">勞動基準法施行細則第 10 條</a></li>
+    </ul>
+    <div class="tbl"><table>
+      <thead><tr><th>更新日期</th><th>內容</th></tr></thead>
+      <tbody>
+        <tr><td>2026/11/25</td><td style="white-space:normal">上線：依 115 年起扣標準 90,501 元、補充保費率 2.11%、115 年健保投保金額分級表計算。116 年起扣標準與健保分級表公告後更新。</td></tr>
+      </tbody>
+    </table></div>
   </section>`,
 });
 
@@ -1933,7 +2051,7 @@ ${diskRows}
   </section>`,
 });
 
-const out = { "tools/loan/index.html": loanPage, "tools/interest/index.html": depositPage, "tools/currency/index.html": fxPage, "tools/unit/index.html": unitPage, "tools/labor-insurance-pension/index.html": laborInsPensionPage, "tools/index.html": hub, "tools/insurance/index.html": insurance, "tools/take-home-pay/index.html": takeHome, "tools/severance/index.html": severancePage, "tools/pension/index.html": pensionPage, "tools/income-tax/index.html": tax, "tools/annual-leave/index.html": leave, "tools/overtime/index.html": overtime, "tools/workdays/index.html": workdays };
+const out = { "tools/year-end-bonus/index.html": bonusPage, "tools/loan/index.html": loanPage, "tools/interest/index.html": depositPage, "tools/currency/index.html": fxPage, "tools/unit/index.html": unitPage, "tools/labor-insurance-pension/index.html": laborInsPensionPage, "tools/index.html": hub, "tools/insurance/index.html": insurance, "tools/take-home-pay/index.html": takeHome, "tools/severance/index.html": severancePage, "tools/pension/index.html": pensionPage, "tools/income-tax/index.html": tax, "tools/annual-leave/index.html": leave, "tools/overtime/index.html": overtime, "tools/workdays/index.html": workdays };
 for (const [f, html] of Object.entries(out)) {
   mkdirSync(f.replace(/\/[^/]+$/, ""), { recursive: true });
   writeFileSync(f, html);
@@ -1943,7 +2061,7 @@ for (const [f, html] of Object.entries(out)) {
 // 首頁「生活試算工具」區塊：依 TOOLS 產生，寫進 index.html 的 tools:start／tools:end 之間
 // 首頁分 3 類：桌機 3 欄並排（每類一欄），手機上下排
 const GROUPS = [
-  ["薪資與勞工", ["/tools/take-home-pay/", "/tools/insurance/", "/tools/overtime/", "/tools/annual-leave/", "/tools/severance/", "/tools/workdays/"]],
+  ["薪資與勞工", ["/tools/take-home-pay/", "/tools/year-end-bonus/", "/tools/insurance/", "/tools/overtime/", "/tools/annual-leave/", "/tools/severance/", "/tools/workdays/"]],
   ["退休與財務", ["/tools/labor-insurance-pension/", "/tools/pension/", "/tools/loan/", "/tools/interest/", "/tools/income-tax/"]],
   ["旅遊與生活", ["/tools/currency/", "/tools/unit/"]],
 ];
@@ -1952,7 +2070,7 @@ const GROUPS = [
   const missing = TOOLS.filter(t => !GROUPS.some(([, ps]) => ps.includes(t.path)));
   if (missing.length) throw new Error("首頁工具分類缺少：" + missing.map(t => t.path).join(", "));
   // 首頁卡片的圖示字（每個工具一個字，放在綠色方塊裡）
-  const GLYPH = { "/tools/take-home-pay/": "薪", "/tools/insurance/": "保", "/tools/overtime/": "加", "/tools/annual-leave/": "休", "/tools/severance/": "遣",
+  const GLYPH = { "/tools/take-home-pay/": "薪", "/tools/year-end-bonus/": "獎", "/tools/insurance/": "保", "/tools/overtime/": "加", "/tools/annual-leave/": "休", "/tools/severance/": "遣",
     "/tools/income-tax/": "稅", "/tools/workdays/": "日", "/tools/pension/": "退", "/tools/labor-insurance-pension/": "年", "/tools/loan/": "貸",
     "/tools/interest/": "息", "/tools/currency/": "匯", "/tools/unit/": "量" };
   const noGlyph = TOOLS.filter(t => !GLYPH[t.path]);

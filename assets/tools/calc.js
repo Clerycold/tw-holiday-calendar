@@ -171,6 +171,23 @@
     return {ins, gross, salaryTax, needTable, bonusTax, supp, suppBase: over(ytd + bonus) - over(ytd), cap, other, deduct, net: gross - deduct};
   }
 
+  // ---- 年終獎金（115 年規定）----
+  // 所得稅：單次給付達 90,501 元扣 5%（財政部稅務入口網 1506）。
+  // 補充保費：健保署二代健保實例說明「獎金」，費基 ＝ min(本次獎金, 給付時當年度累計獎金 − 當月投保金額 × 4)，費率 2.11%。
+  // p = {salary, months, worked（今年工作月數，預設 12）, amount（直接輸入年終金額，優先）, ytd（今年已領獎金）, grade（健保投保金額，選填）}
+  function yearEndBonus(p){
+    const n = v => Math.max(0, +v || 0), r = Math.round, P = PAY115;
+    const salary = n(p.salary), months = n(p.months);
+    const worked = p.worked == null || p.worked === "" ? 12 : Math.min(12, n(p.worked));
+    const amount = n(p.amount) || r(salary * months * worked / 12);
+    const grade = n(p.grade) || laborIns({salary}).nhi.grade;
+    const ytd = n(p.ytd);
+    const tax = amount >= P.threshold ? r(amount*.05) : 0;
+    const cap = 4*grade, suppBase = Math.min(amount, Math.max(0, ytd + amount - cap));
+    const supp = r(suppBase * P.suppRate);
+    return {amount, worked, grade, cap, ytd, tax, supp, suppBase, net: amount - tax - supp};
+  }
+
   // ---- 資遣費 ----
   // 新制（勞工退休金條例第 12 條）：每滿 1 年 1/2 個月平均工資，未滿 1 年按比例，最高 6 個月。
   // 舊制（勞基法第 17 條）：每滿 1 年 1 個月平均工資，剩餘月數按比例，未滿 1 個月以 1 個月計。
@@ -415,6 +432,6 @@
   };
   const cToF = c => c*9/5 + 32, fToC = f => (f - 32)*5/9;
 
-  const api = {TAX115, INS115, PAY115, SEV115, LOA, legalAge, laborOldAge, laborIns, netPay, severance, monthsBetween, PEN, pension, annuityFactor, penLife, taxOf, rateOf, incomeTax, annualLeave, calendarYearLeave, leaveDaysForYears, overtime, TW_HOL, workdays, addWorkdays, weekdayHolidays, key, loan, loanApr, loanCap, DEP, deposit, UNITS, convertUnit, cToF, fToC};
+  const api = {TAX115, INS115, PAY115, SEV115, LOA, legalAge, laborOldAge, laborIns, netPay, yearEndBonus, severance, monthsBetween, PEN, pension, annuityFactor, penLife, taxOf, rateOf, incomeTax, annualLeave, calendarYearLeave, leaveDaysForYears, overtime, TW_HOL, workdays, addWorkdays, weekdayHolidays, key, loan, loanApr, loanCap, DEP, deposit, UNITS, convertUnit, cToF, fToC};
   if(typeof module !== "undefined") module.exports = api; else root.Calc = api;
 })(this);

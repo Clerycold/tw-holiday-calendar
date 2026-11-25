@@ -255,6 +255,34 @@
     run();
   }
 
+  // ---- 年終獎金 ----
+  const yb = $('form[data-tool="bonus"]');
+  if(yb){
+    const f = yb.elements, out = $("#bonusOut");
+    const ids = ["salary","months","worked","amount","ytd","grade"];
+    const dec = el => Math.max(0, parseFloat(String(el.value).replace(/,/g,"")) || 0);
+    function run(){
+      const r = C.yearEndBonus({salary:num(f.salary), months:dec(f.months), worked:f.worked.value, amount:num(f.amount), ytd:num(f.ytd), grade:num(f.grade)});
+      save("bonusForm", ids.map(k => f[k].value));
+      if(!r.amount){ out.innerHTML = `<div class="note">輸入月薪和年終月數（或直接填年終金額），就會算出實際入帳多少。</div>`; return; }
+      const byMonths = !num(f.amount);
+      out.innerHTML = `
+        <div>年終實際入帳</div>
+        <div class="big">${money(r.net)} <small>元</small></div>
+        <dl class="kv">
+          <dt>年終獎金${byMonths ? `（${money(num(f.salary))} × ${dec(f.months)} 個月${r.worked < 12 ? ` × ${r.worked}/12` : ""}）` : ""}</dt><dd>${money(r.amount)}</dd>
+          <dt>所得稅預扣 5%</dt><dd>${r.tax ? "−" + money(r.tax) : "0"}</dd>
+          <dt>二代健保補充保費 2.11%</dt><dd>${r.supp ? "−" + money(r.supp) : "0"}</dd>
+          <dt class="sum">扣款合計</dt><dd class="sum">${r.tax + r.supp ? "−" + money(r.tax + r.supp) : "0"}</dd>
+        </dl>
+        <div class="note">${r.tax ? `單次發放達 90,501 元，公司要先預扣 5% 所得稅。` : `未達 90,501 元，不會預扣所得稅。`}預扣不是最後稅額，報稅時多退少補，可以用<a href="/tools/income-tax/">所得稅試算</a>算全年稅額。</div>
+        <div class="note">健保投保金額 ${money(r.grade)} 元${num(f.grade) ? "" : "（依月薪對應 115 年級距）"}，4 倍是 ${money(r.cap)} 元。${r.supp ? `今年獎金累計 ${money(r.ytd + r.amount)} 元，超過的部分有 ${money(r.suppBase)} 元要扣 2.11%。` : `今年獎金累計 ${money(r.ytd + r.amount)} 元，沒有超過，不扣補充保費。`}</div>`;
+    }
+    const s = load("bonusForm"); if(s){ ids.forEach((k,i) => { if(s[i] != null) f[k].value = s[i]; }); }
+    yb.addEventListener("input", run); yb.addEventListener("change", run); yb.addEventListener("submit", e => { e.preventDefault(); run(); });
+    run();
+  }
+
   // ---- 資遣費 ----
   const sev = $('form[data-tool="severance"]');
   if(sev){
