@@ -261,24 +261,66 @@
     const f = yb.elements, out = $("#bonusOut");
     const ids = ["salary","months","worked","amount","ytd","grade"];
     const dec = el => Math.max(0, parseFloat(String(el.value).replace(/,/g,"")) || 0);
+    const modeBtns = yb.querySelectorAll("[data-yb-mode]");
+    const presetBtns = yb.querySelectorAll("[data-yb-m]");
+    let mode = "months";
+    function setMode(next, clearOther){
+      mode = next === "amount" ? "amount" : "months";
+      modeBtns.forEach(b => b.setAttribute("aria-pressed", String(b.dataset.ybMode === mode)));
+      yb.querySelectorAll("[data-yb-group]").forEach(el => { el.hidden = el.dataset.ybGroup !== mode; });
+      if(clearOther){
+        if(mode === "months") f.amount.value = "";
+        else { f.months.value = ""; f.worked.value = "12"; }
+      }
+    }
+    function syncPresets(){
+      const m = dec(f.months);
+      presetBtns.forEach(b => b.setAttribute("aria-pressed", String(mode === "months" && m === +b.dataset.ybM)));
+    }
     function run(){
-      const r = C.yearEndBonus({salary:num(f.salary), months:dec(f.months), worked:f.worked.value, amount:num(f.amount), ytd:num(f.ytd), grade:num(f.grade)});
+      syncPresets();
+      const byMonths = mode === "months";
+      const r = C.yearEndBonus({salary:num(f.salary), months:byMonths ? dec(f.months) : 0, worked:byMonths ? f.worked.value : 12,
+        amount:byMonths ? 0 : num(f.amount), ytd:num(f.ytd), grade:num(f.grade)});
       save("bonusForm", ids.map(k => f[k].value));
-      if(!r.amount){ out.innerHTML = `<div class="note">輸入月薪和年終月數（或直接填年終金額），就會算出實際入帳多少。</div>`; return; }
-      const byMonths = !num(f.amount);
+      if(!r.amount){ out.innerHTML = `<div class="note">${byMonths ? "輸入月薪和年終月數" : "輸入年終總金額"}，就會算出實際入帳多少。</div>`; return; }
+      const how = byMonths ? `（${money(num(f.salary))} × ${dec(f.months)} 個月${r.worked < 12 ? ` × ${r.worked}/12` : ""}）` : "";
+      const ded = r.tax + r.supp;
       out.innerHTML = `
         <div>年終實際入帳</div>
         <div class="big">${money(r.net)} <small>元</small></div>
+        <div class="yb-badges">${r.tax ? `<span class="yb-badge is-warn">達 90,501・預扣 5%</span>` : `<span class="yb-badge">未達起扣・免預扣稅</span>`}${r.supp ? `<span class="yb-badge is-warn">超過 4 倍・扣補充保費</span>` : `<span class="yb-badge">免扣補充保費</span>`}</div>
         <dl class="kv">
-          <dt>年終獎金${byMonths ? `（${money(num(f.salary))} × ${dec(f.months)} 個月${r.worked < 12 ? ` × ${r.worked}/12` : ""}）` : ""}</dt><dd>${money(r.amount)}</dd>
+          <dt>年終獎金${how}</dt><dd>${money(r.amount)}</dd>
           <dt>所得稅預扣 5%</dt><dd>${r.tax ? "−" + money(r.tax) : "0"}</dd>
           <dt>二代健保補充保費 2.11%</dt><dd>${r.supp ? "−" + money(r.supp) : "0"}</dd>
-          <dt class="sum">扣款合計</dt><dd class="sum">${r.tax + r.supp ? "−" + money(r.tax + r.supp) : "0"}</dd>
+          <dt class="sum">扣款合計</dt><dd class="sum">${ded ? "−" + money(ded) : "0"}</dd>
         </dl>
         <div class="note">${r.tax ? `單次發放達 90,501 元，公司要先預扣 5% 所得稅。` : `未達 90,501 元，不會預扣所得稅。`}預扣不是最後稅額，報稅時多退少補，可以用<a href="/tools/income-tax/">所得稅試算</a>算全年稅額。</div>
-        <div class="note">健保投保金額 ${money(r.grade)} 元${num(f.grade) ? "" : "（依月薪對應 115 年級距）"}，4 倍是 ${money(r.cap)} 元。${r.supp ? `今年獎金累計 ${money(r.ytd + r.amount)} 元，超過的部分有 ${money(r.suppBase)} 元要扣 2.11%。` : `今年獎金累計 ${money(r.ytd + r.amount)} 元，沒有超過，不扣補充保費。`}</div>`;
+        <div class="note">健保投保金額 ${money(r.grade)} 元${num(f.grade) ? "" : "（依月薪對應 115 年級距）"}，4 倍是 ${money(r.cap)} 元。${r.supp ? `今年獎金累計 ${money(r.ytd + r.amount)} 元，超過的部分有 ${money(r.suppBase)} 元要扣 2.11%。` : `今年獎金累計 ${money(r.ytd + r.amount)} 元，沒有超過，不扣補充保費。`}</div>
+        <div><button type="button" class="copy" id="ybCopy" style="padding:7px 12px">複製試算結果</button></div>`;
+      $("#ybCopy").onclick = e => {
+        const b = e.currentTarget;
+        const text = [`年終實際入帳：${money(r.net)} 元`, `年終獎金：${money(r.amount)} 元${how}`,
+          `所得稅預扣 5%：${r.tax ? "−" + money(r.tax) : "0"} 元`, `二代健保補充保費：${r.supp ? "−" + money(r.supp) : "0"} 元`,
+          `試算：${location.origin}${location.pathname}`].join("\n");
+        if(navigator.clipboard) navigator.clipboard.writeText(text).then(() => { b.textContent = "已複製"; setTimeout(() => b.textContent = "複製試算結果", 1500); }, () => {});
+      };
+    }
+    modeBtns.forEach(b => b.addEventListener("click", () => { if(b.dataset.ybMode !== mode){ setMode(b.dataset.ybMode, true); run(); } }));
+    presetBtns.forEach(b => b.addEventListener("click", () => { setMode("months", true); f.months.value = b.dataset.ybM; run(); }));
+    const ref = $("#ybRefTable");
+    if(ref){
+      const pick = cell => {
+        const row = cell.closest("tr[data-salary]"); if(!row) return;
+        setMode("months", true); f.salary.value = row.dataset.salary; f.months.value = cell.dataset.months; f.worked.value = "12";
+        run(); yb.scrollIntoView({behavior:"smooth", block:"start"});
+      };
+      ref.addEventListener("click", e => { const c = e.target.closest(".yb-pick"); if(c) pick(c); });
+      ref.addEventListener("keydown", e => { const c = e.target.closest(".yb-pick"); if(c && (e.key === "Enter" || e.key === " ")){ e.preventDefault(); pick(c); } });
     }
     const s = load("bonusForm"); if(s){ ids.forEach((k,i) => { if(s[i] != null) f[k].value = s[i]; }); }
+    setMode(num(f.amount) > 0 ? "amount" : "months", false);   // 舊版兩者都填時以金額為準，維持一樣的結果
     yb.addEventListener("input", run); yb.addEventListener("change", run); yb.addEventListener("submit", e => { e.preventDefault(); run(); });
     run();
   }

@@ -42,3 +42,27 @@
 .result>*{min-width:0}
 .quick{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin-top:10px;font-size:.9rem;color:var(--muted)}
 .quick .copy{padding:6px 12px}
+/* 年終獎金：雙欄試算工作台（窄螢幕自動變單欄） */
+.yb-tool{scroll-margin-top:84px}
+.yb-grid{display:grid;gap:16px;grid-template-columns:minmax(0,1fr)}
+.yb-inputs{display:grid;gap:14px;min-width:0}
+.yb-inputs .fields{grid-template-columns:minmax(0,1fr)}
+.yb-mode{justify-self:start;margin-bottom:2px}
+.yb-wide{grid-column:1/-1}
+.yb-presets{display:flex;flex-wrap:wrap;gap:6px}
+.yb-presets button{font:inherit;font-size:.85rem;border:1px solid var(--rule);background:var(--paper);color:var(--ink);border-radius:999px;padding:4px 11px;cursor:pointer}
+.yb-presets button[aria-pressed="true"]{border-color:var(--leave);background:var(--leave-soft);color:var(--leave);font-weight:700}
+.yb-side{display:grid;gap:8px;align-content:start;min-width:0}
+.yb-side .result{border:2px solid var(--leave);border-radius:10px;padding:14px 16px;background:var(--sheet)}
+.yb-side .result .note{font-size:.82rem;margin:0}
+.yb-badges{display:flex;flex-wrap:wrap;gap:6px}
+.yb-badge{display:inline-block;font-size:.76rem;font-weight:700;padding:2px 8px;border-radius:999px;background:var(--leave-soft);color:var(--leave)}
+.yb-badge.is-warn{background:color-mix(in srgb,var(--makeup) 14%,transparent);color:var(--makeup)}
+.yb-callout{margin:12px 0;padding:12px 14px;border-radius:8px;border:1px solid var(--makeup);background:color-mix(in srgb,var(--makeup) 8%,transparent)}
+#ybRefTable .yb-pick{cursor:pointer}
+#ybRefTable .yb-pick:hover,#ybRefTable .yb-pick:focus-visible{background:var(--leave-soft);outline:none}
+@media (min-width:720px){
+  .yb-grid{grid-template-columns:minmax(0,1.15fr) minmax(0,.85fr);align-items:start}
+  .yb-side{position:sticky;top:84px}
+  .yb-side .result{box-shadow:4px 4px 0 var(--leave-soft)}
+}

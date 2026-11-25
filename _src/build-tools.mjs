@@ -51,7 +51,7 @@ ${faq.map(([q, a]) => `    <details><summary>${q}</summary><p>${a}</p></details>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700;900&display=swap">
 <link rel="stylesheet" href="/assets/site.css?v=9">
-<link rel="stylesheet" href="/assets/tools/tools.css?v=6">
+<link rel="stylesheet" href="/assets/tools/tools.css?v=7">
 <script type="application/ld+json">
 ${JSON.stringify({ "@context": "https://schema.org", "@graph": graph }, null, 1)}
 </script>
@@ -71,7 +71,7 @@ ${path === "/tools/" ? "" : related(path)}
 
 <footer><a href="/about/">關於我們</a> · <a href="/privacy/">隱私權政策</a> · <a href="/disclosure/">聯盟連結揭露</a><br>放假日曆｜台灣生活資訊與免費試算工具。<br>${disclaimer || "本站試算結果僅供參考，實際金額以主管機關規定、公司制度及官方系統計算為準。"}</footer>
 ${scripts ? `<script src="/assets/tools/calc.js?v=12"></script>
-<script src="/assets/tools/ui.js?v=19"></script>` : ""}
+<script src="/assets/tools/ui.js?v=20"></script>` : ""}
 <!-- Cloudflare Web Analytics --><script type='module' src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token": "4c058fe6d8d047d290cd5fe7c73a3d15"}'></script><!-- End Cloudflare Web Analytics -->
 </body>
 </html>
@@ -818,7 +818,8 @@ ${payRows}
 const bonusSal = [30000, 35000, 40000, 45000, 50000, 60000, 80000];
 const bonusRows = bonusSal.map(s => {
   const c = m => { const r = INS.yearEndBonus({ salary: s, months: m }); return `${r.net.toLocaleString()}${r.tax + r.supp ? `<br><small>扣 ${(r.tax + r.supp).toLocaleString()}</small>` : ""}`; };
-  return `        <tr><td class="num">${s.toLocaleString()}</td><td class="num">${c(2)}</td><td class="num">${c(2.5)}</td><td class="num">${c(3)}</td></tr>`;
+  const td = m => `<td class="num yb-pick" data-months="${m}" tabindex="0" role="button" aria-label="帶入月薪 ${s.toLocaleString()}、年終 ${m} 個月">${c(m)}</td>`;
+  return `        <tr data-salary="${s}"><td class="num">${s.toLocaleString()}</td>${td(2)}${td(2.5)}${td(3)}</tr>`;
 }).join("\n");
 const yb45 = INS.yearEndBonus({ salary: 45000, amount: 200000 });
 const bonusFaq = [
@@ -831,7 +832,7 @@ const bonusFaq = [
 const bonusPage = page({
   path: "/tools/year-end-bonus/", crumb: "年終獎金計算", updated: "2026-11-25",
   title: "年終獎金計算機｜年終扣稅 5%、二代健保補充保費，實拿多少",
-  h1: "年終獎金計算<br>扣完稅和補充保費，<span style=\"white-space:nowrap\">實拿多少？</span>",
+  h1: "年終獎金計算機<br>扣稅與二代健保，<span style=\"white-space:nowrap\">實拿試算</span>",
   desc: "年終獎金計算機：輸入月薪和年終月數，算出所得稅預扣 5%（單次 90,501 元以上）、二代健保補充保費 2.11%（超過投保金額 4 倍）與實際入帳金額，附月薪 3 萬～8 萬年終實拿對照表。",
   faq: bonusFaq, app: "年終獎金計算機",
   body: `
@@ -839,37 +840,50 @@ const bonusPage = page({
 
   <section>
     <h2>年終獎金試算</h2>
-    <form class="tool" data-tool="bonus" autocomplete="off">
-      <fieldset>
-        <legend>年終怎麼算</legend>
-        <div class="fields">
-          ${field("salary", "月薪（本薪＋固定津貼）", 'placeholder="例如 45000"')}
-          <label class="field">年終幾個月<input name="months" inputmode="decimal" placeholder="例如 2.5"></label>
-          <label class="field">今年工作幾個月<select name="worked">${[12,11,10,9,8,7,6,5,4,3,2,1].map(v => `<option value="${v}">${v === 12 ? "做滿一年" : v + " 個月（按比例）"}</option>`).join("")}</select></label>
-          ${field("amount", "或直接輸入年終金額（選填）")}
+    <form class="tool yb-tool" data-tool="bonus" autocomplete="off">
+      <div class="yb-grid">
+        <div class="yb-inputs">
+          <fieldset>
+            <legend>年終怎麼算</legend>
+            <div class="seg yb-mode" role="group" aria-label="年終計算方式">
+              <button type="button" data-yb-mode="months" aria-pressed="true">依月數計算</button>
+              <button type="button" data-yb-mode="amount" aria-pressed="false">直接輸入金額</button>
+            </div>
+            <div class="fields">
+              ${field("salary", "月薪（本薪＋固定津貼）", 'placeholder="例如 45000"')}
+              <div class="field yb-wide" data-yb-group="months">
+                <label class="field">年終幾個月<input name="months" inputmode="decimal" placeholder="例如 2.5"></label>
+                <div class="yb-presets" role="group" aria-label="常用年終月數">${[1, 2, 2.5, 3, 6].map(m => `<button type="button" data-yb-m="${m}">${m} 個月</button>`).join("")}</div>
+              </div>
+              <label class="field" data-yb-group="months">今年工作幾個月<select name="worked">${[12,11,10,9,8,7,6,5,4,3,2,1].map(v => `<option value="${v}">${v === 12 ? "做滿一年" : v + " 個月（按比例）"}</option>`).join("")}</select></label>
+              <label class="field" data-yb-group="amount" hidden>年終總金額（元）<input name="amount" inputmode="numeric" placeholder="例如 200000"></label>
+            </div>
+          </fieldset>
+          <fieldset>
+            <legend>補充保費（選填）</legend>
+            <div class="fields">
+              ${field("ytd", "今年已經領過的獎金", 'placeholder="預設 0"')}
+              ${field("grade", "健保投保金額（不填就依月薪換算）", 'placeholder="依 115 年級距"')}
+            </div>
+          </fieldset>
         </div>
-      </fieldset>
-      <fieldset>
-        <legend>補充保費（選填）</legend>
-        <div class="fields">
-          ${field("ytd", "今年已經領過的獎金")}
-          ${field("grade", "健保投保金額（不填就依月薪換算）")}
+        <div class="yb-side">
+          <div class="result" id="bonusOut" aria-live="polite"></div>
+          <p class="note">依 115 年財政部扣繳規定與健保署補充保費規定計算，適用一般受僱勞工。「按比例」是常見算法，實際以公司規定為準。計算都在你的瀏覽器裡完成。</p>
         </div>
-      </fieldset>
-      <div class="result" id="bonusOut" aria-live="polite"></div>
+      </div>
     </form>
-    <p class="note" style="margin-top:8px">依 115 年財政部扣繳規定與健保署補充保費規定計算，適用一般受僱勞工。「按比例」是常見算法，實際以公司規定為準。計算都在你的瀏覽器裡完成。</p>
   </section>
 
   <section>
     <h2>年終實拿對照表</h2>
-    <div class="tbl"><table>
+    <div class="tbl"><table id="ybRefTable">
       <thead><tr><th>月薪</th><th>2 個月</th><th>2.5 個月</th><th>3 個月</th></tr></thead>
       <tbody>
 ${bonusRows}
       </tbody>
     </table></div>
-    <p class="note" style="margin-top:8px">欄位是年終月數。年終 1 個月的話，月薪 90,500 元以下都不會被扣，實拿就是 1 個月薪水。年終 ＝ 月薪 × 月數，今年第一次領獎金、健保投保金額依月薪對應 115 年級距。數字是實拿金額，下方小字是預扣的所得稅。這些情況都沒超過健保投保金額 4 倍，不扣補充保費；其他月數或金額請用上方工具計算。</p>
+    <p class="note" style="margin-top:8px">點任一格，就會把月薪和月數帶入上方計算機。欄位是年終月數。年終 1 個月的話，月薪 90,500 元以下都不會被扣，實拿就是 1 個月薪水。年終 ＝ 月薪 × 月數，今年第一次領獎金、健保投保金額依月薪對應 115 年級距。數字是實拿金額，下方小字是預扣的所得稅。這些情況都沒超過健保投保金額 4 倍，不扣補充保費；其他月數或金額請用上方工具計算。</p>
   </section>
 
   <section>
@@ -892,7 +906,7 @@ ${bonusRows}
     <h2>二代健保補充保費怎麼算？</h2>
     <p>健保署的算法是：每次發獎金時，把<b>今年（1 月到 12 月）累計的獎金</b>和<b>發放當月健保投保金額的 4 倍</b>比較，超過的部分扣 2.11%；但每次最多只就這次發的獎金計算，不會重複扣。</p>
     <p>以健保署的例子：投保金額 38,200 元，4 倍是 152,800 元。2 月領年終 18 萬元，超過 27,200 元，扣 574 元；6 月再領端午獎金 1 萬元（當時投保金額 40,100 元），累計已經超過，1 萬元全額扣 211 元。</p>
-    <p><b>年終通常在 1、2 月發</b>，這時是新的一年剛開始，「今年已領獎金」通常是 0。去年領過的三節獎金不會算進來。</p>
+    <div class="yb-callout"><b>實務提醒：</b>年終通常在 1、2 月發，這時是新的一年剛開始，「今年已領獎金」通常是 0。去年領過的三節獎金不會算進來。</div>
     <p class="note">月薪越高，健保投保金額越高，4 倍的門檻也越高。年終 4 個月以內、而且今年沒領過其他獎金的人，大多不用扣補充保費。</p>
   </section>
 
