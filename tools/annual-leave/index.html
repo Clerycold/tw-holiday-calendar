@@ -21,7 +21,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700;900&display=swap">
 <link rel="stylesheet" href="/assets/site.css?v=9">
-<link rel="stylesheet" href="/assets/tools/tools.css?v=10">
+<link rel="stylesheet" href="/assets/tools/tools.css?v=11">
 <script type="application/ld+json">
 {
  "@context": "https://schema.org",
@@ -141,6 +141,11 @@
 
   <section>
     <h2>特休天數計算</h2>
+
+    <div class="scen" data-for="leave">
+      <div class="scen-head"><b>常見情境</b><span>點一下帶入常見範例，也可直接改填你的實際數字</span></div>
+      <div class="scen-btns" role="group" aria-label="常見情境範例"><button type="button" aria-pressed="false" data-fill='{"hire":"@ago:6","asOf":"","used":""}'>到職滿半年</button><button type="button" aria-pressed="false" data-fill='{"hire":"@ago:12","asOf":"","used":""}'>年資滿 1 年</button><button type="button" aria-pressed="false" data-fill='{"hire":"@ago:36","asOf":"","used":""}'>年資滿 3 年</button></div>
+    </div>
     <form class="tool" data-tool="leave" autocomplete="off">
       <div class="fields">
         <label class="field">到職日<input type="date" name="hire" min="1970-01-01"></label>
@@ -151,6 +156,15 @@
       <div class="result" id="leaveOut" aria-live="polite"></div>
     </form>
     <p class="note" style="margin-top:8px">本工具以法定週年制計算；公司若採曆年制，天數分配會不同，但全年合計不得少於週年制。</p>
+    
+    <div class="read-card">
+      <div><h3>這筆結果代表什麼</h3><p>特休天數依年資級距計算：滿 6 個月 3 天、滿 1 年 7 天、滿 2 年 10 天、滿 3 年 14 天。除了天數，也要留意<b>這些特休要在什麼期間休完</b>：週年制以到職週年為一個年度，曆年制以 1/1～12/31 為一個年度，公司採哪一種會影響可休期間。</p></div>
+      <div><h3>容易踩的坑</h3><ul><li>年度終結還沒休完的特休，雇主應該發給工資；勞雇雙方也可以協商遞延到下一年度，但遞延後到下一年度終結仍沒休，一樣要折算工資。</li><li>公司採曆年制時，第一年常按比例給，天數看起來比週年制少，但長期合計不能少於法定天數。</li><li>排班制、部分工時的特休算法可能不同，請以勞動契約和公司規定為準。</li></ul></div>
+    </div>
+    <div class="next-card">
+      <h3>算完下一步</h3>
+      <div class="next-links"><a href="/#planner"><b>請假攻略計算器 →</b><small>輸入特休天數，排出 2027 最長連假</small></a><a href="/2027/qingjia/"><b>2027 全年請假攻略 →</b><small>9 個連假怎麼請最划算</small></a></div>
+    </div>
   </section>
 
   <section>
@@ -258,7 +272,7 @@
 
 <footer><a href="/about/">關於我們</a> · <a href="/privacy/">隱私權政策</a> · <a href="/disclosure/">聯盟連結揭露</a><br>放假日曆｜台灣生活資訊與免費試算工具。<br>本站試算結果僅供參考，實際金額以主管機關規定、公司制度及官方系統計算為準。</footer>
 <script src="/assets/tools/calc.js?v=12"></script>
-<script src="/assets/tools/ui.js?v=22"></script>
+<script src="/assets/tools/ui.js?v=23"></script>
 <!-- Cloudflare Web Analytics --><script type='module' src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token": "4c058fe6d8d047d290cd5fe7c73a3d15"}'></script><!-- End Cloudflare Web Analytics -->
 </body>
 </html>

@@ -976,4 +976,26 @@
     }));
     drawHist(); run();
   }
+  // ---- 常見情境按鈕（薪資實領、年終、特休、加班費共用）----
+  // 帶入欄位後送出程式產生的 input／change 事件讓工具重算；使用者自己動欄位（isTrusted）時清掉按鈕的選取狀態
+  document.querySelectorAll(".scen[data-for]").forEach(box => {
+    const form = document.querySelector(`form[data-tool="${box.dataset.for}"]`); if(!form) return;
+    const btns = box.querySelectorAll("button[data-fill]");
+    const ago = n => { const t = new Date(); const d = new Date(t.getFullYear(), t.getMonth() - n, t.getDate() - 1); return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`; };
+    box.addEventListener("click", e => {
+      const b = e.target.closest("button[data-fill]"); if(!b) return;
+      if(b.dataset.click){ const c = form.querySelector(b.dataset.click); if(c && c.getAttribute("aria-pressed") !== "true") c.click(); }
+      let fill = {}; try{ fill = JSON.parse(b.dataset.fill); }catch(err){ return; }
+      Object.entries(fill).forEach(([k, v]) => {
+        const el = form.elements[k]; if(!el) return;
+        if(el.type === "checkbox") el.checked = !!v;
+        else el.value = typeof v === "string" && v.startsWith("@ago:") ? ago(+v.slice(5)) : v;
+      });
+      form.dispatchEvent(new Event("input", {bubbles:true}));
+      form.dispatchEvent(new Event("change", {bubbles:true}));
+      btns.forEach(x => x.setAttribute("aria-pressed", String(x === b)));
+    });
+    const clear = e => { if(e.isTrusted) btns.forEach(x => x.setAttribute("aria-pressed", "false")); };
+    form.addEventListener("input", clear); form.addEventListener("change", clear);
+  });
 })();

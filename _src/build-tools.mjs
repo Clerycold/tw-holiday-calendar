@@ -51,7 +51,7 @@ ${faq.map(([q, a], i) => `    <details${i === 0 ? " open" : ""}><summary>${q}</s
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700;900&display=swap">
 <link rel="stylesheet" href="/assets/site.css?v=9">
-<link rel="stylesheet" href="/assets/tools/tools.css?v=10">
+<link rel="stylesheet" href="/assets/tools/tools.css?v=11">
 <script type="application/ld+json">
 ${JSON.stringify({ "@context": "https://schema.org", "@graph": graph }, null, 1)}
 </script>
@@ -71,7 +71,7 @@ ${path === "/tools/" ? "" : related(path)}
 
 <footer><a href="/about/">關於我們</a> · <a href="/privacy/">隱私權政策</a> · <a href="/disclosure/">聯盟連結揭露</a><br>放假日曆｜台灣生活資訊與免費試算工具。<br>${disclaimer || "本站試算結果僅供參考，實際金額以主管機關規定、公司制度及官方系統計算為準。"}</footer>
 ${scripts ? `<script src="/assets/tools/calc.js?v=12"></script>
-<script src="/assets/tools/ui.js?v=22"></script>` : ""}
+<script src="/assets/tools/ui.js?v=23"></script>` : ""}
 <!-- Cloudflare Web Analytics --><script type='module' src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token": "4c058fe6d8d047d290cd5fe7c73a3d15"}'></script><!-- End Cloudflare Web Analytics -->
 </body>
 </html>
@@ -168,6 +168,23 @@ const TOOL_GROUPS = [
 { const grouped = TOOL_GROUPS.flatMap(([, p]) => p);
   const missing = TOOLS.map(t => t.path).filter(u => !grouped.includes(u));
   if (missing.length) throw new Error("TOOL_GROUPS 缺少：" + missing.join(", ")); }
+// ---- 常見情境、白話判讀、算完下一步（薪資實領、年終、特休、加班費共用） ----
+// fill：要帶入的欄位 {name: 值}；"@ago:N" 會在瀏覽器換成「今天往前 N 個月再多 1 天」的日期（確保已滿 N 個月）
+// click：帶入前先點的按鈕（例如年終頁切回「依月數計算」）
+const scen = (tool, items) => `
+    <div class="scen" data-for="${tool}">
+      <div class="scen-head"><b>常見情境</b><span>點一下帶入常見範例，也可直接改填你的實際數字</span></div>
+      <div class="scen-btns" role="group" aria-label="常見情境範例">${items.map(([label, fill, click]) => `<button type="button" aria-pressed="false" data-fill='${JSON.stringify(fill)}'${click ? ` data-click='${click}'` : ""}>${label}</button>`).join("")}</div>
+    </div>`;
+const guide = (meaning, pitfalls, links) => `
+    <div class="read-card">
+      <div><h3>這筆結果代表什麼</h3><p>${meaning}</p></div>
+      <div><h3>容易踩的坑</h3><ul>${pitfalls.map(x => `<li>${x}</li>`).join("")}</ul></div>
+    </div>
+    <div class="next-card">
+      <h3>算完下一步</h3>
+      <div class="next-links">${links.map(([u, n, d]) => `<a href="${u}"><b>${n} →</b><small>${d}</small></a>`).join("")}</div>
+    </div>`;
 const field = (name, label, attrs = "") => `<label class="field">${label}<input name="${name}" inputmode="numeric" ${attrs}></label>`;
 const dl = (file, name, what) => `<div class="dl"><a href="/downloads/${file}" download="${name}">⬇ 下載 Excel 範本</a><span>${what}</span></div>`;
 const formula = (id, text) => `<div class="formula"><code id="${id}">${text}</code><button type="button" class="copy" data-copy="${id}">複製</button></div>`;
@@ -370,6 +387,7 @@ const leave = page({
 
   <section>
     <h2>特休天數計算</h2>
+${scen("leave", [["到職滿半年", {"hire": "@ago:6", "asOf": "", "used": ""}], ["年資滿 1 年", {"hire": "@ago:12", "asOf": "", "used": ""}], ["年資滿 3 年", {"hire": "@ago:36", "asOf": "", "used": ""}]])}
     <form class="tool" data-tool="leave" autocomplete="off">
       <div class="fields">
         <label class="field">到職日<input type="date" name="hire" min="1970-01-01"></label>
@@ -380,6 +398,7 @@ const leave = page({
       <div class="result" id="leaveOut" aria-live="polite"></div>
     </form>
     <p class="note" style="margin-top:8px">本工具以法定週年制計算；公司若採曆年制，天數分配會不同，但全年合計不得少於週年制。</p>
+    ${guide("特休天數依年資級距計算：滿 6 個月 3 天、滿 1 年 7 天、滿 2 年 10 天、滿 3 年 14 天。除了天數，也要留意<b>這些特休要在什麼期間休完</b>：週年制以到職週年為一個年度，曆年制以 1/1～12/31 為一個年度，公司採哪一種會影響可休期間。", ["年度終結還沒休完的特休，雇主應該發給工資；勞雇雙方也可以協商遞延到下一年度，但遞延後到下一年度終結仍沒休，一樣要折算工資。", "公司採曆年制時，第一年常按比例給，天數看起來比週年制少，但長期合計不能少於法定天數。", "排班制、部分工時的特休算法可能不同，請以勞動契約和公司規定為準。"], [["/#planner", "請假攻略計算器", "輸入特休天數，排出 2027 最長連假"], ["/2027/qingjia/", "2027 全年請假攻略", "9 個連假怎麼請最划算"]])}
   </section>
 
   <section>
@@ -451,6 +470,7 @@ const overtime = page({
 
   <section>
     <h2>加班費試算</h2>
+${scen("overtime", [["平日加班 2 小時（月薪 4.5 萬）", {"allow": "", "wdH": "2", "wdN": "1", "rdH": "", "rdN": "1", "hdH": "", "hdN": "1", "salary": "45000"}], ["休息日加班 4 小時（月薪 5 萬）", {"allow": "", "wdH": "", "wdN": "1", "rdH": "4", "rdN": "1", "hdH": "", "hdN": "1", "salary": "50000"}], ["國定假日出勤 8 小時（月薪 4.5 萬）", {"allow": "", "wdH": "", "wdN": "1", "rdH": "", "rdN": "1", "hdH": "8", "hdN": "1", "salary": "45000"}]])}
     <form class="tool" data-tool="overtime" autocomplete="off">
       <div class="fields">${field("salary", "月薪（本薪，元）", 'placeholder="例如 36000"')}${field("allow", "每月固定津貼（選填）")}</div>
       <fieldset>
@@ -468,6 +488,7 @@ const overtime = page({
       <div class="result" id="otOut" aria-live="polite"></div>
     </form>
     <p class="note" style="margin-top:8px">本工具適用一般月薪制勞工；變形工時、責任制或排班制行業規定不同，請以勞動契約及勞動部說明為準。</p>
+    ${guide("工具會先把月薪（加上固定津貼）÷ 240，換算成<b>平日每小時工資額</b>，再依加班日別乘上倍率：平日前 2 小時 1⅓ 倍、再 2 小時 1⅔ 倍；休息日前 2 小時 1⅓ 倍、第 3 小時起 1⅔ 倍；國定假日出勤另外加發一日工資。", ["換算時薪用的是經常性給與（本薪＋固定津貼），年終、三節獎金這類非經常性給與不算進去。", "休息日加班依<b>實際工作時數</b>計算；2018 年修法後，已經取消「做 1 小時算 4 小時」的規定。", "想換補休要由勞工選擇、雇主同意，依加班時數換算補休時數；補休期限到了還沒休完，雇主要依加班當日的標準發給加班費。"], [["/tools/workdays/", "工作天數計算", "這個月有幾個工作天，扣掉國定假日"], ["/tools/take-home-pay/", "薪資實領計算", "把加班費加進來，看這個月實領多少"]])}
   </section>
 
   <section>
@@ -756,6 +777,7 @@ const takeHome = page({
 
   <section>
     <h2>薪資實領試算</h2>
+${scen("pay", [["新鮮人月薪 3.5 萬", {"overtime": "", "bonus": "", "bonusYTD": "", "deps": "0", "selfPct": "0", "taxMethod": "table", "taxManual": "", "other": "", "noEI": false, "salary": "35000"}], ["一般上班族 5 萬", {"overtime": "", "bonus": "", "bonusYTD": "", "deps": "0", "selfPct": "0", "taxMethod": "table", "taxManual": "", "other": "", "noEI": false, "salary": "50000"}], ["進階薪資 8 萬", {"overtime": "", "bonus": "", "bonusYTD": "", "deps": "0", "selfPct": "0", "taxMethod": "table", "taxManual": "", "other": "", "noEI": false, "salary": "80000"}]])}
     <form class="tool" data-tool="pay" autocomplete="off">
       <fieldset>
         <legend>本月應發</legend>
@@ -780,6 +802,7 @@ const takeHome = page({
       <div class="result" id="payOut" aria-live="polite"></div>
     </form>
     <p class="note" style="margin-top:8px">依 115 年勞健保級距、財政部薪資扣繳規定計算，適用一般全職受僱勞工。計算都在你的瀏覽器裡完成。</p>
+    ${guide("實領是應發薪資扣掉<b>你自己負擔</b>的勞保、就保、健保、勞退自提（有選才扣）和所得稅預扣後，真正匯進戶頭的金額。雇主負擔的保費和勞退 6% 不會從薪水扣。伙食津貼在免稅額度內不計入薪資所得；加班費、獎金另外計算，填在上方欄位就會一起算進來。", ["勞退自提會讓當月實領變少，但自提的金額可以從當年度綜合所得總額中全數扣除，等於延後課稅。", "勞健保是依「投保薪資級距」計算，不一定等於月薪：例如月薪 40,000 元的投保薪資是 40,100 元。", "薪資單上的所得稅是預扣，不是最後稅額，隔年 5 月報稅時多退少補。"], [["/tools/year-end-bonus/", "年終獎金計算", "年終扣 5% 稅、補充保費後實拿多少"], ["/tools/insurance/", "勞健保費計算機", "看投保級距、雇主負擔與勞退提繳"]])}
   </section>
 
 
@@ -860,6 +883,7 @@ const bonusPage = page({
 
   <section>
     <h2>年終獎金試算</h2>
+${scen("bonus", [["年終 1 個月（月薪 4.5 萬基準）", {"worked": "12", "amount": "", "ytd": "", "grade": "", "salary": "45000", "months": "1"}, "[data-yb-mode=\"months\"]"], ["年終 1.5 個月（月薪 5 萬基準）", {"worked": "12", "amount": "", "ytd": "", "grade": "", "salary": "50000", "months": "1.5"}, "[data-yb-mode=\"months\"]"], ["年終 3 個月（月薪 6 萬基準）", {"worked": "12", "amount": "", "ytd": "", "grade": "", "salary": "60000", "months": "3"}, "[data-yb-mode=\"months\"]"]])}
     <form class="tool yb-tool" data-tool="bonus" autocomplete="off">
       <div class="yb-grid">
         <div class="yb-inputs">
@@ -893,6 +917,7 @@ const bonusPage = page({
         </div>
       </div>
     </form>
+    ${guide("年終實拿 ＝ 年終金額 − 所得稅預扣 − 補充保費。所得稅看<b>單次發放金額</b>有沒有達到起扣標準（115 年度 90,501 元，達到就扣 5%）；補充保費看<b>今年累計領的獎金</b>有沒有超過健保投保金額 4 倍，不是看單次金額。所以同樣的年終，一次發或分次發，預扣的金額可能不一樣。", ["預扣的 5% 不是最後稅負，隔年 5 月報稅時年終會併入綜合所得結算，扣多退、扣少補。", "分次發放可能每次都沒達到起扣標準而不預扣，但全年所得不變，報稅時一樣要繳。", "補充保費是全年累計：今年已經領過三節獎金，年終可能被扣更多。實際金額以公司的薪資單和扣繳憑單為準。"], [["/tools/income-tax/", "所得稅試算", "算全年稅額，看年終會不會讓你多繳"], ["/tools/take-home-pay/", "薪資實領計算", "每月薪水扣完勞健保、所得稅剩多少"]])}
   </section>
 
   <section>

@@ -21,7 +21,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700;900&display=swap">
 <link rel="stylesheet" href="/assets/site.css?v=9">
-<link rel="stylesheet" href="/assets/tools/tools.css?v=10">
+<link rel="stylesheet" href="/assets/tools/tools.css?v=11">
 <script type="application/ld+json">
 {
  "@context": "https://schema.org",
@@ -149,6 +149,11 @@
 
   <section>
     <h2>薪資實領試算</h2>
+
+    <div class="scen" data-for="pay">
+      <div class="scen-head"><b>常見情境</b><span>點一下帶入常見範例，也可直接改填你的實際數字</span></div>
+      <div class="scen-btns" role="group" aria-label="常見情境範例"><button type="button" aria-pressed="false" data-fill='{"overtime":"","bonus":"","bonusYTD":"","deps":"0","selfPct":"0","taxMethod":"table","taxManual":"","other":"","noEI":false,"salary":"35000"}'>新鮮人月薪 3.5 萬</button><button type="button" aria-pressed="false" data-fill='{"overtime":"","bonus":"","bonusYTD":"","deps":"0","selfPct":"0","taxMethod":"table","taxManual":"","other":"","noEI":false,"salary":"50000"}'>一般上班族 5 萬</button><button type="button" aria-pressed="false" data-fill='{"overtime":"","bonus":"","bonusYTD":"","deps":"0","selfPct":"0","taxMethod":"table","taxManual":"","other":"","noEI":false,"salary":"80000"}'>進階薪資 8 萬</button></div>
+    </div>
     <form class="tool" data-tool="pay" autocomplete="off">
       <fieldset>
         <legend>本月應發</legend>
@@ -173,6 +178,15 @@
       <div class="result" id="payOut" aria-live="polite"></div>
     </form>
     <p class="note" style="margin-top:8px">依 115 年勞健保級距、財政部薪資扣繳規定計算，適用一般全職受僱勞工。計算都在你的瀏覽器裡完成。</p>
+    
+    <div class="read-card">
+      <div><h3>這筆結果代表什麼</h3><p>實領是應發薪資扣掉<b>你自己負擔</b>的勞保、就保、健保、勞退自提（有選才扣）和所得稅預扣後，真正匯進戶頭的金額。雇主負擔的保費和勞退 6% 不會從薪水扣。伙食津貼在免稅額度內不計入薪資所得；加班費、獎金另外計算，填在上方欄位就會一起算進來。</p></div>
+      <div><h3>容易踩的坑</h3><ul><li>勞退自提會讓當月實領變少，但自提的金額可以從當年度綜合所得總額中全數扣除，等於延後課稅。</li><li>勞健保是依「投保薪資級距」計算，不一定等於月薪：例如月薪 40,000 元的投保薪資是 40,100 元。</li><li>薪資單上的所得稅是預扣，不是最後稅額，隔年 5 月報稅時多退少補。</li></ul></div>
+    </div>
+    <div class="next-card">
+      <h3>算完下一步</h3>
+      <div class="next-links"><a href="/tools/year-end-bonus/"><b>年終獎金計算 →</b><small>年終扣 5% 稅、補充保費後實拿多少</small></a><a href="/tools/insurance/"><b>勞健保費計算機 →</b><small>看投保級距、雇主負擔與勞退提繳</small></a></div>
+    </div>
   </section>
 
 
@@ -292,7 +306,7 @@
 
 <footer><a href="/about/">關於我們</a> · <a href="/privacy/">隱私權政策</a> · <a href="/disclosure/">聯盟連結揭露</a><br>放假日曆｜台灣生活資訊與免費試算工具。<br>本站試算結果僅供參考，實際金額以主管機關規定、公司制度及官方系統計算為準。</footer>
 <script src="/assets/tools/calc.js?v=12"></script>
-<script src="/assets/tools/ui.js?v=22"></script>
+<script src="/assets/tools/ui.js?v=23"></script>
 <!-- Cloudflare Web Analytics --><script type='module' src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token": "4c058fe6d8d047d290cd5fe7c73a3d15"}'></script><!-- End Cloudflare Web Analytics -->
 </body>
 </html>

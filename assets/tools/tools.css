@@ -127,3 +127,27 @@
 .fx-more-btn,.fx-acts .copy,.fx-rate-tools .copy{min-height:44px}
 .fx-tool input,[data-tool^="fx"] input,[data-tool^="fx"] .num,[data-tool^="fx"] .kv dd,.fx-dir-txt{font-variant-numeric:tabular-nums}
 @media (max-width:400px){.fx-tool .fields{grid-template-columns:minmax(0,1fr)}}
+/* 常見情境、白話判讀、算完下一步（薪資實領、年終、特休、加班費） */
+.scen{display:grid;gap:8px;margin-bottom:12px;padding:12px 14px;border:1px solid var(--rule);border-radius:10px;background:var(--leave-soft)}
+.scen-head{display:flex;flex-wrap:wrap;align-items:baseline;gap:4px 10px}
+.scen-head b{color:var(--leave);font-size:.95rem}
+.scen-head span{color:var(--muted);font-size:.85rem}
+.scen-btns{display:flex;flex-wrap:wrap;gap:8px}
+.scen-btns button{font:inherit;font-size:.9rem;min-height:44px;padding:6px 14px;border:1px solid var(--rule);border-radius:999px;background:var(--sheet);color:var(--ink);cursor:pointer;text-align:left;line-height:1.35}
+.scen-btns button:hover{border-color:var(--leave);color:var(--leave)}
+.scen-btns button[aria-pressed="true"]{background:var(--leave);border-color:var(--leave);color:var(--on-brand,#fff);font-weight:700}
+.read-card{display:grid;gap:12px;margin-top:14px;grid-template-columns:minmax(0,1fr)}
+.read-card > div{border:1px solid var(--rule);border-radius:10px;background:var(--sheet);padding:14px 16px}
+.read-card > div:first-child{border-left:4px solid var(--leave)}
+.read-card > div:last-child{border-left:4px solid var(--makeup)}
+.read-card h3,.next-card h3{margin:0 0 6px;font-size:1rem;font-family:var(--f-display)}
+.read-card p{margin:0;line-height:1.75;max-width:none}
+.read-card ul{margin:0;padding-left:1.2em;line-height:1.75}
+.read-card li + li{margin-top:4px}
+.next-card{margin-top:12px;border-radius:10px;background:var(--leave-soft);padding:14px 16px}
+.next-links{display:grid;gap:8px;grid-template-columns:minmax(0,1fr)}
+.next-links a{display:grid;gap:2px;min-height:44px;padding:10px 14px;border:1px solid var(--rule);border-radius:8px;background:var(--sheet);color:var(--ink);text-decoration:none}
+.next-links a:hover{border-color:var(--leave)}
+.next-links b{color:var(--leave)}
+.next-links small{color:var(--muted);font-size:.82rem}
+@media (min-width:641px){.read-card,.next-links{grid-template-columns:repeat(2,minmax(0,1fr))}}

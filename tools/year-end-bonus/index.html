@@ -21,7 +21,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700;900&display=swap">
 <link rel="stylesheet" href="/assets/site.css?v=9">
-<link rel="stylesheet" href="/assets/tools/tools.css?v=10">
+<link rel="stylesheet" href="/assets/tools/tools.css?v=11">
 <script type="application/ld+json">
 {
  "@context": "https://schema.org",
@@ -149,6 +149,11 @@
 
   <section>
     <h2>年終獎金試算</h2>
+
+    <div class="scen" data-for="bonus">
+      <div class="scen-head"><b>常見情境</b><span>點一下帶入常見範例，也可直接改填你的實際數字</span></div>
+      <div class="scen-btns" role="group" aria-label="常見情境範例"><button type="button" aria-pressed="false" data-fill='{"worked":"12","amount":"","ytd":"","grade":"","salary":"45000","months":"1"}' data-click='[data-yb-mode="months"]'>年終 1 個月（月薪 4.5 萬基準）</button><button type="button" aria-pressed="false" data-fill='{"worked":"12","amount":"","ytd":"","grade":"","salary":"50000","months":"1.5"}' data-click='[data-yb-mode="months"]'>年終 1.5 個月（月薪 5 萬基準）</button><button type="button" aria-pressed="false" data-fill='{"worked":"12","amount":"","ytd":"","grade":"","salary":"60000","months":"3"}' data-click='[data-yb-mode="months"]'>年終 3 個月（月薪 6 萬基準）</button></div>
+    </div>
     <form class="tool yb-tool" data-tool="bonus" autocomplete="off">
       <div class="yb-grid">
         <div class="yb-inputs">
@@ -182,6 +187,15 @@
         </div>
       </div>
     </form>
+    
+    <div class="read-card">
+      <div><h3>這筆結果代表什麼</h3><p>年終實拿 ＝ 年終金額 − 所得稅預扣 − 補充保費。所得稅看<b>單次發放金額</b>有沒有達到起扣標準（115 年度 90,501 元，達到就扣 5%）；補充保費看<b>今年累計領的獎金</b>有沒有超過健保投保金額 4 倍，不是看單次金額。所以同樣的年終，一次發或分次發，預扣的金額可能不一樣。</p></div>
+      <div><h3>容易踩的坑</h3><ul><li>預扣的 5% 不是最後稅負，隔年 5 月報稅時年終會併入綜合所得結算，扣多退、扣少補。</li><li>分次發放可能每次都沒達到起扣標準而不預扣，但全年所得不變，報稅時一樣要繳。</li><li>補充保費是全年累計：今年已經領過三節獎金，年終可能被扣更多。實際金額以公司的薪資單和扣繳憑單為準。</li></ul></div>
+    </div>
+    <div class="next-card">
+      <h3>算完下一步</h3>
+      <div class="next-links"><a href="/tools/income-tax/"><b>所得稅試算 →</b><small>算全年稅額，看年終會不會讓你多繳</small></a><a href="/tools/take-home-pay/"><b>薪資實領計算 →</b><small>每月薪水扣完勞健保、所得稅剩多少</small></a></div>
+    </div>
   </section>
 
   <section>
@@ -317,7 +331,7 @@
 
 <footer><a href="/about/">關於我們</a> · <a href="/privacy/">隱私權政策</a> · <a href="/disclosure/">聯盟連結揭露</a><br>放假日曆｜台灣生活資訊與免費試算工具。<br>本站試算結果僅供參考，實際金額以主管機關規定、公司制度及官方系統計算為準。</footer>
 <script src="/assets/tools/calc.js?v=12"></script>
-<script src="/assets/tools/ui.js?v=22"></script>
+<script src="/assets/tools/ui.js?v=23"></script>
 <!-- Cloudflare Web Analytics --><script type='module' src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token": "4c058fe6d8d047d290cd5fe7c73a3d15"}'></script><!-- End Cloudflare Web Analytics -->
 </body>
 </html>
