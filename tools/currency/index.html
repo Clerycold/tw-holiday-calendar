@@ -21,7 +21,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700;900&display=swap">
 <link rel="stylesheet" href="/assets/site.css?v=9">
-<link rel="stylesheet" href="/assets/tools/tools.css?v=8">
+<link rel="stylesheet" href="/assets/tools/tools.css?v=10">
 <script type="application/ld+json">
 {
  "@context": "https://schema.org",
@@ -199,7 +199,7 @@
         <input type="hidden" name="dir" value="to-twd">
         <div class="fx-dir">
           <span class="fx-dir-txt" id="fxDirTxt">日圓 → 新台幣</span>
-          <button type="button" class="fx-swap" id="fxSwap" aria-label="切換換算方向">⇄ 切換方向</button>
+          <button type="button" class="fx-swap" id="fxSwap"><span aria-hidden="true">⇄ </span>切換方向</button>
         </div>
       </fieldset>
       <div class="fields">
@@ -210,7 +210,8 @@
           <div class="fx-rate-tools"><button type="button" class="copy" id="fxRateReset" hidden>改回參考匯率</button><span class="note" id="fxKindNote"></span></div>
         </div>
       </div>
-      <div class="result fx-result" id="fxOut" aria-live="polite"></div>
+      <div class="result fx-result" id="fxOut"></div>
+      <p class="sr-only" id="fxLive" aria-live="polite"></p>
     </form>
     <p class="note" style="margin-top:8px">頁面只會向匯率資料來源下載公開匯率，你輸入的金額和銀行匯率只存在你的瀏覽器裡，不會傳出去。</p>
   </section>
@@ -317,9 +318,9 @@
       </tbody>
     </table></div>
   </section>
-  <section>
+  <section class="faq">
     <h2>常見問題</h2>
-    <details><summary>這裡的匯率和銀行一樣嗎？</summary><p>不一樣。預設帶入的是國際市場參考匯率（中間價，每天更新一次），不是任何銀行的牌告。銀行換匯會再加上買賣價差，要精準換算，請把匯率類型改成「銀行現金」或「銀行即期」，填入銀行牌告匯率。</p></details>
+    <details open><summary>這裡的匯率和銀行一樣嗎？</summary><p>不一樣。預設帶入的是國際市場參考匯率（中間價，每天更新一次），不是任何銀行的牌告。銀行換匯會再加上買賣價差，要精準換算，請把匯率類型改成「銀行現金」或「銀行即期」，填入銀行牌告匯率。</p></details>
     <details><summary>銀行的買入、賣出匯率要看哪一個？</summary><p>站在銀行的角度看：你拿台幣去買外幣，看銀行的「賣出」匯率；你把外幣換回台幣，看銀行的「買入」匯率。賣出匯率比較高、買入比較低，中間的差價就是換匯成本。</p></details>
     <details><summary>現金匯率和即期匯率差在哪？</summary><p>現金匯率是換實體鈔票用的，銀行要負擔運鈔、保管成本，價差比較大；即期匯率用在外幣帳戶之間轉帳，價差比較小。只有要拿現金出國時才需要用現金匯率。</p></details>
     <details><summary>怎麼比較哪一家銀行換匯比較划算？</summary><p>用頁面上的「銀行換匯成本比較」，填入要換的外幣金額和各家銀行的牌告匯率、手續費，就會算出各家需要付多少台幣、哪一家最划算。只比匯率不夠，有些銀行或通路另外收手續費。</p></details>
@@ -337,29 +338,49 @@
   </section>
   <section>
     <h2>其他試算工具</h2>
-    <div class="related">
-      <a href="/tools/income-tax/">所得稅試算<small>115 年度綜所稅，明年 5 月報稅用</small></a>
-      <a href="/tools/annual-leave/">特休計算機<small>輸入到職日，算出今年有幾天特休</small></a>
-      <a href="/tools/overtime/">加班費計算機<small>平日、休息日、國定假日加班費</small></a>
-      <a href="/tools/workdays/">工作天數計算<small>扣掉國定假日＋Excel NETWORKDAYS 公式</small></a>
-      <a href="/tools/insurance/">勞健保費計算機<small>勞保、健保、勞退每月扣多少</small></a>
-      <a href="/tools/take-home-pay/">薪資實領計算<small>月薪扣完勞健保、所得稅實際入帳多少</small></a>
-      <a href="/tools/year-end-bonus/">年終獎金計算<small>年終扣稅 5%、補充保費，實拿多少</small></a>
-      <a href="/tools/severance/">資遣費計算<small>新制、舊制、新舊制併用資遣費</small></a>
-      <a href="/tools/pension/">勞退退休金試算<small>勞退專戶退休時累積多少、月領多少</small></a>
-      <a href="/tools/labor-insurance-pension/">勞保老年年金試算<small>勞保年金月領多少，加上勞退看退休月收入</small></a>
-      <a href="/tools/loan/">房貸、信貸試算<small>每月還多少、總利息、寬限期</small></a>
-      <a href="/tools/interest/">存款利息計算<small>定存、存本取息、零存整付利息</small></a>
-      <a href="/tools/unit/">單位換算<small>坪、台斤、吋等台灣常用單位</small></a>
-      <a href="/#planner">請假計算器<small>輸入特休天數，排出最長連休</small></a>
-      <a href="/2027/qingjia/">2027 全年請假攻略<small>9 個連假一次排好</small></a>
+    <div class="tool-groups">
+      <div class="tool-group">
+        <h3>旅遊與排假規劃</h3>
+        <div class="tg-links">
+          <a href="/#planner">請假計算器<small>輸入特休天數，排出最長連休</small></a>
+          <a href="/2027/qingjia/">2027 全年請假攻略<small>9 個連假一次排好</small></a>
+          <a href="/tools/workdays/">工作天數計算<small>扣掉國定假日＋Excel NETWORKDAYS 公式</small></a>
+          <a href="/tools/unit/">單位換算<small>坪、台斤、吋等台灣常用單位</small></a>
+        </div>
+      </div>
+      <div class="tool-group">
+        <h3>薪資與假別計算</h3>
+        <div class="tg-links">
+          <a href="/tools/annual-leave/">特休計算機<small>輸入到職日，算出今年有幾天特休</small></a>
+          <a href="/tools/overtime/">加班費計算機<small>平日、休息日、國定假日加班費</small></a>
+          <a href="/tools/insurance/">勞健保費計算機<small>勞保、健保、勞退每月扣多少</small></a>
+          <a href="/tools/take-home-pay/">薪資實領計算<small>月薪扣完勞健保、所得稅實際入帳多少</small></a>
+          <a href="/tools/year-end-bonus/">年終獎金計算<small>年終扣稅 5%、補充保費，實拿多少</small></a>
+        </div>
+      </div>
+      <div class="tool-group">
+        <h3>退休與離職試算</h3>
+        <div class="tg-links">
+          <a href="/tools/severance/">資遣費計算<small>新制、舊制、新舊制併用資遣費</small></a>
+          <a href="/tools/pension/">勞退退休金試算<small>勞退專戶退休時累積多少、月領多少</small></a>
+          <a href="/tools/labor-insurance-pension/">勞保老年年金試算<small>勞保年金月領多少，加上勞退看退休月收入</small></a>
+        </div>
+      </div>
+      <div class="tool-group">
+        <h3>稅務與借貸存款</h3>
+        <div class="tg-links">
+          <a href="/tools/income-tax/">所得稅試算<small>115 年度綜所稅，明年 5 月報稅用</small></a>
+          <a href="/tools/loan/">房貸、信貸試算<small>每月還多少、總利息、寬限期</small></a>
+          <a href="/tools/interest/">存款利息計算<small>定存、存本取息、零存整付利息</small></a>
+        </div>
+      </div>
     </div>
   </section>
 </main>
 
 <footer><a href="/about/">關於我們</a> · <a href="/privacy/">隱私權政策</a> · <a href="/disclosure/">聯盟連結揭露</a><br>放假日曆｜台灣生活資訊與免費試算工具。<br>本工具試算結果僅供參考。市場參考匯率不是銀行牌告，實際換匯金額、手續費與刷卡入帳金額，以銀行及發卡機構公告為準。</footer>
 <script src="/assets/tools/calc.js?v=12"></script>
-<script src="/assets/tools/ui.js?v=21"></script>
+<script src="/assets/tools/ui.js?v=22"></script>
 <!-- Cloudflare Web Analytics --><script type='module' src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token": "4c058fe6d8d047d290cd5fe7c73a3d15"}'></script><!-- End Cloudflare Web Analytics -->
 </body>
 </html>

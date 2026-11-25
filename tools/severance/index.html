@@ -21,7 +21,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700;900&display=swap">
 <link rel="stylesheet" href="/assets/site.css?v=9">
-<link rel="stylesheet" href="/assets/tools/tools.css?v=8">
+<link rel="stylesheet" href="/assets/tools/tools.css?v=10">
 <script type="application/ld+json">
 {
  "@context": "https://schema.org",
@@ -246,9 +246,9 @@
     <div class="formula"><code id="sevFormula">=ROUND(D2*MIN(6,(DATEDIF(B2,C2+1,"m")+(C2+1-EDATE(B2,DATEDIF(B2,C2+1,"m")))/30)/12*0.5),0)</code><button type="button" class="copy" data-copy="sevFormula">複製</button></div>
     <p style="margin-top:12px">C2+1 是因為年資要算到離職日當天。範本裡用的是更完整的寫法，月底到職等特殊日期也能正確計算。</p>
   </section>
-  <section>
+  <section class="faq">
     <h2>常見問題</h2>
-    <details><summary>資遣費怎麼算？</summary><p>新制每滿 1 年給 0.5 個月平均工資，未滿 1 年按比例計算，最多 6 個月；舊制每滿 1 年給 1 個月平均工資，沒有上限。2005 年 7 月 1 日以後到職的人都是新制。</p></details>
+    <details open><summary>資遣費怎麼算？</summary><p>新制每滿 1 年給 0.5 個月平均工資，未滿 1 年按比例計算，最多 6 個月；舊制每滿 1 年給 1 個月平均工資，沒有上限。2005 年 7 月 1 日以後到職的人都是新制。</p></details>
     <details><summary>平均工資包含哪些？</summary><p>離職前 6 個月內的工資總額，包括本薪、固定津貼、加班費、全勤獎金等經常性給與；年終獎金、三節獎金這類非經常性給與不算。</p></details>
     <details><summary>新制資遣費最多可以拿多少？</summary><p>最多 6 個月平均工資。新制每年 0.5 個月，所以年資滿 12 年就到上限，之後年資再多也是 6 個月。</p></details>
     <details><summary>資遣費什麼時候要發？</summary><p>公司要在勞動契約終止後 30 日內發給資遣費。另外要提前預告：年資 3 個月以上未滿 1 年 10 天、1 年以上未滿 3 年 20 天、3 年以上 30 天；沒有預告的話，要給付預告期間的工資。</p></details>
@@ -258,29 +258,49 @@
 
   <section>
     <h2>其他試算工具</h2>
-    <div class="related">
-      <a href="/tools/income-tax/">所得稅試算<small>115 年度綜所稅，明年 5 月報稅用</small></a>
-      <a href="/tools/annual-leave/">特休計算機<small>輸入到職日，算出今年有幾天特休</small></a>
-      <a href="/tools/overtime/">加班費計算機<small>平日、休息日、國定假日加班費</small></a>
-      <a href="/tools/workdays/">工作天數計算<small>扣掉國定假日＋Excel NETWORKDAYS 公式</small></a>
-      <a href="/tools/insurance/">勞健保費計算機<small>勞保、健保、勞退每月扣多少</small></a>
-      <a href="/tools/take-home-pay/">薪資實領計算<small>月薪扣完勞健保、所得稅實際入帳多少</small></a>
-      <a href="/tools/year-end-bonus/">年終獎金計算<small>年終扣稅 5%、補充保費，實拿多少</small></a>
-      <a href="/tools/pension/">勞退退休金試算<small>勞退專戶退休時累積多少、月領多少</small></a>
-      <a href="/tools/labor-insurance-pension/">勞保老年年金試算<small>勞保年金月領多少，加上勞退看退休月收入</small></a>
-      <a href="/tools/loan/">房貸、信貸試算<small>每月還多少、總利息、寬限期</small></a>
-      <a href="/tools/interest/">存款利息計算<small>定存、存本取息、零存整付利息</small></a>
-      <a href="/tools/currency/">匯率換算<small>日圓、美元、韓元換台幣多少</small></a>
-      <a href="/tools/unit/">單位換算<small>坪、台斤、吋等台灣常用單位</small></a>
-      <a href="/#planner">請假計算器<small>輸入特休天數，排出最長連休</small></a>
-      <a href="/2027/qingjia/">2027 全年請假攻略<small>9 個連假一次排好</small></a>
+    <div class="tool-groups">
+      <div class="tool-group">
+        <h3>旅遊與排假規劃</h3>
+        <div class="tg-links">
+          <a href="/#planner">請假計算器<small>輸入特休天數，排出最長連休</small></a>
+          <a href="/2027/qingjia/">2027 全年請假攻略<small>9 個連假一次排好</small></a>
+          <a href="/tools/workdays/">工作天數計算<small>扣掉國定假日＋Excel NETWORKDAYS 公式</small></a>
+          <a href="/tools/currency/">匯率換算<small>日圓、美元、韓元換台幣多少</small></a>
+          <a href="/tools/unit/">單位換算<small>坪、台斤、吋等台灣常用單位</small></a>
+        </div>
+      </div>
+      <div class="tool-group">
+        <h3>薪資與假別計算</h3>
+        <div class="tg-links">
+          <a href="/tools/annual-leave/">特休計算機<small>輸入到職日，算出今年有幾天特休</small></a>
+          <a href="/tools/overtime/">加班費計算機<small>平日、休息日、國定假日加班費</small></a>
+          <a href="/tools/insurance/">勞健保費計算機<small>勞保、健保、勞退每月扣多少</small></a>
+          <a href="/tools/take-home-pay/">薪資實領計算<small>月薪扣完勞健保、所得稅實際入帳多少</small></a>
+          <a href="/tools/year-end-bonus/">年終獎金計算<small>年終扣稅 5%、補充保費，實拿多少</small></a>
+        </div>
+      </div>
+      <div class="tool-group">
+        <h3>退休與離職試算</h3>
+        <div class="tg-links">
+          <a href="/tools/pension/">勞退退休金試算<small>勞退專戶退休時累積多少、月領多少</small></a>
+          <a href="/tools/labor-insurance-pension/">勞保老年年金試算<small>勞保年金月領多少，加上勞退看退休月收入</small></a>
+        </div>
+      </div>
+      <div class="tool-group">
+        <h3>稅務與借貸存款</h3>
+        <div class="tg-links">
+          <a href="/tools/income-tax/">所得稅試算<small>115 年度綜所稅，明年 5 月報稅用</small></a>
+          <a href="/tools/loan/">房貸、信貸試算<small>每月還多少、總利息、寬限期</small></a>
+          <a href="/tools/interest/">存款利息計算<small>定存、存本取息、零存整付利息</small></a>
+        </div>
+      </div>
     </div>
   </section>
 </main>
 
 <footer><a href="/about/">關於我們</a> · <a href="/privacy/">隱私權政策</a> · <a href="/disclosure/">聯盟連結揭露</a><br>放假日曆｜台灣生活資訊與免費試算工具。<br>本站試算結果僅供參考，實際金額以主管機關規定、公司制度及官方系統計算為準。</footer>
 <script src="/assets/tools/calc.js?v=12"></script>
-<script src="/assets/tools/ui.js?v=21"></script>
+<script src="/assets/tools/ui.js?v=22"></script>
 <!-- Cloudflare Web Analytics --><script type='module' src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token": "4c058fe6d8d047d290cd5fe7c73a3d15"}'></script><!-- End Cloudflare Web Analytics -->
 </body>
 </html>

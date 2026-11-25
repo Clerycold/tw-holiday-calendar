@@ -712,7 +712,15 @@
     // 內部全程不四捨五入，只在顯示時依幣別格式化
     const fmtC = (v, code) => v.toLocaleString("zh-TW", {maximumFractionDigits: code === "TWD" ? 2 : NODEC.has(code) ? 0 : 2});
     const fmtR = v => (+v.toPrecision(6)).toLocaleString("zh-TW", {maximumFractionDigits: 6});
-    const dec = el => { const t = String(el.value).replace(/[,\s]/g,""); return t === "" ? null : Number(t); };
+    const dec = el => { const t = String(el.value).replace(/[,\s]/g,""); return t === "" ? null : /^(\d+\.?\d*|\.\d+)$/.test(t) ? Number(t) : NaN; };
+    const decOr = (el, d) => { const v = dec(el); return v === null || isNaN(v) ? d : v; };
+    const fmtIn = v => v.toLocaleString("zh-TW", {maximumFractionDigits: 2});   // 使用者輸入的金額照原樣顯示，不依幣別捨去小數
+    // 複製：clipboard API 不能用時（舊瀏覽器、權限被拒）退回 execCommand
+    const copyText = (text, b, label) => {
+      const done = ok => { b.textContent = ok ? "已複製" : "複製失敗，請手動選取"; setTimeout(() => b.textContent = label, 1500); };
+      const legacy = () => { try{ const t = document.createElement("textarea"); t.value = text; t.setAttribute("readonly", ""); t.style.position = "fixed"; t.style.opacity = "0"; document.body.appendChild(t); t.select(); const ok = document.execCommand("copy"); t.remove(); done(ok); }catch(e){ done(false); } };
+      if(navigator.clipboard && window.isSecureContext) navigator.clipboard.writeText(text).then(() => done(true), legacy); else legacy();
+    };
     const tpe = u => new Date(u*1000).toLocaleString("zh-TW", {timeZone:"Asia/Taipei", year:"numeric", month:"numeric", day:"numeric", hour:"2-digit", minute:"2-digit", hour12:false});
     const KIND = {market:"市場參考匯率", cash:"銀行現金", spot:"銀行即期"};
     let data = load("fxRates"), state = data ? "cache" : "loading";
@@ -732,6 +740,7 @@
     }
     let custom = false;   // 市場參考模式下，使用者自己改過匯率
     let lastRes = null;   // 目前換算結果，切換方向時帶入金額
+    const live = $("#fxLive"); let liveTimer = null;   // 打字停 0.6 秒才朗讀，避免每個按鍵都念一次
     const toTwd = () => f.dir.value === "to-twd";
     const kindName = () => f.kind.value === "market" ? (custom ? "自訂" : "市場參考") : KIND[f.kind.value];
     function rateLabel(){
@@ -766,7 +775,7 @@
       const c = f.cur.value, k = f.kind.value, twd = f.dir.value === "to-twd";
       if(k !== "market") { const v = dec(f.rate); if(v) bank[bankKey()] = f.rate.value; else delete bank[bankKey()]; save("fxBank", bank); }
       const rate = dec(f.rate), amt = dec(f.amount), m = mid(c), own = k !== "market" || custom;
-      lastRes = null;
+      lastRes = null; live.textContent = "";
       if(!rate || isNaN(rate) || rate <= 0){ out.innerHTML = `<div class="note">${k === "market" && !custom ? (state === "loading" ? "正在取得參考匯率…" : "目前沒有參考匯率，請直接填入銀行牌告匯率。") : `請在上方填入匯率${m ? "，或按「改回參考匯率」" : ""}。`}</div>`; runAll(); return; }
       if(amt === null || isNaN(amt) || amt <= 0){ out.innerHTML = `<div class="note">輸入${twd ? NAMES[c] : "新台幣"}金額就會換算。</div>`; runAll(); return; }
       const res = twd ? amt*rate : amt/rate, from = twd ? c : "TWD", to = twd ? "TWD" : c;
@@ -783,18 +792,18 @@
       }
       const kn = kindName();
       out.innerHTML = `
-        <div>${fmtC(amt, from)} ${nm(from)} 約等於</div>
+        <div>${fmtIn(amt)} ${nm(from)} 約等於</div>
         <div class="big">${fmtC(res, to)} <small>${nm(to)}</small></div>
         <div class="fx-acts"><button type="button" class="copy" id="fxCopyAmt">複製金額</button><button type="button" class="copy" id="fxCopy">複製完整結果</button></div>
         <div class="note">計算基準：${kn}${k === "market" ? "" : twd ? "買入" : "賣出"}匯率 1 ${NAMES[c]} ＝ ${fmtR(rate)} 新台幣。${k === "market" && !custom ? "這是國際市場參考價，不是銀行牌告；到銀行實際換匯，買外幣會比較貴、賣外幣會拿比較少。" : ""}</div>
         ${spread}
         <div class="fx-cur-head">常用面額（點一下帶入，換算單位：${nm(to)}）</div>
         <div class="fx-denoms">${denoms}</div>`;
-      const flash = (b, t) => { b.textContent = "已複製"; setTimeout(() => b.textContent = t, 1500); };
-      $("#fxCopyAmt").onclick = e => { const b = e.currentTarget; if(navigator.clipboard) navigator.clipboard.writeText(lastRes).then(() => flash(b, "複製金額"), () => {}); };
+      clearTimeout(liveTimer); liveTimer = setTimeout(() => { live.textContent = `${fmtIn(amt)} ${nm(from)} 約等於 ${fmtC(res, to)} ${nm(to)}`; }, 600);
+      $("#fxCopyAmt").onclick = e => copyText(lastRes, e.currentTarget, "複製金額");
       $("#fxCopy").onclick = e => {
-        const text = `${fmtC(amt, from)} ${nm(from)} ≈ ${fmtC(res, to)} ${nm(to)}\n匯率：1 ${NAMES[c]} ＝ ${fmtR(rate)} 新台幣（${kn}${k === "market" ? (data && !custom ? `，資料時間 ${tpe(data.t)}` : "") : twd ? "買入" : "賣出"}）\n${location.origin}${location.pathname}`;
-        const b = e.currentTarget; if(navigator.clipboard) navigator.clipboard.writeText(text).then(() => flash(b, "複製完整結果"), () => {});
+        const text = `${fmtIn(amt)} ${nm(from)} ≈ ${fmtC(res, to)} ${nm(to)}\n匯率：1 ${NAMES[c]} ＝ ${fmtR(rate)} 新台幣（${kn}${k === "market" ? (data && !custom ? `，資料時間 ${tpe(data.t)}` : "") : twd ? "買入" : "賣出"}）\n${location.origin}${location.pathname}`;
+        copyText(text, e.currentTarget, "複製完整結果");
       };
       runAll();
     }
@@ -831,7 +840,7 @@
       save("fxCard", ["amt","crate","fee","back","cash"].map(x => g[x].value));
       card.querySelectorAll("[data-cur]").forEach(el => el.textContent = NAMES[c]);
       g.crate.placeholder = m ? `預設市場參考 ${fmtR(m)}` : "請填匯率";
-      const amt = dec(g.amt), fee = dec(g.fee) ?? 1.5, back = dec(g.back) ?? 0, cash = dec(g.cash), cr = dec(g.crate) || m;
+      const amt = dec(g.amt), fee = decOr(g.fee, 1.5), back = decOr(g.back, 0), cash = dec(g.cash), cr = dec(g.crate) || m;
       if(!amt || isNaN(amt) || amt <= 0 || !cr){ o.innerHTML = `<div class="note">輸入消費金額就會比較刷卡和換現金的成本。</div>`; return; }
       const base = amt*cr, cardFee = base*fee/100, cardBack = base*back/100, cardTotal = base + cardFee - cardBack;
       const cashTotal = cash && cash > 0 ? amt*cash : null;

@@ -21,7 +21,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700;900&display=swap">
 <link rel="stylesheet" href="/assets/site.css?v=9">
-<link rel="stylesheet" href="/assets/tools/tools.css?v=8">
+<link rel="stylesheet" href="/assets/tools/tools.css?v=10">
 <script type="application/ld+json">
 {
  "@context": "https://schema.org",
@@ -250,9 +250,9 @@
       </tbody>
     </table></div>
   </section>
-  <section>
+  <section class="faq">
     <h2>常見問題</h2>
-    <details><summary>定存利息怎麼算？</summary><p>整存整付按月複利：本利和 ＝ 本金 ×（1 ＋ 年利率 ÷ 12）^月數。存本取息每月領息、本金不變：每月利息 ＝ 本金 × 年利率 ÷ 12。100 萬元、年利率 1.7%、存 1 年，整存整付利息約 17,133 元，存本取息每月約 1,417 元。</p></details>
+    <details open><summary>定存利息怎麼算？</summary><p>整存整付按月複利：本利和 ＝ 本金 ×（1 ＋ 年利率 ÷ 12）^月數。存本取息每月領息、本金不變：每月利息 ＝ 本金 × 年利率 ÷ 12。100 萬元、年利率 1.7%、存 1 年，整存整付利息約 17,133 元，存本取息每月約 1,417 元。</p></details>
     <details><summary>存款利息要繳稅嗎？</summary><p>要併入綜合所得申報。納稅義務人、合併申報的配偶及受扶養親屬，符合規定的存款利息等所得，全年合計最高可扣除 27 萬元（儲蓄投資特別扣除額）；這是全戶合計的額度，不是每個帳戶各有 27 萬，超過部分仍要依規定計稅。</p></details>
     <details><summary>定存利息會被扣二代健保嗎？</summary><p>單次給付的利息達 2 萬元，銀行會以這次利息的全額扣 2.11% 補充保費，例如 2 萬元扣 422 元；未達 2 萬元不扣。27 萬元儲蓄投資特別扣除額是所得稅的規定，不代表二代健保也有 27 萬元免扣額度。存本取息每月領息，每次金額較小，比較不容易達到門檻。</p></details>
     <details><summary>定存利息超過 2 萬元一定會被扣 10% 稅嗎？</summary><p>境內居住個人的一般銀行存款利息，原則上每次給付超過 2 萬元時，按給付總額扣繳 10% 所得稅；辦理儲蓄免扣證並向銀行登記的人，在登記額度內可以免扣繳。扣繳只是預繳，實際稅負以綜合所得稅申報結果為準。</p></details>
@@ -263,29 +263,49 @@
 
   <section>
     <h2>其他試算工具</h2>
-    <div class="related">
-      <a href="/tools/income-tax/">所得稅試算<small>115 年度綜所稅，明年 5 月報稅用</small></a>
-      <a href="/tools/annual-leave/">特休計算機<small>輸入到職日，算出今年有幾天特休</small></a>
-      <a href="/tools/overtime/">加班費計算機<small>平日、休息日、國定假日加班費</small></a>
-      <a href="/tools/workdays/">工作天數計算<small>扣掉國定假日＋Excel NETWORKDAYS 公式</small></a>
-      <a href="/tools/insurance/">勞健保費計算機<small>勞保、健保、勞退每月扣多少</small></a>
-      <a href="/tools/take-home-pay/">薪資實領計算<small>月薪扣完勞健保、所得稅實際入帳多少</small></a>
-      <a href="/tools/year-end-bonus/">年終獎金計算<small>年終扣稅 5%、補充保費，實拿多少</small></a>
-      <a href="/tools/severance/">資遣費計算<small>新制、舊制、新舊制併用資遣費</small></a>
-      <a href="/tools/pension/">勞退退休金試算<small>勞退專戶退休時累積多少、月領多少</small></a>
-      <a href="/tools/labor-insurance-pension/">勞保老年年金試算<small>勞保年金月領多少，加上勞退看退休月收入</small></a>
-      <a href="/tools/loan/">房貸、信貸試算<small>每月還多少、總利息、寬限期</small></a>
-      <a href="/tools/currency/">匯率換算<small>日圓、美元、韓元換台幣多少</small></a>
-      <a href="/tools/unit/">單位換算<small>坪、台斤、吋等台灣常用單位</small></a>
-      <a href="/#planner">請假計算器<small>輸入特休天數，排出最長連休</small></a>
-      <a href="/2027/qingjia/">2027 全年請假攻略<small>9 個連假一次排好</small></a>
+    <div class="tool-groups">
+      <div class="tool-group">
+        <h3>旅遊與排假規劃</h3>
+        <div class="tg-links">
+          <a href="/#planner">請假計算器<small>輸入特休天數，排出最長連休</small></a>
+          <a href="/2027/qingjia/">2027 全年請假攻略<small>9 個連假一次排好</small></a>
+          <a href="/tools/workdays/">工作天數計算<small>扣掉國定假日＋Excel NETWORKDAYS 公式</small></a>
+          <a href="/tools/currency/">匯率換算<small>日圓、美元、韓元換台幣多少</small></a>
+          <a href="/tools/unit/">單位換算<small>坪、台斤、吋等台灣常用單位</small></a>
+        </div>
+      </div>
+      <div class="tool-group">
+        <h3>薪資與假別計算</h3>
+        <div class="tg-links">
+          <a href="/tools/annual-leave/">特休計算機<small>輸入到職日，算出今年有幾天特休</small></a>
+          <a href="/tools/overtime/">加班費計算機<small>平日、休息日、國定假日加班費</small></a>
+          <a href="/tools/insurance/">勞健保費計算機<small>勞保、健保、勞退每月扣多少</small></a>
+          <a href="/tools/take-home-pay/">薪資實領計算<small>月薪扣完勞健保、所得稅實際入帳多少</small></a>
+          <a href="/tools/year-end-bonus/">年終獎金計算<small>年終扣稅 5%、補充保費，實拿多少</small></a>
+        </div>
+      </div>
+      <div class="tool-group">
+        <h3>退休與離職試算</h3>
+        <div class="tg-links">
+          <a href="/tools/severance/">資遣費計算<small>新制、舊制、新舊制併用資遣費</small></a>
+          <a href="/tools/pension/">勞退退休金試算<small>勞退專戶退休時累積多少、月領多少</small></a>
+          <a href="/tools/labor-insurance-pension/">勞保老年年金試算<small>勞保年金月領多少，加上勞退看退休月收入</small></a>
+        </div>
+      </div>
+      <div class="tool-group">
+        <h3>稅務與借貸存款</h3>
+        <div class="tg-links">
+          <a href="/tools/income-tax/">所得稅試算<small>115 年度綜所稅，明年 5 月報稅用</small></a>
+          <a href="/tools/loan/">房貸、信貸試算<small>每月還多少、總利息、寬限期</small></a>
+        </div>
+      </div>
     </div>
   </section>
 </main>
 
 <footer><a href="/about/">關於我們</a> · <a href="/privacy/">隱私權政策</a> · <a href="/disclosure/">聯盟連結揭露</a><br>放假日曆｜台灣生活資訊與免費試算工具。<br>本工具試算結果僅供參考，實際利息、補充保費及扣繳稅額，應以金融機構計算及稅務、健保主管機關規定為準。</footer>
 <script src="/assets/tools/calc.js?v=12"></script>
-<script src="/assets/tools/ui.js?v=21"></script>
+<script src="/assets/tools/ui.js?v=22"></script>
 <!-- Cloudflare Web Analytics --><script type='module' src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token": "4c058fe6d8d047d290cd5fe7c73a3d15"}'></script><!-- End Cloudflare Web Analytics -->
 </body>
 </html>

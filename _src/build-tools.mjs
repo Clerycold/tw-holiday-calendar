@@ -24,9 +24,9 @@ function page({ path, title, h1, desc, crumb, faq = [], body, scripts = true, ap
   ];
   if (faq.length) graph.push({ "@type": "FAQPage", mainEntity: faq.map(([q, a]) => ({ "@type": "Question", name: q, acceptedAnswer: { "@type": "Answer", text: a } })) });
   const faqHtml = faq.length ? `
-  <section>
+  <section class="faq">
     <h2>常見問題</h2>
-${faq.map(([q, a]) => `    <details><summary>${q}</summary><p>${a}</p></details>`).join("\n")}
+${faq.map(([q, a], i) => `    <details${i === 0 ? " open" : ""}><summary>${q}</summary><p>${a}</p></details>`).join("\n")}
   </section>` : "";
   return `<!doctype html>
 <html lang="zh-Hant-TW">
@@ -51,7 +51,7 @@ ${faq.map(([q, a]) => `    <details><summary>${q}</summary><p>${a}</p></details>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700;900&display=swap">
 <link rel="stylesheet" href="/assets/site.css?v=9">
-<link rel="stylesheet" href="/assets/tools/tools.css?v=8">
+<link rel="stylesheet" href="/assets/tools/tools.css?v=10">
 <script type="application/ld+json">
 ${JSON.stringify({ "@context": "https://schema.org", "@graph": graph }, null, 1)}
 </script>
@@ -71,7 +71,7 @@ ${path === "/tools/" ? "" : related(path)}
 
 <footer><a href="/about/">關於我們</a> · <a href="/privacy/">隱私權政策</a> · <a href="/disclosure/">聯盟連結揭露</a><br>放假日曆｜台灣生活資訊與免費試算工具。<br>${disclaimer || "本站試算結果僅供參考，實際金額以主管機關規定、公司制度及官方系統計算為準。"}</footer>
 ${scripts ? `<script src="/assets/tools/calc.js?v=12"></script>
-<script src="/assets/tools/ui.js?v=21"></script>` : ""}
+<script src="/assets/tools/ui.js?v=22"></script>` : ""}
 <!-- Cloudflare Web Analytics --><script type='module' src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token": "4c058fe6d8d047d290cd5fe7c73a3d15"}'></script><!-- End Cloudflare Web Analytics -->
 </body>
 </html>
@@ -130,7 +130,6 @@ const TOOL_ART = {
   "/tools/currency/": ["qingjia", "chunjie"],
 };
 function related(path) {
-  const others = TOOLS.filter(t => t.path !== path).map(t => `      <a href="${t.path}">${t.name}<small>${t.sub}</small></a>`);
   const arts = (TOOL_ART[path] || []).map(k => ART[k]);
   return (arts.length ? `
   <section>
@@ -141,13 +140,34 @@ ${arts.map(([u, n, d]) => `      <a href="${u}">${n}<small>${d}</small></a>`).jo
   </section>` : "") + `
   <section>
     <h2>其他試算工具</h2>
-    <div class="related">
-${others.join("\n")}
-      <a href="/#planner">請假計算器<small>輸入特休天數，排出最長連休</small></a>
-      <a href="/2027/qingjia/">2027 全年請假攻略<small>9 個連假一次排好</small></a>
+    <div class="tool-groups">
+${TOOL_GROUPS.map(([g, paths]) => {
+  const items = paths.filter(u => u !== path).map(u => { const t = TOOLS.find(x => x.path === u); const [n, d] = t ? [t.name, t.sub] : EXTRA_LINKS[u]; return `          <a href="${u}">${n}<small>${d}</small></a>`; });
+  return items.length ? `      <div class="tool-group">
+        <h3>${g}</h3>
+        <div class="tg-links">
+${items.join("\n")}
+        </div>
+      </div>` : "";
+}).filter(Boolean).join("\n")}
     </div>
   </section>`;
 }
+// 「其他試算工具」分組（每個工具頁共用，會排除目前這一頁）
+const EXTRA_LINKS = {
+  "/#planner": ["請假計算器", "輸入特休天數，排出最長連休"],
+  "/2027/qingjia/": ["2027 全年請假攻略", "9 個連假一次排好"],
+};
+const TOOL_GROUPS = [
+  ["旅遊與排假規劃", ["/#planner", "/2027/qingjia/", "/tools/workdays/", "/tools/currency/", "/tools/unit/"]],
+  ["薪資與假別計算", ["/tools/annual-leave/", "/tools/overtime/", "/tools/insurance/", "/tools/take-home-pay/", "/tools/year-end-bonus/"]],
+  ["退休與離職試算", ["/tools/severance/", "/tools/pension/", "/tools/labor-insurance-pension/"]],
+  ["稅務與借貸存款", ["/tools/income-tax/", "/tools/loan/", "/tools/interest/"]],
+];
+// 新增工具時忘了放進分組，就會在這裡擋下來，避免連結默默消失
+{ const grouped = TOOL_GROUPS.flatMap(([, p]) => p);
+  const missing = TOOLS.map(t => t.path).filter(u => !grouped.includes(u));
+  if (missing.length) throw new Error("TOOL_GROUPS 缺少：" + missing.join(", ")); }
 const field = (name, label, attrs = "") => `<label class="field">${label}<input name="${name}" inputmode="numeric" ${attrs}></label>`;
 const dl = (file, name, what) => `<div class="dl"><a href="/downloads/${file}" download="${name}">⬇ 下載 Excel 範本</a><span>${what}</span></div>`;
 const formula = (id, text) => `<div class="formula"><code id="${id}">${text}</code><button type="button" class="copy" data-copy="${id}">複製</button></div>`;
@@ -1760,7 +1780,7 @@ ${CUR.filter(([c]) => !FX_COMMON.includes(c)).map(fxCurCard).join("\n")}
         <input type="hidden" name="dir" value="to-twd">
         <div class="fx-dir">
           <span class="fx-dir-txt" id="fxDirTxt">日圓 → 新台幣</span>
-          <button type="button" class="fx-swap" id="fxSwap" aria-label="切換換算方向">⇄ 切換方向</button>
+          <button type="button" class="fx-swap" id="fxSwap"><span aria-hidden="true">⇄ </span>切換方向</button>
         </div>
       </fieldset>
       <div class="fields">
@@ -1771,7 +1791,8 @@ ${CUR.filter(([c]) => !FX_COMMON.includes(c)).map(fxCurCard).join("\n")}
           <div class="fx-rate-tools"><button type="button" class="copy" id="fxRateReset" hidden>改回參考匯率</button><span class="note" id="fxKindNote"></span></div>
         </div>
       </div>
-      <div class="result fx-result" id="fxOut" aria-live="polite"></div>
+      <div class="result fx-result" id="fxOut"></div>
+      <p class="sr-only" id="fxLive" aria-live="polite"></p>
     </form>
     <p class="note" style="margin-top:8px">頁面只會向匯率資料來源下載公開匯率，你輸入的金額和銀行匯率只存在你的瀏覽器裡，不會傳出去。</p>
   </section>
