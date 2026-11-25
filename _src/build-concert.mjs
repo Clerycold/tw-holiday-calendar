@@ -172,6 +172,7 @@ const VENUES = [
     mrt:"機場捷運 A4 新莊副都心站，步行約 5 分（快車不停，要搭普通車）",
     page:{
       title:"Zepp New Taipei 住宿推薦｜怎麼去、住哪方便？機捷交通攻略",
+      seoTitle:"Zepp New Taipei 住宿推薦｜住哪方便＋機捷交通",
       desc:"Zepp New Taipei 怎麼去、看完住哪裡？整理新莊副都心、台北車站 2 個住宿區域，加上機場捷運快車不停的提醒，從機場來追星也方便。",
       answer:`去 Zepp New Taipei，搭<b>機場捷運普通車到 A4 新莊副都心站</b>，走路約 5 分鐘。想住近一點就住<b>新莊副都心</b>；要逛台北或隔天搭高鐵，住<b>台北車站周邊</b>，機捷普通車 3 站就到。`,
       hook:"Zepp New Taipei 在宏匯廣場裡，吃飯、逛街都在同一棟。它最大的特色是緊鄰機場捷運，從桃園機場搭機捷就能到，很適合從國外或外島來看演出的歌迷。",
@@ -254,7 +255,8 @@ function venuePage(v){
     {"@type":"FAQPage","mainEntity":faq.map(([q,a])=>({"@type":"Question","name":q,"acceptedAnswer":{"@type":"Answer","text":a}}))}
   ]};
   const others = VENUES.filter(o=>o.page && o.slug!==v.slug);
-  return head(p.title, p.desc, path, ld) + `
+  // seoTitle：搜尋結果用的短標題（選填），H1 仍用 title
+  return head(p.seoTitle || p.title, p.desc, path, ld) + `
 <main class="article">
   <div>
     <div class="crumb"><a href="/">放假日曆</a> › <a href="/concert/">演唱會住宿</a> › ${S(v.short)}</div>
@@ -339,8 +341,8 @@ ${others.map(o=>`      <a href="/concert/${o.slug}/">${S(o.short)}住宿推薦<s
 
 function hubPage(){
   const path = "/concert/";
-  const title = "演唱會住宿攻略｜全台演唱會場館附近飯店、交通與散場指南";
-  const desc = "準備去看演唱會嗎？整理台灣各大演唱會場館周邊住宿、飯店推薦、交通方式與散場攻略，幫你找到適合的住宿地點，不再擔心末班車與散場人潮。";
+  const title = "演唱會住宿攻略｜各大場館周邊飯店推薦、交通與散場動線";
+  const desc = "整理台灣各大演唱會場館周邊住宿區域、捷運與接駁交通、散場回程動線建議，幫你看演出挑出位置順、預算合理的飯店。";
   const ld = {"@context":"https://schema.org","@graph":[
     {"@type":"CollectionPage","name":title,"url":SITE+path,"inLanguage":"zh-Hant-TW"},
     {"@type":"BreadcrumbList","itemListElement":[

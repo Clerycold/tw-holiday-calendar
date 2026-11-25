@@ -132,7 +132,8 @@ function articlePage(a) {
     ...(a.faq.length ? [{ "@type": "FAQPage", "mainEntity": a.faq.map(([q, ans]) => ({ "@type": "Question", "name": q, "acceptedAnswer": { "@type": "Answer", "text": strip(ans) } })) }] : [])
   ] };
   const more = NEWS.filter(o => o.slug !== a.slug).slice(0, 4);
-  return head(a.title, a.desc, path, ld, a.img && a.img.jpg) + `
+  // seo_title：搜尋結果用的短標題（選填），H1 和結構化資料仍用 title
+  return head(a.seo_title || a.title, a.desc, path, ld, a.img && a.img.jpg) + `
 <main class="article">
   <div>
     <div class="crumb"><a href="/">放假日曆</a> › <a href="/news/">生活時事整理</a> › ${a.short}</div>

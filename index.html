@@ -4,16 +4,16 @@
 <meta charset="utf-8">
 <meta name="google-adsense-account" content="ca-pub-1876699539464325">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta name="description" content="2027（民國116年）行事曆：國定假日、9個連假、補假一覽與請假攻略計算器；另有所得稅、勞健保、薪資實領、資遣費、退休金、房貸、存款利息等免費試算工具。">
-<title>放假日曆｜2027 行事曆、連假請假攻略與生活試算工具</title>
+<meta name="description" content="2027（民國116年）行事曆放假 121 天、全年免補班！一次看懂 9 個連假、補假日期與請假攻略計算器，另提供薪資實領、年終獎金、特休、加班費、勞健保、所得稅與房貸等免費試算工具。">
+<title>2027 行事曆｜連假請假攻略、補假一覽與免費試算工具－放假日曆</title>
 <link rel="canonical" href="https://fangjiatw.com/">
 <link rel="icon" href="/favicon.ico" sizes="48x48">
 <link rel="icon" href="/favicon.svg" type="image/svg+xml">
 <link rel="apple-touch-icon" href="/apple-touch-icon.png">
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="放假日曆">
-<meta property="og:title" content="放假日曆｜2027 行事曆、連假請假攻略與生活試算工具">
-<meta property="og:description" content="2027 國定假日、連假、補假一覽與請假攻略，加上報稅、薪資、勞健保、退休金、房貸等免費試算工具。">
+<meta property="og:title" content="2027 行事曆｜連假請假攻略、補假一覽與免費試算工具－放假日曆">
+<meta property="og:description" content="2027（民國116年）行事曆放假 121 天、全年免補班！一次看懂 9 個連假、補假日期與請假攻略計算器，另提供薪資實領、年終獎金、特休、加班費、勞健保、所得稅與房貸等免費試算工具。">
 <meta property="og:url" content="https://fangjiatw.com/">
 <meta property="og:image" content="https://fangjiatw.com/assets/og/home.png">
 <meta property="og:image:width" content="1200">
@@ -240,6 +240,94 @@ main > section:last-child{padding-bottom:var(--gap)}
 .res small{color:var(--muted)}
 .tag{display:inline-block;font-size:.75rem;font-weight:700;padding:1px 10px;border-radius:999px;background:var(--accent-strong);color:var(--on-accent);justify-self:start}
 .hint{color:var(--muted);font-size:.88rem}
+/* planner：模式、方案清單、摘要卡 */
+.sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;border:0}
+@media (max-width:767px){.chip[data-n="all"]{grid-column:1/-1;min-height:44px}.chip[data-n="all"] small{display:inline;margin-left:6px}}
+.mode-seg{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+.mode-seg button,.filter-row button,.tone button{font:inherit;cursor:pointer;border:1px solid var(--line);background:var(--surface);color:var(--text)}
+.mode-seg button{min-height:52px;border-radius:12px;font-weight:700;line-height:1.3;padding:6px}
+.mode-seg button small{display:block;font-size:.72rem;font-weight:500;color:var(--muted)}
+.mode-seg button[aria-pressed="true"]{background:var(--primary);border-color:var(--primary);color:var(--on-primary)}
+.mode-seg button[aria-pressed="true"] small{color:inherit}
+.mode-tip{color:var(--muted);font-size:.85rem;margin:0}
+.over-msg{margin:0;background:var(--surface);border-left:4px solid var(--accent);border-radius:0 10px 10px 0;padding:8px 12px;font-size:.9rem}
+.res .lvd{color:var(--text);font-weight:700}
+.plan-pick{display:grid;gap:12px;align-content:start}
+.pick-head{display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap}
+.pick-count{color:var(--muted);font-size:.85rem}
+.filters{display:grid;gap:8px}
+.filter-row{display:flex;flex-wrap:wrap;align-items:center;gap:6px}
+.filter-row > span{font-size:.82rem;color:var(--muted);font-weight:700;min-width:4.5em}
+.filter-row button,.tone button{min-height:40px;padding:0 12px;border-radius:999px;font-size:.88rem}
+.filter-row button:hover,.tone button:hover,.mode-seg button:hover{border-color:var(--primary)}
+.filter-row button[aria-pressed="true"],.tone button[aria-pressed="true"]{background:var(--primary-light);border-color:var(--primary);color:var(--primary-ink);font-weight:700}
+.plan-list{border:0;margin:0;padding:0;min-width:0;display:grid;gap:8px;grid-template-columns:repeat(auto-fill,minmax(min(100%,250px),1fr))}
+.pl{position:relative;display:block;cursor:pointer}
+.pl input{position:absolute;opacity:0;width:1px;height:1px}
+.pl-card{display:grid;gap:3px;border:1px solid var(--line);border-radius:12px;background:var(--surface);padding:12px 40px 12px 14px;min-height:48px;height:100%;box-sizing:border-box;position:relative}
+.pl-card::after{content:"";position:absolute;top:14px;right:12px;width:20px;height:20px;border:2px solid var(--line);border-radius:6px;background:var(--surface)}
+.pl input[type=radio] + .pl-card::after{border-radius:50%}
+.pl:hover .pl-card{border-color:var(--primary)}
+.pl input:focus-visible + .pl-card{outline:3px solid var(--accent);outline-offset:2px}
+.pl input:checked + .pl-card{border:2px solid var(--primary);background:var(--primary-light);padding:11px 39px 11px 13px}
+.pl input:checked + .pl-card::after{background:var(--primary);border-color:var(--primary);top:13px;right:11px}
+.pl input:checked + .pl-card::before{content:"✓";position:absolute;top:12px;right:15px;color:var(--on-primary);font-weight:900;font-size:.85rem;z-index:1}
+.pl-title{font-weight:900;font-size:1.02rem}
+.pl-title em{font-style:normal;color:var(--primary)}
+.pl-span{font-size:.88rem}
+.pl-lv{font-size:.85rem;color:var(--muted)}
+.pl-lv b{color:var(--text);font-weight:700}
+.pl-tags{display:flex;flex-wrap:wrap;gap:4px;margin-top:2px}
+.pl-tags span{font-size:.72rem;font-weight:700;padding:1px 8px;border-radius:999px;background:var(--primary-light);color:var(--primary-ink)}
+.pl-tags .pl-over{background:var(--hol-soft);color:var(--hol)}
+.pl-empty{grid-column:1/-1;color:var(--muted);font-size:.9rem;margin:0}
+.pick-actions{display:flex;flex-wrap:wrap;gap:8px}
+.pick-actions .btn{flex:1 1 180px;min-height:44px;font-size:.92rem}
+.sum-card{margin-top:16px;background:var(--surface);border:2px solid var(--primary);border-radius:var(--r);padding:16px;display:grid;gap:14px}
+.sum-head{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}
+.sum-head h3{font-size:1.15rem}
+.sum-head .btn{min-height:44px}
+@media (max-width:399px){
+  .sum-head{gap:8px}
+  .sum-head{flex-wrap:nowrap}
+  .sum-head h3{font-size:1rem;flex:1 1 auto;min-width:0;white-space:nowrap}
+  .sum-head .btn{flex:0 0 auto;min-height:40px;padding:0 10px;font-size:.8rem;border-radius:10px;white-space:nowrap;gap:4px}
+}
+.sum-dl{margin:0;display:grid;gap:8px;grid-template-columns:repeat(auto-fit,minmax(min(100%,220px),1fr))}
+.sum-dl > div{background:var(--primary-light);border-radius:10px;padding:10px 12px}
+.sum-dl dt{font-size:.8rem;color:var(--muted);font-weight:700}
+.sum-dl dd{margin:2px 0 0;font-weight:700;font-variant-numeric:tabular-nums;line-height:1.6}
+.sum-dl dd b{font-size:1.4rem;color:var(--primary)}
+#sumSpans,#sumLeave{max-height:260px;overflow-y:auto;overscroll-behavior:contain}  /* 勾很多方案時不讓摘要卡無限拉長 */
+.sum-dl .nw{white-space:nowrap}
+.sum-dl .run{display:block}
+.sum-dl .run + .run{margin-top:4px}
+.sum-dl .run-n{color:var(--primary-ink)}
+.sum-dl small{color:var(--muted)}
+.sum-jump{display:flex;flex-wrap:wrap;align-items:center;gap:6px}
+.sum-jump[hidden]{display:none}
+.sum-jump > span{font-size:.85rem;font-weight:700;color:var(--muted);margin-right:2px}
+.sum-jump a{min-height:40px;min-width:52px;display:inline-flex;align-items:center;justify-content:center;padding:0 12px;border:1px solid var(--line);border-radius:999px;background:var(--surface);color:var(--text);text-decoration:none;font-size:.9rem;font-weight:700}
+.sum-jump a:hover{border-color:var(--primary);color:var(--primary)}
+@media (max-width:767px){
+  .sum-card .plan-actions .btn{flex:1 1 100%}  /* 手機按鈕各占一行，文字不擠 */
+  .share-msg{scroll-margin-bottom:calc(72px + env(safe-area-inset-bottom))}  /* 回饋訊息捲進畫面時避開底部導覽列 */
+}
+@media (min-width:640px){.sum-dl{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.sum-months{display:grid;gap:10px;grid-template-columns:repeat(auto-fit,minmax(min(100%,260px),1fr))}
+.sum-months:empty{display:none}
+.mini{border:1px solid var(--border);border-radius:12px;padding:10px}
+.mini h4{margin:0;font-size:.95rem}
+.mini .d{line-height:34px;font-size:.88rem}
+.share-box{display:grid;gap:10px}
+.tone{display:flex;flex-wrap:wrap;align-items:center;gap:6px}
+.tone > span{font-weight:700;margin-right:4px}
+#shareText{width:100%;font:inherit;font-size:.9rem;line-height:1.6;color:var(--text);background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:10px 12px;resize:vertical;min-height:140px}
+.sum-note{margin:0;color:var(--muted);font-size:.85rem}
+@media (min-width:1024px){
+  .plan-pick{grid-column:1/-1}
+  .sum-card{padding:20px 24px}
+}
 
 /* long weekends */
 .lw{display:grid;grid-template-columns:1fr;gap:12px}
@@ -460,30 +548,68 @@ button.d[aria-pressed="true"]{box-shadow:0 0 0 3px var(--accent);position:relati
       <div class="picker">
         <div class="step"><span class="step-n">1</span>輸入你的特休天數</div>
         <span class="picker-label" id="chipsLabel">我有幾天特休？</span>
-        <div class="chips" id="chips" role="group" aria-labelledby="chipsLabel"><button class="chip" type="button" aria-pressed="true" data-n="3">3 天<small>滿半年</small></button><button class="chip" type="button" aria-pressed="false" data-n="7">7 天<small>滿 1 年</small></button><button class="chip" type="button" aria-pressed="false" data-n="10">10 天<small>滿 2 年</small></button><button class="chip" type="button" aria-pressed="false" data-n="14">14 天<small>滿 3 年</small></button></div>
+        <div class="chips" id="chips" role="group" aria-labelledby="chipsLabel"><button class="chip" type="button" aria-pressed="true" data-n="3">3 天<small>滿半年</small></button><button class="chip" type="button" aria-pressed="false" data-n="7">7 天<small>滿 1 年</small></button><button class="chip" type="button" aria-pressed="false" data-n="10">10 天<small>滿 2 年</small></button><button class="chip" type="button" aria-pressed="false" data-n="14">14 天<small>滿 3 年</small></button><button class="chip" type="button" aria-pressed="false" data-n="all">不限<small>只看方案</small></button></div>
         <div class="custom"><label for="leaveN">自訂天數</label><input id="leaveN" type="number" inputmode="numeric" min="1" max="30" step="1" value="3" aria-describedby="leaveHelp"><span class="custom-help" id="leaveHelp">可輸入 1～30 天</span></div>
+        <div class="step" style="margin-top:8px"><span class="step-n">2</span>選擇排假方式</div>
+        <div class="mode-seg" role="group" aria-label="排假方式">
+          <button type="button" data-mode="combo" aria-pressed="true">全年拼假<small>多段連假組合</small></button>
+          <button type="button" data-mode="single" aria-pressed="false">單一連假<small>只排一次</small></button>
+        </div>
+        <p class="mode-tip" id="modeTip"></p>
       </div>
       <div class="plan-box">
-        <div class="step"><span class="step-n">2</span>你的 2027 最佳排法</div>
+        <div class="step"><span class="step-n">3</span><span id="boxTitle">你的 2027 最佳排法</span></div>
         <div class="big-result">
-          <div class="br-total"><span>全年連休合計</span><b class="num"><span id="psTotal">15</span><small>天</small></b></div>
+          <div class="br-total"><span>連續休假合計</span><b class="num"><span id="psTotal">15</span><small>天</small></b></div>
           <div class="br-long"><span>最長一次連休</span><b class="num"><span id="longLen">11</span><small>天</small></b><small id="longDate">春節 2/4（四） – 2/14（日）</small></div>
         </div>
         <div class="plan-stats">
-          <div class="ps"><b class="num" id="psUsed">3</b><span>使用特休</span></div>
+          <div class="ps"><b class="num" id="psUsed">3</b><span>動用特休</span></div>
           <div class="ps"><b class="num" id="psLeft">0</b><span>剩餘特休</span></div>
-          <div class="ps"><b class="num" id="psSegs">2</b><span>長假段數</span></div>
+          <div class="ps"><b class="num" id="psRatio">5</b><span>放大倍數</span></div>
         </div>
         <p class="plan-sum" id="planSum" aria-live="polite">&nbsp;</p>
+        <p class="over-msg" id="overMsg" role="status" hidden></p>
         <div class="results" id="results"></div>
         <p class="plan-alt" id="planAlt"></p>
+      </div>
+      <div class="plan-pick">
+        <div class="pick-head">
+          <div class="step"><span class="step-n">4</span><span id="pickTitle">挑選或調整請假方案</span></div>
+          <span class="pick-count" id="pickCount"></span>
+        </div>
+        <div class="filters">
+          <div class="filter-row" role="group" aria-label="依請假天數篩選"><span>請假天數</span><button type="button" data-fn="all" aria-pressed="true">全部</button><button type="button" data-fn="1" aria-pressed="false">請 1 天</button><button type="button" data-fn="2" aria-pressed="false">請 2 天</button><button type="button" data-fn="3" aria-pressed="false">請 3 天</button><button type="button" data-fn="4" aria-pressed="false">請 4 天</button></div>
+          <div class="filter-row" role="group" aria-label="依主題篩選"><span>主題</span><button type="button" data-ft="all" aria-pressed="true">全部</button><button type="button" data-ft="春節長假" aria-pressed="false">春節長假</button><button type="button" data-ft="連假放大" aria-pressed="false">連假放大</button><button type="button" data-ft="小確幸" aria-pressed="false">小確幸</button></div>
+        </div>
+        <fieldset class="plan-list" id="planList"><legend class="sr-only" id="planListLegend">請假方案</legend></fieldset>
+        <div class="pick-actions"><button class="btn btn-ghost" id="autoBtn" type="button">依特休天數重新自動排</button><button class="btn btn-ghost" id="clearBtn" type="button">全部取消</button></div>
+      </div>
+      <p class="hint">以上依人事行政總處「政府行政機關辦公日曆表」計算；私人企業、排班制或補假規定不同的公司，請依公司規定為準。</p>
+    </div>
+
+    <div class="sum-card" id="sumCard" role="region" aria-labelledby="sumTitle">
+      <div class="sum-head"><h3 id="sumTitle">你的排法摘要</h3><a class="btn btn-primary" id="jumpCal" href="#m2">在行事曆看請假日 ↓</a></div>
+      <dl class="sum-dl">
+        <div><dt>連假區間</dt><dd id="sumSpans">—</dd></div>
+        <div><dt>建議請假日</dt><dd id="sumLeave">—</dd></div>
+        <div><dt>總連休天數</dt><dd id="sumTotal">—</dd></div>
+        <div><dt>特休放大倍數</dt><dd id="sumRatio">—</dd></div>
+      </dl>
+      <nav class="sum-jump" id="sumJump" aria-label="跳到請假月份" hidden></nav>
+      <div class="sum-months" id="sumMonths" aria-label="請假月份預覽"></div>
+      <div class="share-box">
+        <div class="tone" role="group" aria-label="分享文案語氣"><span>分享文案</span><button type="button" data-tone="line" aria-pressed="true">LINE 揪團</button><button type="button" data-tone="threads" aria-pressed="false">Threads 社群</button><button type="button" data-tone="note" aria-pressed="false">精簡筆記</button></div>
+        <label class="sr-only" for="shareText">分享文案預覽</label>
+        <textarea id="shareText" rows="6" readonly></textarea>
         <div class="plan-actions">
-          <a class="btn btn-primary" id="jumpCal" href="#m2">在行事曆看請假日 ↓</a>
-          <button class="btn btn-ghost" id="shareBtn" type="button">分享我的排法</button>
+          <button class="btn btn-primary" id="copyText" type="button">一鍵複製分享文案</button>
+          <button class="btn btn-ghost" id="icsBtn" type="button">匯出 .ics 行事曆提醒</button>
+          <button class="btn btn-ghost" id="shareBtn" type="button">分享我的排法連結</button>
           <p class="share-msg" id="shareMsg" role="status"></p>
         </div>
       </div>
-      <p class="hint">選好天數，行事曆會自動用綠色標出所有建議請假日；點任一段假期可以跳到該月份。</p>
+      <p class="sum-note">依 2027 年（民國 116 年）政府行政機關辦公日曆表計算，私人企業或排班制請依公司規定為準。.ics 檔會把請假日加成全天事件，並在 14 天前提醒你送出特休申請。</p>
     </div>
   </section>
 
@@ -785,7 +911,7 @@ button.d[aria-pressed="true"]{box-shadow:0 0 0 3px var(--accent);position:relati
     else if(wd) t += `週末`;
     else t += `上班日`;
     if(blk){ const n=Math.round((parse(blk.e)-parse(blk.s))/864e5)+1; t += `｜${blk.name}連假 ${fmtD(parse(blk.s))}–${fmtD(parse(blk.e))}，共 ${n} 天`; }
-    if(seg) t += `｜照特休 ${N} 天的排法，${md(DAYS[seg.i].d)} – ${md(DAYS[seg.j].d)} 可連休 ${seg.len} 天`;
+    if(seg) t += `｜照目前的排法，${md(DAYS[seg.i].d)} – ${md(DAYS[seg.j].d)} 可連休 ${seg.len} 天`;
     if(blk && blk.url) t += ` <a href="${blk.url}">看攻略 →</a>`;
     return t;
   }
@@ -821,6 +947,7 @@ button.d[aria-pressed="true"]{box-shadow:0 0 0 3px var(--accent);position:relati
   // 全年特休分配：在特休額度內挑幾段互不重疊、含國定假日的連假（請假日都在 2027 年），
   // 讓「連休天數 − 1」的總和最大（同樣天數時偏好段數少、每段長）；同分時依序選段數較少、每段 CP 值（休÷請）較高、日期較早的。
   // 特休 3／7／10／14 天的結果與 /2027/qingjia/ 文章的排法一致（14 天時 228 和勞動節同分，文章也列為可互換）。
+  // 「全年拼假」模式用它當自動建議，使用者可以再自己勾選、取消方案。
   const MAXN = 30;
   function yearPlan(B){
     const C = candidates(B)
@@ -840,91 +967,331 @@ button.d[aria-pressed="true"]{box-shadow:0 0 0 3px var(--accent);position:relati
     return best[C.length][B].set.sort((a,b)=>a.i-b.i);
   }
 
-  const chips=document.getElementById("chips"), results=document.getElementById("results");
-  const input=document.getElementById("leaveN"), help=document.getElementById("leaveHelp");
-  let N = 3;
-  const okN = v => Number.isInteger(v) && v>=1 && v<=MAXN;
-  try{ const s=+localStorage.getItem("leaveN"); if(okN(s)) N=s; }catch(e){}
-  // 分享連結 ?n=7 優先（別人分享給你的排法），不覆蓋自己記住的天數
-  try{ const q=+new URLSearchParams(location.search).get("n"); if(okN(q)) N=q; }catch(e){}
+  // 年度日曆：YYYY-MM-DD → 平日 workday／週末 weekend／國定假日 holiday／補假 makeup（補班 w 算平日）
+  const CAL = {};
+  DAYS.forEach(x=>{ const h=HOL[x.k]; CAL[x.k] = h ? (h[1]==="h" ? "holiday" : h[1]==="m" ? "makeup" : "workday") : (x.d.getDay()%6===0 ? "weekend" : "workday"); });
+  const isOffK = k => CAL[k]==="weekend" || CAL[k]==="holiday" || CAL[k]==="makeup";
+
   // 這段假期叫什麼：有連假就用連假名稱，否則用裡面的國定假日名稱（例如教師節）
   const segName = x => {
     const ks = DAYS.slice(x.i,x.j+1).map(y=>y.k);
-    const b = BLOCKS.find(b=>ks.includes(b.s));
-    if(b) return b.name.split("・").pop();  // 「兒童節・清明節」→「清明節」
+    const bs = BLOCKS.filter(b=>ks.includes(b.s)).map(b=>b.name.startsWith("跨年") ? "跨年" : b.name.split("・").pop());
+    if(bs.length) return bs.join("・");  // 行憲＋跨年接在一起時顯示「行憲紀念日・跨年」
     const h = ks.find(k=>HOL[k] && HOL[k][1]==="h");
     return h ? HOL[h][0] : "";
   };
-  let lastPlan = {segs:[], total:0, long:null};
-  function renderPlanner(){
-    chips.querySelectorAll(".chip").forEach(c=>c.setAttribute("aria-pressed",String(+c.dataset.n===N)));
-    if(+input.value!==N) input.value=N;
-    input.removeAttribute("aria-invalid"); help.classList.remove("err"); help.textContent="可輸入 1～30 天";
-    const segs = yearPlan(N);
-    const used = segs.reduce((s,x)=>s+x.leave,0), total = segs.reduce((s,x)=>s+x.len,0);
+
+  // ---- 請假方案：由上面的假日資料自動產生，不手寫日期，避免和行事曆不一致 ----
+  // 方案 = 某個連假（或單日國定假日）前後請 1～4 天能接出的最長連休；每請 1 天至少多休 1.5 天才列出（和連假卡片的建議同標準）
+  const in27 = x => leaveDays(x).every(d=>d.getFullYear()===2027);
+  const ANCHORS = [
+    ...BLOCKS.filter(b=>b.s.startsWith("2027")).map(b=>({name: b.name.startsWith("跨年") ? "跨年" : b.name.split("・").pop(), s:b.s, e:b.e,
+      slug: b.name.startsWith("跨年") ? "kuanian" : b.url.split("/")[2]})),
+    ...Object.keys(HOL).sort().filter(k=>k.startsWith("2027") && HOL[k][1]==="h" && !BLOCKS.some(b=>k>=b.s&&k<=b.e))
+      .map(k=>({name:HOL[k][0], s:k, e:k, slug:({"端午節":"duanwu","中秋節":"zhongqiu","教師節":"jiaoshi"})[HOL[k][0]] || "d"+k.slice(5).replace("-","")}))
+  ];
+  const PLANS = [], byIJ = {};
+  const tagsOf = p => p.holidayName.includes("春節") ? ["春節長假"] : p.totalDaysOff<=5 ? ["小確幸"] : ["連假放大"];
+  function addPlan(x, name, slug){
+    const ij = x.i+"-"+x.j;
+    if(byIJ[ij]){ const p=byIJ[ij]; if(!p.holidayName.split("・").includes(name)){ p.holidayName += "・"+name; p.title = `${p.holidayName} 請 ${p.leaveDaysCount} 休 ${p.totalDaysOff}`; } return p; }
+    let id = `2027-${slug}-${x.leave}`;
+    if(PLANS.some(p=>p.id===id)) id += "-" + DAYS[x.i].k.slice(5).replace("-","");
+    const p = {id, year:2027, title:`${name} 請 ${x.leave} 休 ${x.len}`, holidayName:name, leaveDates:leaveDays(x).map(key),
+      spanStart:DAYS[x.i].k, spanEnd:DAYS[x.j].k, totalDaysOff:x.len, leaveDaysCount:x.leave, tags:[], i:x.i, j:x.j};
+    p.tags = tagsOf(p);
+    PLANS.push(p); byIJ[ij] = p; PLANS.sort((a,b)=>a.i-b.i || a.leaveDaysCount-b.leaveDaysCount);
+    return p;
+  }
+  ANCHORS.forEach(a=>{
+    const s=idx(a.s), e=idx(a.e), base=e-s+1;
+    for(let n=1;n<=4;n++){
+      const c = candidates(n).filter(x=>x.i<=s && x.j>=e && x.leave===n && in27(x)).sort((p,q)=>q.len-p.len || p.i-q.i)[0];
+      if(c && (c.len-base)/n >= 1.5) addPlan(c, a.name, a.slug);
+    }
+  });
+  // 自動排出來的段落如果不在清單裡（例如一次請 5 天以上），補進清單，讓使用者也能取消
+  const planFor = x => byIJ[x.i+"-"+x.j] || addPlan(x, segName(x) || "連假", (ANCHORS.find(a=>idx(a.s)>=x.i && idx(a.e)<=x.j)||{slug:"x"}).slug);
+  const ratio = p => p.totalDaysOff/p.leaveDaysCount;
+  const byRatio = (a,b)=> ratio(b)-ratio(a) || b.totalDaysOff-a.totalDaysOff || a.i-b.i;
+  const overlap = (a,b)=> !(a.j<b.i-1 || a.i>b.j+1);
+
+  // ---- 狀態 ----
+  let budget = 3;            // 可用特休：1～30，null＝不限
+  let mode = "combo";        // combo 全年拼假｜single 單一連假
+  let picked = new Set();    // combo 勾選的方案 id
+  let single = null;         // single 選的方案 id
+  let fN = "all", fT = "all", tone = "line", touched = false;
+  const okN = v => Number.isInteger(v) && v>=1 && v<=MAXN;
+  try{ const s=localStorage.getItem("leaveN"); if(s==="all") budget=null; else if(okN(+s)) budget=+s; }catch(e){}
+  const Q = (()=>{ try{ return new URLSearchParams(location.search); }catch(e){ return new URLSearchParams(""); } })();
+  // 分享連結 ?n=7&mode=combo&plan=… 優先（別人分享給你的排法），不覆蓋自己記住的天數
+  if(Q.get("n")==="all") budget=null; else if(okN(+Q.get("n"))) budget=+Q.get("n");
+  if(Q.get("mode")==="single" || Q.get("mode")==="combo") mode = Q.get("mode");
+
+  function autoPick(){
+    if(budget!==null) return new Set(yearPlan(budget).map(x=>planFor(x).id));
+    // 不限：每個節日挑放大倍數最高的方案，彼此不重疊
+    const out=[]; [...PLANS].sort(byRatio).forEach(p=>{ if(!out.some(q=>q.holidayName===p.holidayName || overlap(p,q))) out.push(p); });
+    return new Set(out.map(p=>p.id));
+  }
+  const bestSingle = () => ([...PLANS].filter(p=>budget===null || p.leaveDaysCount<=budget).sort(byRatio)[0] || [...PLANS].sort(byRatio)[0]).id;
+
+  { // 還原網址上的方案（含自動排才會出現的方案）
+    const ids = (Q.get("plan")||"").split(",").filter(Boolean);
+    if(ids.some(id=>!PLANS.find(p=>p.id===id))) for(let b=1;b<=MAXN;b++) yearPlan(b).forEach(planFor);
+    const ok = ids.filter(id=>PLANS.find(p=>p.id===id));
+    if(ok.length){ if(mode==="single") single = ok[0]; else picked = new Set(ok); }
+    if(!picked.size && mode==="combo") picked = autoPick();
+    if(!single) single = mode==="single" ? bestSingle() : null;
+  }
+
+  // ---- 計算：合併勾選方案的請假日（去重），重新掃描整年，找出每一段連續休假 ----
+  function compute(){
+    const ids = mode==="single" ? (single ? [single] : []) : [...picked];
+    const sel = ids.map(id=>PLANS.find(p=>p.id===id)).filter(Boolean).sort((a,b)=>a.i-b.i);
+    const lv = new Set(sel.flatMap(p=>p.leaveDates));   // 同一天被兩個方案選到只算一次
+    const off = i => isOffK(DAYS[i].k) || lv.has(DAYS[i].k);
+    const runs = [];
+    for(let i=0;i<DAYS.length;i++){
+      if(!off(i)) continue;
+      let j=i; while(j+1<DAYS.length && off(j+1)) j++;
+      const leave = DAYS.slice(i,j+1).filter(y=>lv.has(y.k)).length;
+      if(leave) runs.push({i, j, len:j-i+1, leave});   // 只留有用到特休的段落
+      i=j;
+    }
+    const total = runs.reduce((s,x)=>s+x.len,0), used = lv.size;
+    const long = runs.reduce((a,x)=>!a||x.len>a.len?x:a,null);
+    return {sel, lv, runs, total, used, long, ratio: used ? total/used : 0};
+  }
+
+  const chips=document.getElementById("chips"), results=document.getElementById("results");
+  const input=document.getElementById("leaveN"), help=document.getElementById("leaveHelp");
+  const listEl=document.getElementById("planList");
+  const r1 = v => String(Math.round(v*10)/10);
+  const lvText = ks => ks.map(k=>md(parse(k))).join("、");
+  // 連續的請假日合併成「2/1（一）～2/3（三）」，不連續的用頓號分開
+  const lvRanges = ks => { const g=[]; [...ks].sort().forEach(k=>{ const L=g[g.length-1]; if(L && (parse(k)-parse(L[L.length-1]))/864e5===1) L.push(k); else g.push([k]); });
+    return g.map(x=>x.length>1 ? `${md(parse(x[0]))}～${md(parse(x[x.length-1]))}` : md(parse(x[0]))).join("、"); };
+  const nw = t => `<span class="nw">${t}</span>`;
+  const lvRangesHTML = (ks, tail) => { const g=[]; [...ks].sort().forEach(k=>{ const L=g[g.length-1]; if(L && (parse(k)-parse(L[L.length-1]))/864e5===1) L.push(k); else g.push([k]); });
+    return g.map((x,gi)=>{ const end = gi===g.length-1 ? tail : ""; const a=md(parse(x[0])), b=md(parse(x[x.length-1]));
+      return x.length>1 ? `${nw(a)}～${nw(b+end)}` : nw(a+end); }).join("、"); };
+  const runLv = r => DAYS.slice(r.i,r.j+1).filter(y=>cur.lv.has(y.k)).map(y=>y.k);
+  let lastPlan = {segs:[], total:0, long:null}, cur = null;
+
+  function renderList(){
+    const vis = PLANS.filter(p=>(fN==="all" || p.leaveDaysCount===+fN) && (fT==="all" || p.tags.includes(fT)));
+    const type = mode==="single" ? "radio" : "checkbox";
+    listEl.innerHTML = `<legend class="sr-only">${mode==="single"?"選一個請假方案":"勾選要合併的請假方案"}</legend>` + (vis.length ? vis.map(p=>{
+      const on = mode==="single" ? p.id===single : picked.has(p.id);
+      const over = budget!==null && p.leaveDaysCount>budget;
+      return `<label class="pl"><input type="${type}" name="plan" value="${p.id}"${on?" checked":""}><span class="pl-card">
+        <span class="pl-title">${p.holidayName} 請 <em>${p.leaveDaysCount}</em> 休 <em>${p.totalDaysOff}</em></span>
+        <span class="pl-span">${md(parse(p.spanStart))} – ${md(parse(p.spanEnd))}，連休 ${p.totalDaysOff} 天</span>
+        <span class="pl-lv">請特休：<b>${lvText(p.leaveDates)}</b></span>
+        <span class="pl-tags">${p.tags.map(t=>`<span>${t}</span>`).join("")}<span>放大 ${r1(ratio(p))} 倍</span>${over?`<span class="pl-over">超出特休 ${p.leaveDaysCount-budget} 天</span>`:""}</span>
+      </span></label>`;
+    }).join("") : `<p class="pl-empty">這個條件沒有方案，換個請假天數或主題看看。</p>`);
+    const hiddenOn = mode==="combo" ? [...picked].filter(id=>!vis.some(p=>p.id===id)).length : 0;
+    document.getElementById("pickCount").textContent = `顯示 ${vis.length} / ${PLANS.length} 個方案` + (mode==="combo" ? `，已勾選 ${picked.size} 個${hiddenOn?`（${hiddenOn} 個被篩選隱藏）`:""}` : "");
+  }
+
+  function miniMonth(y, m, lv){
+    const first=new Date(y,m,1), dim=new Date(y,m+1,0).getDate();
+    let cells = DOW.map(x=>`<div class="dow">${x}</div>`).join("") + "<div></div>".repeat(first.getDay());
+    for(let d=1; d<=dim; d++){
+      const k=key(new Date(y,m,d)), t=CAL[k];
+      const cls = lv.has(k) ? " lv" : t==="holiday" ? " hol" : t==="makeup" ? " mk" : t==="weekend" ? " we" : "";
+      cells += `<div class="d${cls}">${d}</div>`;
+    }
+    return `<div class="mini"><h4>${y} 年 ${m+1} 月</h4><div class="grid7" aria-hidden="true">${cells}</div></div>`;
+  }
+
+  function shareURL(){
+    const p = new URLSearchParams();
+    p.set("n", budget===null ? "all" : budget); p.set("mode", mode);
+    const ids = mode==="single" ? (single?[single]:[]) : [...picked];
+    if(ids.length) p.set("plan", ids.join(","));
+    return `https://fangjiatw.com/?${p.toString()}#planner`;
+  }
+  function shareText(){
+    const {runs, total, used} = cur, url = shareURL();
+    if(!runs.length) return `2027 特休怎麼排最划算？用這個計算器排看看：\n${url}`;
+    const line = r => ({name:segName(r)||"連假", span:`${md(DAYS[r.i].d)}–${md(DAYS[r.j].d)}`, lv:lvRanges(runLv(r)), r});
+    const L = runs.map(line), x = r1(cur.ratio);
+    if(tone==="threads") return `2027 請假攻略｜特休 ${used} 天 → 連休 ${total} 天\n\n${L.map(l=>`✅ ${l.name}：請 ${l.r.leave} 休 ${l.r.len}｜${l.span}`).join("\n")}\n\n特休放大 ${x} 倍。你的特休打算怎麼排？\n${url}`;
+    if(tone==="note") return `2027 請假\n${L.map(l=>`・${l.name}（請 ${l.r.leave} 休 ${l.r.len}）\n  請：${l.lv}\n  休：${l.span}`).join("\n")}\n合計：請 ${used} 天、休 ${total} 天\n${url}`;
+    return `【2027 請假揪團】\n\n${L.map(l=>`📅 ${l.name}\n請 ${l.lv}\n→ ${l.span} 連休 ${l.r.len} 天`).join("\n\n")}\n\n總共只要請 ${used} 天特休，就能連休 ${total} 天！要不要一起排？\n${url}`;
+  }
+
+  function render(){
+    const allN = budget===null;
+    chips.querySelectorAll(".chip").forEach(c=>c.setAttribute("aria-pressed",String(c.dataset.n==="all" ? allN : +c.dataset.n===budget)));
+    if(!allN && +input.value!==budget) input.value=budget;
+    if(allN) input.value="";
+    input.removeAttribute("aria-invalid"); help.classList.remove("err"); help.textContent = allN ? "不限天數：只看方案，不檢查額度" : "可輸入 1～30 天";
+    document.querySelectorAll(".mode-seg button").forEach(b=>b.setAttribute("aria-pressed",String(b.dataset.mode===mode)));
+    document.getElementById("modeTip").textContent = mode==="combo" ? "勾選多個方案，會合併成全年排法；不同方案用到同一天特休，只算一次。" : "只挑一個連假，看請哪幾天最划算。";
+    document.getElementById("boxTitle").textContent = mode==="combo" ? "你的 2027 全年拼假結果" : "這次連假的請法";
+    document.getElementById("pickTitle").textContent = mode==="combo" ? "勾選或調整要合併的方案" : "挑一個連假方案";
+    document.getElementById("autoBtn").textContent = mode==="combo" ? (allN ? "每個連假自動挑最划算的" : `依特休 ${budget} 天重新自動排`) : "挑放大倍數最高的";
+    document.getElementById("clearBtn").hidden = mode!=="combo";
+    document.querySelectorAll(".filter-row button").forEach(b=>b.setAttribute("aria-pressed",String(b.dataset.fn ? b.dataset.fn===fN : b.dataset.ft===fT)));
+    document.querySelectorAll(".tone button").forEach(b=>b.setAttribute("aria-pressed",String(b.dataset.tone===tone)));
+
+    cur = compute();
+    const {runs, total, used, long} = cur;
     document.getElementById("psUsed").textContent = used;
-    document.getElementById("psLeft").textContent = N-used;
-    document.getElementById("psSegs").textContent = segs.length;
+    document.getElementById("psLeft").textContent = allN ? "不限" : Math.max(0, budget-used);
+    document.getElementById("psRatio").textContent = used ? r1(cur.ratio) : "—";
     document.getElementById("psTotal").textContent = total;
-    const long = segs.reduce((a,x)=>!a||x.len>a.len?x:a,null);
     document.getElementById("longLen").textContent = long ? long.len : 0;
     document.getElementById("longDate").textContent = long ? `${segName(long)} ${md(DAYS[long.i].d)} – ${md(DAYS[long.j].d)}` : "—";
-    lastPlan = {segs, total, long};
-    const firstLv = segs.length ? leaveDays(segs[0])[0] : null;
-    document.getElementById("jumpCal").href = firstLv ? `#m${firstLv.getMonth()+1}` : "#calendar";
-    document.getElementById("shareMsg").textContent = "";
-    document.getElementById("planSum").innerHTML = segs.length
-      ? `特休 ${N} 天可以排出 ${segs.length} 段長假，連續休假日合計 <b class="num">${total}</b> 天${N>used?`，剩 ${N-used} 天可自由運用`:""}`
-      : `特休 ${N} 天目前找不到可以接成連假的組合`;
-    const top = segs.reduce((a,x)=>!a||x.len/x.leave>a.len/a.leave?x:a,null);
-    results.innerHTML = segs.map(x=>{
-      const s=DAYS[x.i].d, e=DAYS[x.j].d, lv=leaveDays(x);
-      const m = lv[0].getMonth()+1;
+    document.getElementById("planSum").innerHTML = runs.length
+      ? `動用特休 ${used} 天，排出 ${runs.length} 段連假，連續休假合計 <b class="num">${total}</b> 天${!allN && budget>used ? `，還剩 ${budget-used} 天可自由運用` : ""}`
+      : (mode==="combo" ? "還沒勾選方案，從下方挑幾個連假，或按「重新自動排」" : "從下方挑一個連假方案");
+    const over = document.getElementById("overMsg");
+    over.hidden = allN || used<=budget;
+    if(!over.hidden) over.textContent = `這個排法要用 ${used} 天特休，比你的 ${budget} 天多 ${used-budget} 天。仍然可以預覽，實際請假前請確認額度，或取消幾個方案。`;
+    results.innerHTML = runs.map(x=>{
+      const s=DAYS[x.i].d, e=DAYS[x.j].d, lv=DAYS.slice(x.i,x.j+1).filter(y=>cur.lv.has(y.k)).map(y=>y.d), m=lv[0].getMonth()+1;
       return `<a class="res" href="#m${m}" aria-label="${fmtD(s)} 到 ${fmtD(e)}，請 ${x.leave} 天休 ${x.len} 天，跳到 ${m} 月行事曆">
-        ${x===top&&segs.length>1?'<span class="tag">最划算</span>':""}
-        <span class="seg">${segName(x)}</span>
+        ${x===long&&runs.length>1?'<span class="tag">最長連休</span>':""}
+        <span class="seg">${segName(x)||"連假"}</span>
         <div class="big">請 <span>${x.leave}</span> 休 ${x.len}</div>
         <div>${md(s)} – ${md(e)}</div>
-        <small>請假日：${lv.map(fmtD).join("、")}</small>
+        <small>需請特休：<span class="lvd">${lv.map(md).join("、")}</span></small>
       </a>`;
     }).join("");
-    // 對照：同樣天數全部集中請一次，最長能連休幾天（舊版計算器的算法）
-    const one = plan(N)[0], longest = Math.max(0,...segs.map(x=>x.len));
+    // 對照：同樣天數全部集中請一次，最長能連休幾天
+    const one = !allN && mode==="combo" ? plan(budget)[0] : null, longest = long ? long.len : 0;
     document.getElementById("planAlt").textContent = one && one.len>longest
-      ? `想一次休很長？${N} 天集中請，${md(DAYS[one.i].d)} – ${md(DAYS[one.j].d)} 可連休 ${one.len} 天（請 ${one.leave} 天）。`
-      : "";
-    highlight = new Set(segs.flatMap(x=>leaveDays(x).map(key)));
+      ? `想一次休很長？${budget} 天集中請，${md(DAYS[one.i].d)} – ${md(DAYS[one.j].d)} 可連休 ${one.len} 天（請 ${one.leave} 天）。` : "";
+    renderList();
+
+    // 摘要卡
+    document.getElementById("sumSpans").innerHTML = runs.length ? runs.map(r=>`<span class="run">${segName(r)||"連假"} ${nw(md(DAYS[r.i].d))} – ${nw(`${md(DAYS[r.j].d)}（${r.len} 天）`)}</span>`).join("") : "—";
+    document.getElementById("sumLeave").innerHTML = used ? runs.map(r=>{ const ks=runLv(r); return `<span class="run"><span class="run-n">${segName(r)||"連假"}：</span>${lvRangesHTML(ks, `（${ks.length} 天）`)}</span>`; }).join("") + `<small class="run">合計請 ${used} 天</small>` : "—";
+    // 全年拼假、有好幾段時：列出有請假日的月份，點了跳到行事曆該月
+    const sj = document.getElementById("sumJump"), lvMonths = [...new Set([...cur.lv].map(k=>parse(k).getMonth()+1))].sort((a,b)=>a-b);
+    sj.hidden = !(mode==="combo" && runs.length>1);
+    sj.innerHTML = sj.hidden ? "" : `<span>涵蓋月份</span>` + lvMonths.map(m=>`<a href="#m${m}" data-m="${m}">${m} 月</a>`).join("");
+    document.getElementById("sumTotal").innerHTML = runs.length ? `<b>${total}</b> 天` : "—";
+    document.getElementById("sumRatio").innerHTML = used ? `<b>${r1(cur.ratio)}</b> 倍<br><small>每請 1 天特休，平均換到 ${r1(cur.ratio)} 天假</small>` : "—";
+    // 單一連假：直接在摘要卡顯示那個月份；全年拼假段數多，改用按鈕跳到下方行事曆
+    const sm = document.getElementById("sumMonths");
+    if(mode==="single" && runs.length){
+      const a=DAYS[runs[0].i].d, b=DAYS[runs[0].j].d, ms=[[a.getFullYear(),a.getMonth()]];
+      if(b.getMonth()!==a.getMonth() || b.getFullYear()!==a.getFullYear()) ms.push([b.getFullYear(),b.getMonth()]);
+      sm.innerHTML = ms.map(([y,m])=>miniMonth(y,m,cur.lv)).join("");
+    } else sm.innerHTML = "";
+    const firstLv = used ? parse([...cur.lv].sort()[0]) : null;
+    document.getElementById("jumpCal").href = firstLv ? `#m${firstLv.getMonth()+1}` : "#calendar";
+    document.getElementById("shareText").value = shareText();
+    document.getElementById("shareMsg").textContent = "";
+    document.getElementById("icsBtn").disabled = !used;
+    document.getElementById("copyText").disabled = false;
+
+    lastPlan = {segs:runs, total, long};
+    highlight = new Set(cur.lv);
     renderMonths();
+    if(touched){ try{ history.replaceState(null, "", shareURL().replace("https://fangjiatw.com", "").replace("#planner", "") + location.hash); }catch(e){} }
   }
-  const setN = n => { N=n; try{localStorage.setItem("leaveN",N)}catch(e){} renderPlanner(); };
-  chips.addEventListener("click",e=>{ const c=e.target.closest(".chip"); if(c) setN(+c.dataset.n); });
+  const touch = () => { touched = true; render(); };
+
+  // ---- 事件 ----
+  const setBudget = n => {
+    budget = n; try{ localStorage.setItem("leaveN", n===null ? "all" : n); }catch(e){}
+    if(mode==="combo") picked = autoPick();
+    else if(!single || (budget!==null && PLANS.find(p=>p.id===single).leaveDaysCount>budget)) single = bestSingle();
+    touch();
+  };
+  chips.addEventListener("click",e=>{ const c=e.target.closest(".chip"); if(c) setBudget(c.dataset.n==="all" ? null : +c.dataset.n); });
   input.addEventListener("input",()=>{
     const v = input.value.trim(), n = +v;
-    if(v!=="" && Number.isInteger(n) && n>=1 && n<=MAXN){ if(n!==N) setN(n); return; }
+    if(v!=="" && okN(n)){ if(n!==budget) setBudget(n); return; }
     input.setAttribute("aria-invalid","true"); help.classList.add("err");
     help.textContent = v==="" ? "請輸入 1～30 天" : "請輸入 1～30 的整數";
   });
-  input.addEventListener("blur",()=>{ if(input.getAttribute("aria-invalid")) renderPlanner(); });
-  // 一鍵跳到行事曆：捲到第一段請假的月份，綠色請假日閃一下
-  document.getElementById("jumpCal").addEventListener("click",()=>{
-    setTimeout(()=>document.querySelectorAll(".d.lv").forEach(c=>{ c.classList.remove("flash"); void c.offsetWidth; c.classList.add("flash"); }),400);
+  input.addEventListener("blur",()=>{ if(input.getAttribute("aria-invalid")) render(); });
+  document.querySelector(".mode-seg").addEventListener("click",e=>{
+    const b=e.target.closest("button"); if(!b || b.dataset.mode===mode) return;
+    mode = b.dataset.mode;
+    if(mode==="single"){ const fromPicked=[...picked].map(id=>PLANS.find(p=>p.id===id)).filter(Boolean).sort(byRatio)[0]; single = fromPicked ? fromPicked.id : (single || bestSingle()); }
+    else if(!picked.size) picked = autoPick();
+    touch();
   });
-  // 分享：手機用系統分享選單（LINE、FB…），電腦複製連結
+  listEl.addEventListener("change",e=>{
+    const t=e.target; if(t.name!=="plan") return;
+    if(mode==="single") single = t.value; else { t.checked ? picked.add(t.value) : picked.delete(t.value); }
+    touch();
+  });
+  document.querySelector(".filters").addEventListener("click",e=>{
+    const b=e.target.closest("button"); if(!b) return;
+    if(b.dataset.fn) fN=b.dataset.fn; else fT=b.dataset.ft;
+    render();
+  });
+  document.getElementById("autoBtn").addEventListener("click",()=>{ if(mode==="combo") picked=autoPick(); else single=bestSingle(); touch(); });
+  document.getElementById("clearBtn").addEventListener("click",()=>{ const n=picked.size; picked=new Set(); touch(); say(n ? `已取消全部 ${n} 個方案（包含被篩選隱藏的）` : "目前沒有勾選的方案"); });
+  document.querySelector(".tone").addEventListener("click",e=>{ const b=e.target.closest("button"); if(b){ tone=b.dataset.tone; document.querySelectorAll(".tone button").forEach(x=>x.setAttribute("aria-pressed",String(x===b))); document.getElementById("shareText").value = shareText(); } });
+  // 一鍵跳到行事曆：捲到第一個請假日的月份，綠色請假日閃一下
+  const flashLv = sel => setTimeout(()=>document.querySelectorAll(sel).forEach(c=>{ c.classList.remove("flash"); void c.offsetWidth; c.classList.add("flash"); }),400);
+  document.getElementById("jumpCal").addEventListener("click",()=>flashLv("#months .d.lv"));
+  document.getElementById("sumJump").addEventListener("click",e=>{ const a=e.target.closest("a[data-m]"); if(a) flashLv(`#m${a.dataset.m} .d.lv`); });
+
+  // 複製：clipboard API 不能用時（舊瀏覽器、權限被拒、非 https）退回 textarea＋execCommand
   const shareMsg = document.getElementById("shareMsg");
-  document.getElementById("shareBtn").addEventListener("click",async()=>{
-    const {segs,total,long} = lastPlan;
-    const url = `https://fangjiatw.com/?n=${N}#planner`;
-    const text = segs.length
-      ? `我有 ${N} 天特休，2027 年可以排出 ${segs.length} 段長假，連休合計 ${total} 天，最長一次連休 ${long.len} 天（${segName(long)}）！你的特休怎麼排？`
-      : `2027 年特休怎麼排最划算？`;
-    if(navigator.share){
-      try{ await navigator.share({title:"2027 請假攻略計算器｜放假日曆", text, url}); return; }
-      catch(e){ if(e.name==="AbortError") return; }
-    }
-    try{ await navigator.clipboard.writeText(`${text}\n${url}`); shareMsg.textContent = "已複製分享文字和連結，貼到 LINE 或 FB 就能分享"; }
-    catch(e){ shareMsg.textContent = `複製失敗，請手動複製這個連結：${url}`; }
+  const say = t => { shareMsg.textContent = t; if(t && shareMsg.getBoundingClientRect().bottom > innerHeight - 70) shareMsg.scrollIntoView({block:"nearest", behavior:"smooth"}); };
+  function copy(text, okMsg){
+    const done = ok => say(ok ? okMsg : "複製失敗，請長按上方文字框手動複製");
+    const legacy = () => { try{ const t=document.createElement("textarea"); t.value=text; t.setAttribute("readonly",""); t.style.position="fixed"; t.style.opacity="0"; document.body.appendChild(t); t.select(); const ok=document.execCommand("copy"); t.remove(); done(ok); }catch(e){ done(false); } };
+    if(navigator.clipboard && window.isSecureContext) navigator.clipboard.writeText(text).then(()=>done(true), legacy); else legacy();
+  }
+  document.getElementById("copyText").addEventListener("click",e=>{
+    const b=e.currentTarget; copy(document.getElementById("shareText").value, "已複製文案，貼到 LINE 或 Threads 就能分享");
+    b.textContent="已複製文案 ✓"; setTimeout(()=>b.textContent="一鍵複製分享文案",1600);
   });
-  renderPlanner();
+  // 分享連結：手機用系統分享選單（LINE、FB…），電腦複製連結
+  document.getElementById("shareBtn").addEventListener("click",async()=>{
+    const url = shareURL(), text = `2027 請假攻略：特休 ${cur.used} 天，連休 ${cur.total} 天`;
+    if(navigator.share){ try{ await navigator.share({title:"2027 請假攻略計算器｜放假日曆", text, url}); return; } catch(e){ if(e.name==="AbortError") return; } }
+    copy(url, "已複製連結，打開就會還原這個排法");
+  });
+
+  // .ics：連續的請假日合成一個全天事件；DTEND 是最後一天的隔天（iCalendar 全天事件的結束日不含當天）
+  const icsDate = d => `${d.getFullYear()}${pad(d.getMonth()+1)}${pad(d.getDate())}`;
+  const icsEsc = s => s.replace(/\\/g,"\\\\").replace(/;/g,"\\;").replace(/,/g,"\\,").replace(/\n/g,"\\n");
+  const enc = new TextEncoder();
+  const fold = line => {  // 每行最多 75 bytes（中文 3 bytes），超過就換行並以空白開頭
+    const out=[]; let cur="", n=0;
+    for(const ch of line){ const b=enc.encode(ch).length; if(n+b>(out.length?74:75)){ out.push(cur); cur=""; n=0; } cur+=ch; n+=b; }
+    out.push(cur); return out.join("\r\n ");
+  };
+  document.getElementById("icsBtn").addEventListener("click",()=>{
+    const ks=[...cur.lv].sort(); if(!ks.length) return;
+    const groups=[]; ks.forEach(k=>{ const g=groups[groups.length-1]; if(g && (parse(k)-parse(g[g.length-1]))/864e5===1) g.push(k); else groups.push([k]); });
+    const now=new Date(), stamp=`${now.getUTCFullYear()}${pad(now.getUTCMonth()+1)}${pad(now.getUTCDate())}T${pad(now.getUTCHours())}${pad(now.getUTCMinutes())}${pad(now.getUTCSeconds())}Z`;
+    const L=["BEGIN:VCALENDAR","VERSION:2.0","PRODID:-//fangjiatw.com//2027 請假攻略//ZH-TW","CALSCALE:GREGORIAN","METHOD:PUBLISH","X-WR-CALNAME:2027 請假計畫"];
+    groups.forEach(g=>{
+      const s=parse(g[0]), e=parse(g[g.length-1]), run=cur.runs.find(r=>g[0]>=DAYS[r.i].k && g[0]<=DAYS[r.j].k);
+      const name=run ? (segName(run)||"連假") : "連假";
+      L.push("BEGIN:VEVENT", `UID:${g[0]}-${g[g.length-1]}-leave@fangjiatw.com`, `DTSTAMP:${stamp}`,
+        `DTSTART;VALUE=DATE:${icsDate(s)}`, `DTEND;VALUE=DATE:${icsDate(addDays(e,1))}`,
+        `SUMMARY:${icsEsc(`特休｜${name}（請 ${g.length} 天）`)}`,
+        `DESCRIPTION:${icsEsc(`${run?`連休 ${md(DAYS[run.i].d)}–${md(DAYS[run.j].d)}，共 ${run.len} 天。`:""}依 2027 年政府行政機關辦公日曆表計算，私人企業請依公司規定。\n${shareURL()}`)}`,
+        "TRANSP:TRANSPARENT",
+        "BEGIN:VALARM","ACTION:DISPLAY","TRIGGER:-P14D",`DESCRIPTION:${icsEsc(`記得送出 ${md(s)} 起的特休申請`)}`,"END:VALARM",
+        "END:VEVENT");
+    });
+    L.push("END:VCALENDAR");
+    const TEXT = /^(SUMMARY|DESCRIPTION|X-WR-CALNAME|PRODID)[:;]/;
+    const blob=new Blob([L.map(l=>TEXT.test(l) ? fold(l) : l).join("\r\n")+"\r\n"],{type:"text/calendar;charset=utf-8"});
+    const a=document.createElement("a"); a.href=URL.createObjectURL(blob); a.download="fangjiatw-2027-leave.ics";
+    document.body.appendChild(a); a.click(); a.remove(); setTimeout(()=>URL.revokeObjectURL(a.href),1000);
+    say(`已匯出 ${groups.length} 個請假事件，打開檔案就能加入手機或 Google 行事曆`);
+  });
+  render();
 
   // 行事曆：點日期顯示說明（再點一次收起）
   document.getElementById("months").addEventListener("click",e=>{
