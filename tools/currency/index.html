@@ -21,7 +21,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700;900&display=swap">
 <link rel="stylesheet" href="/assets/site.css?v=9">
-<link rel="stylesheet" href="/assets/tools/tools.css?v=7">
+<link rel="stylesheet" href="/assets/tools/tools.css?v=8">
 <script type="application/ld+json">
 {
  "@context": "https://schema.org",
@@ -31,7 +31,7 @@
    "name": "匯率換算｜日圓、美元、韓元換台幣多少，銀行換匯、刷卡成本比較",
    "url": "https://fangjiatw.com/tools/currency/",
    "inLanguage": "zh-Hant-TW",
-   "dateModified": "2026-11-04",
+   "dateModified": "2026-11-25",
    "publisher": {
     "@type": "Organization",
     "name": "放假日曆",
@@ -158,7 +158,7 @@
   <div>
     <div class="crumb"><a href="/">放假日曆</a> › <a href="/tools/">試算工具</a> › 匯率換算</div>
     <h1>匯率換算<br>日圓、美元、韓元換台幣多少？</h1>
-    <div class="meta">更新日期：2026 年 11 月 4 日</div>
+    <div class="meta">更新日期：2026 年 11 月 25 日</div>
   </div>
 
   <div class="answer">選擇幣別、輸入金額，就會換算成新台幣，也可以反過來算台幣能換多少外幣。預設用<b>市場參考匯率</b>初步估算；到銀行換匯時，買外幣看銀行的<b>「賣出」</b>匯率，換回台幣看<b>「買入」</b>匯率，可以改選「銀行現金」或「銀行即期」填入牌告匯率。</div>
@@ -166,16 +166,51 @@
   <section>
     <h2>外幣、台幣換算</h2>
     <div class="note" id="fxStatus" style="border:1px solid var(--rule);border-radius:8px;padding:10px 12px;margin-bottom:12px;line-height:1.7">正在取得參考匯率…</div>
-    <form class="tool" data-tool="fx" autocomplete="off" novalidate>
+    <form class="tool fx-tool" data-tool="fx" autocomplete="off" novalidate>
+      <fieldset>
+        <legend>選擇幣別</legend>
+        <div class="fx-cur-head">常用幣別</div>
+        <div class="fx-cur-grid">
+          <label class="fx-cur"><input type="radio" name="cur" value="JPY" checked><span><b>日圓</b><small>JPY</small></span></label>
+          <label class="fx-cur"><input type="radio" name="cur" value="USD"><span><b>美元</b><small>USD</small></span></label>
+          <label class="fx-cur"><input type="radio" name="cur" value="KRW"><span><b>韓元</b><small>KRW</small></span></label>
+          <label class="fx-cur"><input type="radio" name="cur" value="THB"><span><b>泰銖</b><small>THB</small></span></label>
+          <label class="fx-cur"><input type="radio" name="cur" value="EUR"><span><b>歐元</b><small>EUR</small></span></label>
+          <label class="fx-cur"><input type="radio" name="cur" value="HKD"><span><b>港幣</b><small>HKD</small></span></label>
+          <label class="fx-cur"><input type="radio" name="cur" value="CNY"><span><b>人民幣</b><small>CNY</small></span></label>
+          <label class="fx-cur"><input type="radio" name="cur" value="SGD"><span><b>新加坡幣</b><small>SGD</small></span></label>
+        </div>
+        <div class="fx-cur-head" id="fxMoreHead" hidden>其他幣別</div>
+        <div class="fx-cur-grid" id="fxMore" hidden>
+          <label class="fx-cur"><input type="radio" name="cur" value="VND"><span><b>越南盾</b><small>VND</small></span></label>
+          <label class="fx-cur"><input type="radio" name="cur" value="GBP"><span><b>英鎊</b><small>GBP</small></span></label>
+          <label class="fx-cur"><input type="radio" name="cur" value="AUD"><span><b>澳幣</b><small>AUD</small></span></label>
+          <label class="fx-cur"><input type="radio" name="cur" value="CAD"><span><b>加幣</b><small>CAD</small></span></label>
+          <label class="fx-cur"><input type="radio" name="cur" value="NZD"><span><b>紐西蘭幣</b><small>NZD</small></span></label>
+          <label class="fx-cur"><input type="radio" name="cur" value="MYR"><span><b>馬來西亞令吉</b><small>MYR</small></span></label>
+          <label class="fx-cur"><input type="radio" name="cur" value="PHP"><span><b>菲律賓披索</b><small>PHP</small></span></label>
+          <label class="fx-cur"><input type="radio" name="cur" value="IDR"><span><b>印尼盾</b><small>IDR</small></span></label>
+          <label class="fx-cur"><input type="radio" name="cur" value="CHF"><span><b>瑞士法郎</b><small>CHF</small></span></label>
+        </div>
+        <button type="button" class="fx-more-btn" id="fxMoreBtn" aria-expanded="false" aria-controls="fxMore">展開全部 17 種幣別</button>
+      </fieldset>
+      <fieldset>
+        <legend>換算方向</legend>
+        <input type="hidden" name="dir" value="to-twd">
+        <div class="fx-dir">
+          <span class="fx-dir-txt" id="fxDirTxt">日圓 → 新台幣</span>
+          <button type="button" class="fx-swap" id="fxSwap" aria-label="切換換算方向">⇄ 切換方向</button>
+        </div>
+      </fieldset>
       <div class="fields">
-        <label class="field">幣別<select name="cur"><option value="JPY">日圓（JPY）</option><option value="USD">美元（USD）</option><option value="KRW">韓元（KRW）</option><option value="EUR">歐元（EUR）</option><option value="CNY">人民幣（CNY）</option><option value="HKD">港幣（HKD）</option><option value="THB">泰銖（THB）</option><option value="VND">越南盾（VND）</option><option value="SGD">新加坡幣（SGD）</option><option value="GBP">英鎊（GBP）</option><option value="AUD">澳幣（AUD）</option><option value="CAD">加幣（CAD）</option><option value="NZD">紐西蘭幣（NZD）</option><option value="MYR">馬來西亞令吉（MYR）</option><option value="PHP">菲律賓披索（PHP）</option><option value="IDR">印尼盾（IDR）</option><option value="CHF">瑞士法郎（CHF）</option></select></label>
-        <label class="field">換算方向<select name="dir"><option value="to-twd">外幣換台幣</option><option value="from-twd">台幣換外幣</option></select></label>
+        <label class="field"><span id="fxAmtLabel">金額</span><input name="amount" inputmode="decimal" value="10000"></label>
         <label class="field">匯率類型<select name="kind"><option value="market">市場參考</option><option value="cash">銀行現金（自行輸入）</option><option value="spot">銀行即期（自行輸入）</option></select></label>
-        <label class="field">金額<input name="amount" inputmode="decimal" value="10000"></label>
-        <label class="field" id="fxRateLabel">匯率（1 外幣 ＝ ? 新台幣）<input name="rate" inputmode="decimal"></label>
+        <div class="field fx-rate-field">
+          <label class="field"><span id="fxRateLabel">匯率（1 外幣 ＝ ? 新台幣）</span><input name="rate" inputmode="decimal"></label>
+          <div class="fx-rate-tools"><button type="button" class="copy" id="fxRateReset" hidden>改回參考匯率</button><span class="note" id="fxKindNote"></span></div>
+        </div>
       </div>
-      <p class="note" id="fxKindNote" style="margin:0"></p>
-      <div class="result" id="fxOut" aria-live="polite"></div>
+      <div class="result fx-result" id="fxOut" aria-live="polite"></div>
     </form>
     <p class="note" style="margin-top:8px">頁面只會向匯率資料來源下載公開匯率，你輸入的金額和銀行匯率只存在你的瀏覽器裡，不會傳出去。</p>
   </section>
@@ -278,6 +313,7 @@
       <tbody>
         <tr><td>2026/11/03</td><td>上線：17 種外幣與新台幣互換，可自行填入銀行牌告匯率</td></tr>
         <tr><td>2026/11/04</td><td>顯示參考匯率實際更新時間與資料狀態（過期、連線失敗提醒）；新增匯率類型（市場參考、銀行現金、銀行即期）、銀行換匯成本比較、刷卡和換現金比較、複製換算結果；依幣別處理小數位數；補充國外交易手續費與 DCC 說明</td></tr>
+        <tr><td>2026/11/25</td><td style="white-space:normal">改版：常用幣別卡片（其他幣別可展開）、一鍵切換換算方向、可直接修改匯率並改回參考匯率、常用面額點選帶入、複製金額</td></tr>
       </tbody>
     </table></div>
   </section>
@@ -323,7 +359,7 @@
 
 <footer><a href="/about/">關於我們</a> · <a href="/privacy/">隱私權政策</a> · <a href="/disclosure/">聯盟連結揭露</a><br>放假日曆｜台灣生活資訊與免費試算工具。<br>本工具試算結果僅供參考。市場參考匯率不是銀行牌告，實際換匯金額、手續費與刷卡入帳金額，以銀行及發卡機構公告為準。</footer>
 <script src="/assets/tools/calc.js?v=12"></script>
-<script src="/assets/tools/ui.js?v=20"></script>
+<script src="/assets/tools/ui.js?v=21"></script>
 <!-- Cloudflare Web Analytics --><script type='module' src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token": "4c058fe6d8d047d290cd5fe7c73a3d15"}'></script><!-- End Cloudflare Web Analytics -->
 </body>
 </html>

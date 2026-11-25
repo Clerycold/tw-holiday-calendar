@@ -51,7 +51,7 @@ ${faq.map(([q, a]) => `    <details><summary>${q}</summary><p>${a}</p></details>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700;900&display=swap">
 <link rel="stylesheet" href="/assets/site.css?v=9">
-<link rel="stylesheet" href="/assets/tools/tools.css?v=7">
+<link rel="stylesheet" href="/assets/tools/tools.css?v=8">
 <script type="application/ld+json">
 ${JSON.stringify({ "@context": "https://schema.org", "@graph": graph }, null, 1)}
 </script>
@@ -71,7 +71,7 @@ ${path === "/tools/" ? "" : related(path)}
 
 <footer><a href="/about/">關於我們</a> · <a href="/privacy/">隱私權政策</a> · <a href="/disclosure/">聯盟連結揭露</a><br>放假日曆｜台灣生活資訊與免費試算工具。<br>${disclaimer || "本站試算結果僅供參考，實際金額以主管機關規定、公司制度及官方系統計算為準。"}</footer>
 ${scripts ? `<script src="/assets/tools/calc.js?v=12"></script>
-<script src="/assets/tools/ui.js?v=20"></script>` : ""}
+<script src="/assets/tools/ui.js?v=21"></script>` : ""}
 <!-- Cloudflare Web Analytics --><script type='module' src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token": "4c058fe6d8d047d290cd5fe7c73a3d15"}'></script><!-- End Cloudflare Web Analytics -->
 </body>
 </html>
@@ -1717,6 +1717,9 @@ ${nhiRows}
 
 // ---------------- 匯率換算 ----------------
 const CUR = [["JPY", "日圓"], ["USD", "美元"], ["KRW", "韓元"], ["EUR", "歐元"], ["CNY", "人民幣"], ["HKD", "港幣"], ["THB", "泰銖"], ["VND", "越南盾"], ["SGD", "新加坡幣"], ["GBP", "英鎊"], ["AUD", "澳幣"], ["CAD", "加幣"], ["NZD", "紐西蘭幣"], ["MYR", "馬來西亞令吉"], ["PHP", "菲律賓披索"], ["IDR", "印尼盾"], ["CHF", "瑞士法郎"]];
+// 台灣最常換的 8 種放在「常用幣別」，其他預設收合
+const FX_COMMON = ["JPY", "USD", "KRW", "THB", "EUR", "HKD", "CNY", "SGD"];
+const fxCurCard = ([c, n]) => `          <label class="fx-cur"><input type="radio" name="cur" value="${c}"${c === "JPY" ? " checked" : ""}><span><b>${n}</b><small>${c}</small></span></label>`;
 const fxFaq = [
   ["這裡的匯率和銀行一樣嗎？", "不一樣。預設帶入的是國際市場參考匯率（中間價，每天更新一次），不是任何銀行的牌告。銀行換匯會再加上買賣價差，要精準換算，請把匯率類型改成「銀行現金」或「銀行即期」，填入銀行牌告匯率。"],
   ["銀行的買入、賣出匯率要看哪一個？", "站在銀行的角度看：你拿台幣去買外幣，看銀行的「賣出」匯率；你把外幣換回台幣，看銀行的「買入」匯率。賣出匯率比較高、買入比較低，中間的差價就是換匯成本。"],
@@ -1727,7 +1730,7 @@ const fxFaq = [
   ["DCC 動態貨幣轉換是什麼？", "DCC 是在國外刷卡時，店家直接幫你換成台幣結帳。看起來清楚，但匯率通常比較差，而且仍可能被收國外交易手續費。店家詢問時，選擇用當地貨幣付款通常比較划算。"],
 ];
 const fxPage = page({
-  path: "/tools/currency/", crumb: "匯率換算", updated: "2026-11-04",
+  path: "/tools/currency/", crumb: "匯率換算", updated: "2026-11-25",
   title: "匯率換算｜日圓、美元、韓元換台幣多少，銀行換匯、刷卡成本比較",
   h1: "匯率換算<br>日圓、美元、韓元換台幣多少？",
   desc: "匯率換算工具：日圓、美元、韓元、歐元等 17 種外幣與新台幣互換，可選市場參考、銀行現金或即期匯率；比較各家銀行換匯成本、刷卡和換現金哪個划算，並顯示參考匯率實際更新時間。",
@@ -1739,16 +1742,36 @@ const fxPage = page({
   <section>
     <h2>外幣、台幣換算</h2>
     <div class="note" id="fxStatus" style="border:1px solid var(--rule);border-radius:8px;padding:10px 12px;margin-bottom:12px;line-height:1.7">正在取得參考匯率…</div>
-    <form class="tool" data-tool="fx" autocomplete="off" novalidate>
+    <form class="tool fx-tool" data-tool="fx" autocomplete="off" novalidate>
+      <fieldset>
+        <legend>選擇幣別</legend>
+        <div class="fx-cur-head">常用幣別</div>
+        <div class="fx-cur-grid">
+${CUR.filter(([c]) => FX_COMMON.includes(c)).sort((a, b) => FX_COMMON.indexOf(a[0]) - FX_COMMON.indexOf(b[0])).map(fxCurCard).join("\n")}
+        </div>
+        <div class="fx-cur-head" id="fxMoreHead" hidden>其他幣別</div>
+        <div class="fx-cur-grid" id="fxMore" hidden>
+${CUR.filter(([c]) => !FX_COMMON.includes(c)).map(fxCurCard).join("\n")}
+        </div>
+        <button type="button" class="fx-more-btn" id="fxMoreBtn" aria-expanded="false" aria-controls="fxMore">展開全部 ${CUR.length} 種幣別</button>
+      </fieldset>
+      <fieldset>
+        <legend>換算方向</legend>
+        <input type="hidden" name="dir" value="to-twd">
+        <div class="fx-dir">
+          <span class="fx-dir-txt" id="fxDirTxt">日圓 → 新台幣</span>
+          <button type="button" class="fx-swap" id="fxSwap" aria-label="切換換算方向">⇄ 切換方向</button>
+        </div>
+      </fieldset>
       <div class="fields">
-        <label class="field">幣別<select name="cur">${CUR.map(([c, n]) => `<option value="${c}">${n}（${c}）</option>`).join("")}</select></label>
-        <label class="field">換算方向<select name="dir"><option value="to-twd">外幣換台幣</option><option value="from-twd">台幣換外幣</option></select></label>
+        <label class="field"><span id="fxAmtLabel">金額</span><input name="amount" inputmode="decimal" value="10000"></label>
         <label class="field">匯率類型<select name="kind"><option value="market">市場參考</option><option value="cash">銀行現金（自行輸入）</option><option value="spot">銀行即期（自行輸入）</option></select></label>
-        <label class="field">金額<input name="amount" inputmode="decimal" value="10000"></label>
-        <label class="field" id="fxRateLabel">匯率（1 外幣 ＝ ? 新台幣）<input name="rate" inputmode="decimal"></label>
+        <div class="field fx-rate-field">
+          <label class="field"><span id="fxRateLabel">匯率（1 外幣 ＝ ? 新台幣）</span><input name="rate" inputmode="decimal"></label>
+          <div class="fx-rate-tools"><button type="button" class="copy" id="fxRateReset" hidden>改回參考匯率</button><span class="note" id="fxKindNote"></span></div>
+        </div>
       </div>
-      <p class="note" id="fxKindNote" style="margin:0"></p>
-      <div class="result" id="fxOut" aria-live="polite"></div>
+      <div class="result fx-result" id="fxOut" aria-live="polite"></div>
     </form>
     <p class="note" style="margin-top:8px">頁面只會向匯率資料來源下載公開匯率，你輸入的金額和銀行匯率只存在你的瀏覽器裡，不會傳出去。</p>
   </section>
@@ -1851,6 +1874,7 @@ const fxPage = page({
       <tbody>
         <tr><td>2026/11/03</td><td>上線：17 種外幣與新台幣互換，可自行填入銀行牌告匯率</td></tr>
         <tr><td>2026/11/04</td><td>顯示參考匯率實際更新時間與資料狀態（過期、連線失敗提醒）；新增匯率類型（市場參考、銀行現金、銀行即期）、銀行換匯成本比較、刷卡和換現金比較、複製換算結果；依幣別處理小數位數；補充國外交易手續費與 DCC 說明</td></tr>
+        <tr><td>2026/11/25</td><td style="white-space:normal">改版：常用幣別卡片（其他幣別可展開）、一鍵切換換算方向、可直接修改匯率並改回參考匯率、常用面額點選帶入、複製金額</td></tr>
       </tbody>
     </table></div>
   </section>`,

@@ -707,6 +707,8 @@
     const NAMES = {USD:"美元",JPY:"日圓",KRW:"韓元",EUR:"歐元",CNY:"人民幣",HKD:"港幣",GBP:"英鎊",AUD:"澳幣",SGD:"新加坡幣",THB:"泰銖",VND:"越南盾",MYR:"馬來西亞令吉",PHP:"菲律賓披索",CAD:"加幣",NZD:"紐西蘭幣",CHF:"瑞士法郎",IDR:"印尼盾"};
     // 沒有輔幣（實務上不用小數）的幣別
     const NODEC = new Set(["JPY","KRW","VND","IDR"]);
+    // 常用面額：幣值小的幣別用大面額
+    const DENOM = {JPY:[1000,5000,10000,50000], KRW:[1000,10000,50000,100000], VND:[10000,100000,500000,1000000], IDR:[10000,50000,100000,1000000]};
     // 內部全程不四捨五入，只在顯示時依幣別格式化
     const fmtC = (v, code) => v.toLocaleString("zh-TW", {maximumFractionDigits: code === "TWD" ? 2 : NODEC.has(code) ? 0 : 2});
     const fmtR = v => (+v.toPrecision(6)).toLocaleString("zh-TW", {maximumFractionDigits: 6});
@@ -728,48 +730,71 @@
         ${stale ? `<br><span class="warn">這份匯率已經超過 48 小時沒有更新，只能當作大概參考，換匯前請查銀行牌告。</span>` : state === "fail" ? `<br><span class="warn">目前連不上資料來源，以上是上次成功取得的資料。</span>` : ""}
         <br>資料來源：<a href="https://www.exchangerate-api.com" rel="noopener" target="_blank">Rates By Exchange Rate API</a> · 每日更新 · 非銀行即時牌告`;
     }
+    let custom = false;   // 市場參考模式下，使用者自己改過匯率
+    let lastRes = null;   // 目前換算結果，切換方向時帶入金額
+    const toTwd = () => f.dir.value === "to-twd";
+    const kindName = () => f.kind.value === "market" ? (custom ? "自訂" : "市場參考") : KIND[f.kind.value];
     function rateLabel(){
-      const c = f.cur.value, k = f.kind.value, twd = f.dir.value === "to-twd";
+      const c = f.cur.value, k = f.kind.value, twd = toTwd();
       const side = k === "market" ? "" : twd ? "買入" : "賣出";
-      return `${KIND[k]}${side}匯率（1 ${NAMES[c]} ＝ ? 新台幣）`;
+      return `${kindName()}${side}匯率（1 ${NAMES[c]} ＝ ? 新台幣）`;
+    }
+    function syncDir(){
+      const n = NAMES[f.cur.value];
+      $("#fxDirTxt").textContent = toTwd() ? `${n} → 新台幣` : `新台幣 → ${n}`;
+      $("#fxAmtLabel").textContent = `${toTwd() ? n : "新台幣"}金額`;
+    }
+    function hint(){
+      const k = f.kind.value, twd = toTwd(), m = mid(f.cur.value);
+      const side = twd ? "外幣換回台幣，銀行通常看「買入」匯率" : "台幣買外幣，銀行通常看「賣出」匯率";
+      $("#fxRateLabel").textContent = rateLabel();
+      $("#fxRateReset").hidden = !m || (k === "market" && !custom);
+      $("#fxKindNote").textContent = k === "market" && !custom ? `目前是市場參考匯率（中間價）。${side}，可以直接把匯率改成銀行牌告。`
+        : k === "market" ? `正在使用自訂匯率${m ? `（市場參考約 ${fmtR(m)}）` : ""}。${side}。`
+        : `請填銀行的「${k === "cash" ? "現金" : "即期"}${twd ? "買入" : "賣出"}」匯率。${side}；${k === "cash" ? "現金是換實體鈔票，價差通常比即期大" : "即期用在外幣帳戶之間轉帳"}。`;
     }
     const bankKey = () => `${f.cur.value}|${f.kind.value}|${f.dir.value}`;
     function syncRate(){
       const k = f.kind.value, m = mid(f.cur.value);
-      $("#fxRateLabel").firstChild.textContent = rateLabel();
-      f.rate.readOnly = k === "market";
-      if(k === "market") f.rate.value = m ? +m.toPrecision(6) : "";
+      syncDir();
+      if(k === "market"){ if(!custom) f.rate.value = m ? +m.toPrecision(6) : ""; f.rate.placeholder = "請填匯率"; }
       else { f.rate.value = bank[bankKey()] || ""; f.rate.placeholder = m ? `市場參考約 ${fmtR(m)}，請填銀行牌告` : "請填銀行牌告匯率"; }
-      $("#fxKindNote").textContent = k === "market" ? "使用國際市場參考匯率（中間價），適合初步估算；銀行實際換匯會再加上買賣價差。"
-        : `請填銀行的「${k === "cash" ? "現金" : "即期"}${f.dir.value === "to-twd" ? "買入" : "賣出"}」匯率。${f.dir.value === "to-twd" ? "外幣換回台幣看銀行買入" : "用台幣買外幣看銀行賣出"}；${k === "cash" ? "現金是換實體鈔票，價差通常比即期大" : "即期用在外幣帳戶之間轉帳"}。`;
+      hint();
     }
     function run(){
       save("fxForm", [f.cur.value, f.dir.value, f.amount.value, f.kind.value]);
       const c = f.cur.value, k = f.kind.value, twd = f.dir.value === "to-twd";
       if(k !== "market") { const v = dec(f.rate); if(v) bank[bankKey()] = f.rate.value; else delete bank[bankKey()]; save("fxBank", bank); }
-      const rate = dec(f.rate), amt = dec(f.amount), m = mid(c);
-      if(!rate || isNaN(rate) || rate <= 0){ out.innerHTML = `<div class="note">${k === "market" ? (state === "loading" ? "正在取得參考匯率…" : "目前沒有參考匯率，請改用銀行匯率並自行輸入。") : "請在上方填入銀行牌告匯率。"}</div>`; runAll(); return; }
+      const rate = dec(f.rate), amt = dec(f.amount), m = mid(c), own = k !== "market" || custom;
+      lastRes = null;
+      if(!rate || isNaN(rate) || rate <= 0){ out.innerHTML = `<div class="note">${k === "market" && !custom ? (state === "loading" ? "正在取得參考匯率…" : "目前沒有參考匯率，請直接填入銀行牌告匯率。") : `請在上方填入匯率${m ? "，或按「改回參考匯率」" : ""}。`}</div>`; runAll(); return; }
       if(amt === null || isNaN(amt) || amt <= 0){ out.innerHTML = `<div class="note">輸入${twd ? NAMES[c] : "新台幣"}金額就會換算。</div>`; runAll(); return; }
       const res = twd ? amt*rate : amt/rate, from = twd ? c : "TWD", to = twd ? "TWD" : c;
       const nm = x => x === "TWD" ? "新台幣" : NAMES[x];
-      const examples = (twd ? [100, 1000, 10000, 50000] : [1000, 10000, 30000, 100000]).map(v =>
-        `<dt>${fmtC(v, from)} ${nm(from)}</dt><dd>${fmtC(twd ? v*rate : v/rate, to)} ${nm(to)}</dd>`).join("");
+      const plain = v => String(+v.toFixed(to === "TWD" ? 2 : NODEC.has(to) ? 0 : 2));
+      lastRes = plain(res);
+      const denoms = (twd ? (DENOM[c] || [100, 500, 1000, 5000]) : [1000, 5000, 10000, 30000]).map(v =>
+        `<button type="button" class="fx-denom" data-v="${v}" aria-pressed="${v === amt}"><small>${fmtC(v, from)} ${nm(from)} ≈</small><b>${fmtC(twd ? v*rate : v/rate, to)}</b></button>`).join("");
       let spread = "";
-      if(k !== "market" && m && Math.abs(rate - m)/m > 0.2) spread = `<div class="warn">你填的匯率和${NAMES[c]}的市場參考價（${fmtR(m)}）差超過 2 成，請確認幣別是不是選對了。</div>`;
-      else if(k !== "market" && m){
+      if(own && m && Math.abs(rate - m)/m > 0.2) spread = `<div class="warn">你填的匯率和${NAMES[c]}的市場參考價（${fmtR(m)}）差超過 2 成，請確認幣別是不是選對了。</div>`;
+      else if(own && m){
         const cost = twd ? amt*m - res : amt - res*m, pctv = Math.abs(rate - m)/m*100;
         spread = `<div class="note">和市場參考價（${fmtR(m)}）相比，這筆換匯的價差成本約 <b>${fmtC(Math.abs(cost), "TWD")} 元新台幣</b>（約 ${pctv.toFixed(2)}%）。${(twd ? rate > m : rate < m) ? `<span class="warn">你填的匯率比市場參考價還有利，請確認是不是填成另一邊的價格。</span>` : ""}</div>`;
       }
+      const kn = kindName();
       out.innerHTML = `
         <div>${fmtC(amt, from)} ${nm(from)} 約等於</div>
         <div class="big">${fmtC(res, to)} <small>${nm(to)}</small></div>
-        <dl class="kv">${examples}</dl>
-        <div class="note">使用${KIND[k]}${k === "market" ? "" : twd ? "買入" : "賣出"}匯率 1 ${NAMES[c]} ＝ ${fmtR(rate)} 新台幣換算。${k === "market" ? "這是國際市場參考價，不是銀行牌告；到銀行實際換匯，買外幣會比較貴、賣外幣會拿比較少。" : ""}</div>
+        <div class="fx-acts"><button type="button" class="copy" id="fxCopyAmt">複製金額</button><button type="button" class="copy" id="fxCopy">複製完整結果</button></div>
+        <div class="note">計算基準：${kn}${k === "market" ? "" : twd ? "買入" : "賣出"}匯率 1 ${NAMES[c]} ＝ ${fmtR(rate)} 新台幣。${k === "market" && !custom ? "這是國際市場參考價，不是銀行牌告；到銀行實際換匯，買外幣會比較貴、賣外幣會拿比較少。" : ""}</div>
         ${spread}
-        <div><button type="button" class="copy" id="fxCopy" style="padding:8px 12px">複製換算結果</button></div>`;
+        <div class="fx-cur-head">常用面額（點一下帶入，換算單位：${nm(to)}）</div>
+        <div class="fx-denoms">${denoms}</div>`;
+      const flash = (b, t) => { b.textContent = "已複製"; setTimeout(() => b.textContent = t, 1500); };
+      $("#fxCopyAmt").onclick = e => { const b = e.currentTarget; if(navigator.clipboard) navigator.clipboard.writeText(lastRes).then(() => flash(b, "複製金額"), () => {}); };
       $("#fxCopy").onclick = e => {
-        const text = `${fmtC(amt, from)} ${nm(from)} ≈ ${fmtC(res, to)} ${nm(to)}\n匯率：1 ${NAMES[c]} ＝ ${fmtR(rate)} 新台幣（${KIND[k]}${k === "market" ? (data ? `，資料時間 ${tpe(data.t)}` : "") : twd ? "買入" : "賣出"}）\n${location.href}`;
-        const b = e.target; if(navigator.clipboard) navigator.clipboard.writeText(text).then(() => { b.textContent = "已複製"; setTimeout(() => b.textContent = "複製換算結果", 1500); }, () => {});
+        const text = `${fmtC(amt, from)} ${nm(from)} ≈ ${fmtC(res, to)} ${nm(to)}\n匯率：1 ${NAMES[c]} ＝ ${fmtR(rate)} 新台幣（${kn}${k === "market" ? (data && !custom ? `，資料時間 ${tpe(data.t)}` : "") : twd ? "買入" : "賣出"}）\n${location.origin}${location.pathname}`;
+        const b = e.currentTarget; if(navigator.clipboard) navigator.clipboard.writeText(text).then(() => flash(b, "複製完整結果"), () => {});
       };
       runAll();
     }
@@ -824,12 +849,29 @@
     function runAll(){ runCmp(); runCard(); }
 
     const s = load("fxForm");
-    if(s){ if(s[0] && NAMES[s[0]]) f.cur.value = s[0]; if(s[1]) f.dir.value = s[1]; if(s[2]) f.amount.value = s[2]; if(s[3] && KIND[s[3]]) f.kind.value = s[3]; }
+    if(s){ if(s[0] && NAMES[s[0]]) f.cur.value = s[0]; if(s[1] === "to-twd" || s[1] === "from-twd") f.dir.value = s[1]; if(s[2]) f.amount.value = s[2]; if(s[3] && KIND[s[3]]) f.kind.value = s[3]; }
+    // 其他幣別：預設收合；選中的幣別在裡面就自動展開
+    const more = $("#fxMore"), moreHead = $("#fxMoreHead"), moreBtn = $("#fxMoreBtn");
+    const setMore = open => { more.hidden = moreHead.hidden = !open; moreBtn.setAttribute("aria-expanded", String(open)); moreBtn.textContent = open ? "收合其他幣別" : `展開全部 ${Object.keys(NAMES).length} 種幣別`; };
+    setMore(!!more.querySelector("input:checked"));
+    moreBtn.addEventListener("click", () => setMore(more.hidden));
+    $("#fxSwap").addEventListener("click", () => {
+      const r = lastRes;
+      f.dir.value = toTwd() ? "from-twd" : "to-twd";
+      if(r) f.amount.value = r;
+      syncRate(); run();
+    });
+    $("#fxRateReset").addEventListener("click", () => { custom = false; if(f.kind.value !== "market") f.kind.value = "market"; syncRate(); run(); });
+    out.addEventListener("click", e => { const b = e.target.closest(".fx-denom"); if(b){ f.amount.value = b.dataset.v; run(); } });
     const restore = (form, key, names) => { const v = load(key); if(form && v) names.forEach((x, j) => { if(v[j] != null && v[j] !== "") form.elements[x].value = v[j]; }); };
     restore(cmp, "fxCmp", ["act","amt","n1","r1","f1","n2","r2","f2","n3","r3","f3"]);
     restore(card, "fxCard", ["amt","crate","fee","back","cash"]);
-    ["cur","dir","kind"].forEach(x => f[x].addEventListener("change", () => { syncRate(); run(); }));
-    fx.addEventListener("input", e => { if(!["cur","dir","kind"].includes(e.target.name)) run(); });
+    fx.addEventListener("change", e => { if(e.target.name === "cur" || e.target.name === "kind"){ custom = false; syncRate(); run(); } });
+    fx.addEventListener("input", e => {
+      if(["cur","dir","kind"].includes(e.target.name)) return;
+      if(e.target.name === "rate" && f.kind.value === "market"){ custom = true; hint(); }
+      run();
+    });
     fx.addEventListener("submit", e => { e.preventDefault(); run(); });
     [cmp, card].forEach(x => { if(x){ x.addEventListener("input", runAll); x.addEventListener("change", runAll); x.addEventListener("submit", e => { e.preventDefault(); runAll(); }); } });
     status(); syncRate(); run();
