@@ -122,10 +122,11 @@ const ART = {
   qingjia: ["/2027/qingjia/", "2027 全年請假攻略", "9 個連假、特休 3～14 天怎麼排"],
   chunjie: ["/2027/chunjie/", "2027 春節連假攻略", "請 5 天休 16 天，勞工補假與加班費"],
   landTax: ["/2026/land-value-tax/", "2026 地價稅試算與繳納", "公告地價、自用住宅 2‰、持分面積"],
+  workdays2027: ["/2027/workdays/", "2027 每月工作天數", "1～12 月上班天數、標準工時、國定假日一覽"],
   minWage: ["/news/2027-minimum-wage/", "2027 最低工資調漲重點", "月薪 30,900、時薪 205，哪些錢可以算進去"],
 };
 const TOOL_ART = {
-  "/tools/annual-leave/": ["qingjia", "chunjie"], "/tools/overtime/": ["minWage", "chunjie", "qingjia"], "/tools/workdays/": ["qingjia"],
+  "/tools/annual-leave/": ["qingjia", "chunjie"], "/tools/overtime/": ["minWage", "chunjie", "qingjia"], "/tools/workdays/": ["workdays2027", "qingjia"],
   "/tools/income-tax/": ["landTax"], "/tools/take-home-pay/": ["minWage", "landTax"], "/tools/year-end-bonus/": ["chunjie", "minWage"], "/tools/insurance/": ["minWage"], "/tools/loan/": ["landTax"], "/tools/unit/": ["landTax"],
   "/tools/currency/": ["qingjia", "chunjie"],
 };
@@ -617,6 +618,7 @@ const workdays = page({
 
   <section>
     <h2>到年底還剩幾個工作天？</h2>
+    <p>想直接看每個月有幾個工作天、第一個和最後一個上班日，請看 <a href="/2027/workdays/">2027 每月工作天數一覽</a>（1～12 月各有獨立頁面與 Excel 公式）。</p>
     <p>從表格左邊的日期（含當天）算到當年 12 月 31 日，已扣除週末、國定假日與補假，以週休二日計算。要從今天算，按上方計算機的「<b>今天到年底</b>」就好。</p>
     <div class="tbl"><table>
       <thead><tr><th>起算日</th><th>到年底剩</th><th>當月工作天</th></tr></thead>
